@@ -1420,48 +1420,87 @@ function render(data) {
         barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
           .attr("fill", COL.coral).attr("rx", 2);
 
-        /* Étiquette non-UE : à l'intérieur si la barre est assez longue, sinon après */
+        /* Libellés sur barre : même logique pour Non-UE, UE+ et UE- (blanc centré + contour, plus de gris hors barre) */
+        const yNeuMid = ys + (half - 1) / 2;
+        const yUeMid = ys + half + 1 + (half - 2) / 2;
         const neuBarEnd = Math.max(x0, x(r.nonEu));
-        const neuLabelInside = wNeu > 60;
-        g.append("text")
-          .attr("x", neuLabelInside ? neuBarEnd - 5 : neuBarEnd + 5)
-          .attr("y", ys + half * 0.65)
-          .attr("text-anchor", neuLabelInside ? "end" : "start")
-          .attr("fill", neuLabelInside ? "#fafaf9" : COL.ink)
-          .attr("font-size", 7.5).attr("font-weight", "600")
-          .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
 
-        /* Étiquette UE : positifs inchangés ; négatifs : toujours centré sur la barre corail, blanc + contour (lisible sur le saumon) */
-        const euIsNeg = r.eu < 0;
-        const euLabelInsidePos = !euIsNeg && wEu > 40;
-        const yUe = ys + half + 1 + (half - 2) / 2;
-        if (euIsNeg) {
-          const fs = wEu < 22 ? 7 : 8;
+        /* Non-UE (prune) : centré dans la barre ; si trop étroit, juste après la barre avec halo */
+        const fsNeu = wNeu < 22 ? 7 : 8;
+        if (wNeu >= 14) {
           g.append("text")
-            .attr("class", "uk-eu-neg-value")
+            .attr("class", "uk-bar-value")
+            .attr("x", x0 + wNeu / 2)
+            .attr("y", yNeuMid)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fafaf9")
+            .attr("stroke", "rgba(35, 15, 28, 0.55)")
+            .attr("stroke-width", 0.65)
+            .attr("paint-order", "stroke fill")
+            .attr("font-size", fsNeu)
+            .attr("font-weight", "700")
+            .attr("font-variant-numeric", "tabular-nums")
+            .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
+        } else {
+          g.append("text")
+            .attr("class", "uk-bar-value-fallback")
+            .attr("x", neuBarEnd + 5)
+            .attr("y", yNeuMid)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "start")
+            .attr("fill", COL.ink)
+            .attr("stroke", "#fafaf9")
+            .attr("stroke-width", 2.5)
+            .attr("paint-order", "stroke fill")
+            .attr("font-size", 7.5).attr("font-weight", "700")
+            .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
+        }
+
+        const euIsNeg = r.eu < 0;
+        const fsUe = wEu < 22 ? 7 : 8;
+        if (euIsNeg) {
+          g.append("text")
+            .attr("class", "uk-bar-value")
             .attr("x", xEu + wEu / 2)
-            .attr("y", yUe)
+            .attr("y", yUeMid)
             .attr("dy", "0.35em")
             .attr("text-anchor", "middle")
             .attr("fill", "#fafaf9")
             .attr("stroke", "rgba(60, 28, 48, 0.55)")
             .attr("stroke-width", 0.65)
             .attr("paint-order", "stroke fill")
-            .attr("font-size", fs)
+            .attr("font-size", fsUe)
             .attr("font-weight", "700")
             .attr("font-variant-numeric", "tabular-nums")
             .text(`${r.eu}k`);
-        } else {
-          const euLabelX = euLabelInsidePos ? x0 + wEu - 5 : x0 + wEu + 5;
-          const euAnchor = euLabelInsidePos ? "end" : "start";
-          const euFill = euLabelInsidePos ? "#fafaf9" : COL.muted;
+        } else if (wEu >= 14) {
           g.append("text")
-            .attr("x", euLabelX)
-            .attr("y", yUe)
+            .attr("class", "uk-bar-value")
+            .attr("x", x0 + wEu / 2)
+            .attr("y", yUeMid)
             .attr("dy", "0.35em")
-            .attr("text-anchor", euAnchor)
-            .attr("fill", euFill)
-            .attr("font-size", 7.5).attr("font-weight", "600")
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fafaf9")
+            .attr("stroke", "rgba(60, 28, 48, 0.55)")
+            .attr("stroke-width", 0.65)
+            .attr("paint-order", "stroke fill")
+            .attr("font-size", fsUe)
+            .attr("font-weight", "700")
+            .attr("font-variant-numeric", "tabular-nums")
+            .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
+        } else {
+          g.append("text")
+            .attr("class", "uk-bar-value-fallback")
+            .attr("x", x0 + wEu + 5)
+            .attr("y", yUeMid)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "start")
+            .attr("fill", COL.ink)
+            .attr("stroke", "#fafaf9")
+            .attr("stroke-width", 2.5)
+            .attr("paint-order", "stroke fill")
+            .attr("font-size", 7.5).attr("font-weight", "700")
             .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
         }
 

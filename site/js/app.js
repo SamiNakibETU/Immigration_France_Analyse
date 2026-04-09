@@ -1352,7 +1352,8 @@ function render(data) {
 
       const w = 900;
       /* Marge droite généreuse pour que les étiquettes des grandes barres restent dans le SVG */
-      const margin = { top: 16, right: 16, bottom: 60, left: 56 };
+      /* Marge gauche un peu plus large pour les années ; l'axe x s'étend vers les négatifs pour éviter le chevauchement barres UE / années */
+      const margin = { top: 16, right: 16, bottom: 60, left: 64 };
       const innerW = w - margin.left - margin.right;
       const rowH = 32;
       const years = ukOrigin.map(r => r.year);
@@ -1373,10 +1374,17 @@ function render(data) {
       const barsG = g.append("g").attr("clip-path", `url(#${clipIdUk})`);
 
       const allVals = ukOrigin.flatMap(r => [r.eu, r.nonEu]);
-      const xMax = d3.max(allVals.filter(v => v > 0));
-      const xMin = d3.min(allVals.filter(v => v < 0));
-      /* Domaine : légèrement au-delà du max pour que la barre 2023 (1058k) reste dans le cadre */
-      const x = d3.scaleLinear().domain([Math.min(0, xMin - 10), xMax * 1.02]).range([0, innerW]);
+      const xMax = d3.max(allVals.filter((v) => v > 0));
+      const xMinNeg = d3.min(allVals.filter((v) => v < 0));
+      /*
+       * Étendre fortement le côté négatif du domaine : la ligne zéro se décale vers la droite,
+       * les barres et libellés UE négatifs ne se superposent plus aux années (à gauche).
+       */
+      const domainHi = xMax * 1.02;
+      const domainLo = Number.isFinite(xMinNeg)
+        ? Math.min(xMinNeg - 20, -130)
+        : 0;
+      const x = d3.scaleLinear().domain([domainLo, domainHi]).range([0, innerW]);
       const y = d3.scaleBand().domain(years.map(String)).range([0, innerH]).paddingInner(0.25).paddingOuter(0.06);
       const x0 = x(0);
 

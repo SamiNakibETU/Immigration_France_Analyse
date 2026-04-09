@@ -38,4 +38,8 @@ output_final/   → Figures SVG + PNG exportées
 
 ## Déploiement Vercel
 
-Importer le repo sur [vercel.com](https://vercel.com), définir **Root Directory = `site`**, laisser Build Command vide.
+1. Importer le repo sur [vercel.com/new](https://vercel.com/new).
+2. **Root Directory** : `site` (obligatoire — le `vercel.json` est dans ce dossier).
+3. Laisser **Build Command** et **Output Directory** vides (site statique : `index.html` à la racine du dossier).
+
+Ne pas utiliser de build qui copie vers `.vercel-output` : ce dossier n’existe pas dans Git et n’est pas nécessaire.

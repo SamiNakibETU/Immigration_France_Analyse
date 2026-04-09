@@ -1467,6 +1467,253 @@ function render(data) {
       );
     }
   }
+
+  /* ── Angle 1 : Tendance longue 2005-2024 avec mandats présidentiels ── */
+  {
+    const rows = data.migrationSelection || [];
+    if (rows.length) {
+      const art = main.append("article").attr("class", "figure");
+      figureHead(art, {
+        title: "Vingt ans de données, la même image : la France n'a pas attendu la droite pour fermer ses portes",
+        sub: "Solde migratoire net pour 1 000 habitants, France et Danemark, 2005-2024",
+      });
+      const host = art.append("div").attr("class", "chart-host");
+      const w = 900;
+      const margin = { top: 28, right: 220, bottom: 52, left: 64 };
+      const innerW = w - margin.left - margin.right;
+      const h = 420;
+      const innerH = h - margin.top - margin.bottom;
+
+      const svg = host.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const keys = ["FR", "DK"];
+      const pts = keys.map((k) => pointsFromRows(rows, k));
+      const allY = pts.flat().map((p) => p.value);
+      const yLo = d3.min(allY) - 0.5;
+      const yHi = d3.max(allY) + 0.5;
+      const x = d3.scaleLinear().domain([2005, 2024]).range([0, innerW]);
+      const y = d3.scaleLinear().domain([yLo, yHi]).range([innerH, 0]);
+
+      /* Bandes mandats présidentiels / PM français */
+      const mandatsFR = [
+        { lo: 2005, hi: 2007, label: "Chirac",   color: "#e8e4df" },
+        { lo: 2007, hi: 2012, label: "Sarkozy",  color: "#f0ebe5" },
+        { lo: 2012, hi: 2017, label: "Hollande", color: "#e8e4df" },
+        { lo: 2017, hi: 2024, label: "Macron",   color: "#f0ebe5" },
+      ];
+      mandatsFR.forEach(({ lo, hi, label, color }) => {
+        const x1 = x(lo);
+        const x2 = Math.min(x(hi), innerW);
+        g.append("rect").attr("x", x1).attr("y", 0).attr("width", x2 - x1).attr("height", innerH)
+          .attr("fill", color).attr("opacity", 0.7);
+        g.append("text").attr("x", (x1 + x2) / 2).attr("y", -10)
+          .attr("text-anchor", "middle").attr("fill", COL.muted)
+          .attr("font-size", 8).attr("font-weight", "500").text(label);
+      });
+
+      /* Grille Y */
+      y.ticks(5).forEach((t) => {
+        g.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", y(t)).attr("y2", y(t))
+          .attr("stroke", COL.grid).attr("stroke-width", 0.6);
+        g.append("text").attr("x", -8).attr("y", y(t)).attr("dy", "0.35em")
+          .attr("text-anchor", "end").attr("fill", COL.muted).attr("font-size", 8.5).text(t);
+      });
+      /* Axe X */
+      [2005, 2008, 2011, 2014, 2017, 2020, 2024].forEach((yr) => {
+        g.append("text").attr("x", x(yr)).attr("y", innerH + 16).attr("text-anchor", "middle")
+          .attr("fill", COL.muted).attr("font-size", 8.5).text(yr);
+      });
+      g.append("text").attr("x", innerW / 2).attr("y", innerH + 38).attr("text-anchor", "middle")
+        .attr("fill", COL.muted).attr("font-size", 9).attr("font-weight", "500").text("Année");
+
+      /* Ligne zéro */
+      if (yLo < 0) {
+        g.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", y(0)).attr("y2", y(0))
+          .attr("stroke", COL.muted).attr("stroke-width", 0.5).attr("stroke-dasharray", "3,3");
+      }
+
+      /* Courbes */
+      const serDefs = [
+        { key: "FR", label: "France",   color: COL.blue, w: 2.8 },
+        { key: "DK", label: "Danemark", color: COL.red,  w: 2.2 },
+      ];
+      const clipIdLT = "clip-lt";
+      svg.append("defs").append("clipPath").attr("id", clipIdLT)
+        .append("rect").attr("x", 0).attr("y", -8).attr("width", innerW + 2).attr("height", innerH + 16);
+      const linesG = g.append("g").attr("clip-path", `url(#${clipIdLT})`);
+
+      const line = d3.line().x((d) => x(d.year)).y((d) => y(d.value)).curve(d3.curveLinear);
+      serDefs.forEach(({ key, label, color, w: lw }) => {
+        const serPts = pointsFromRows(rows, key).filter((p) => p.year >= 2005 && p.year <= 2024);
+        linesG.append("path").datum(serPts).attr("fill", "none")
+          .attr("stroke", color).attr("stroke-width", lw).attr("d", line);
+        /* Étiquette fin de courbe */
+        const last = serPts[serPts.length - 1];
+        if (last) {
+          g.append("text").attr("x", innerW + 10).attr("y", y(last.value)).attr("dy", "0.35em")
+            .attr("fill", color).attr("font-size", 9.5).attr("font-weight", "700").text(label);
+          g.append("text").attr("x", innerW + 10).attr("y", y(last.value) + 13).attr("dy", "0.35em")
+            .attr("fill", color).attr("font-size", 8).text(`${last.value.toFixed(1)}\u202f‰ (${last.year})`);
+        }
+      });
+
+      art.append("p").attr("class", "figure-foot").text(
+        "Sources : Eurostat, solde migratoire net harmonisé (CNMIGRATRT), pour 1 000 habitants. Les bandes de couleur indiquent les mandats présidentiels français. Lecture : quel que soit le gouvernement en place, la France est restée en dessous du Danemark sur l'ensemble de la période, y compris sous Sarkozy et Hollande."
+      );
+    }
+  }
+
+  /* ── Angle 2 : Premiers titres de séjour par motif (2022, pour 1 000 hab.) ── */
+  {
+    const permits = (data.nationalStats || {}).permitsMotif || [];
+    if (permits.length) {
+      const art = main.append("article").attr("class", "figure");
+      figureHead(art, {
+        title: "La France accueille peu parce qu'elle délivre peu de titres de travail",
+        sub: "Premiers titres de séjour par motif pour 1 000 habitants, 2022 (Eurostat migr_resfirst)",
+      });
+      const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
+
+      const w = 900;
+      const margin = { top: 20, right: 20, bottom: 72, left: 116 };
+      const innerW = w - margin.left - margin.right;
+      const rowH = 44;
+      const innerH = permits.length * rowH;
+      const h = innerH + margin.top + margin.bottom;
+      const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const motifs = ["travail", "famille", "etudes", "protection"];
+      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, protection: COL.coral };
+      const labels = { travail: "Travail", famille: "Famille", etudes: "Études", protection: "Protection" };
+
+      const xMax = d3.max(permits, (d) => motifs.reduce((s, m) => s + d[m], 0));
+      const x = d3.scaleLinear().domain([0, xMax * 1.08]).range([0, innerW]);
+      const y = d3.scaleBand().domain(permits.map((d) => d.pays)).range([0, innerH]).paddingInner(0.25).paddingOuter(0.1);
+
+      /* Grille */
+      x.ticks(6).forEach((t) => {
+        g.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", 0).attr("y2", innerH)
+          .attr("stroke", COL.grid).attr("stroke-width", 0.5);
+        g.append("text").attr("x", x(t)).attr("y", innerH + 14).attr("text-anchor", "middle")
+          .attr("fill", COL.muted).attr("font-size", 8.5).text(t);
+      });
+      g.append("text").attr("x", innerW / 2).attr("y", innerH + 32).attr("text-anchor", "middle")
+        .attr("fill", COL.muted).attr("font-size", 9).attr("font-weight", "500").text("Pour 1 000 habitants");
+
+      permits.forEach((d) => {
+        const ys = y(d.pays);
+        const bh = y.bandwidth();
+        let xCursor = 0;
+        motifs.forEach((m) => {
+          const bw = x(d[m]);
+          g.append("rect").attr("x", xCursor).attr("y", ys).attr("width", bw).attr("height", bh)
+            .attr("fill", colors[m]).attr("rx", 2);
+          if (bw > 26) {
+            g.append("text").attr("x", xCursor + bw / 2).attr("y", ys + bh / 2).attr("dy", "0.35em")
+              .attr("text-anchor", "middle").attr("fill", "#fafaf9")
+              .attr("font-size", 7.5).attr("font-weight", "700")
+              .text(d[m].toFixed(1));
+          }
+          xCursor += bw;
+        });
+        /* Total */
+        const total = motifs.reduce((s, m) => s + d[m], 0);
+        g.append("text").attr("x", xCursor + 6).attr("y", ys + bh / 2).attr("dy", "0.35em")
+          .attr("text-anchor", "start").attr("fill", COL.ink)
+          .attr("font-size", 8.5).attr("font-weight", "700")
+          .text(`${total.toFixed(1)}\u202f‰`);
+        /* Pays label */
+        const isFR = d.code === "FR";
+        g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
+          .attr("text-anchor", "end").attr("fill", isFR ? COL.blue : COL.ink)
+          .attr("font-size", 9.5).attr("font-weight", isFR ? "700" : "450")
+          .text(d.pays);
+      });
+
+      /* Légende */
+      const legY = margin.top + innerH + 46;
+      motifs.forEach((m, i) => {
+        svg.append("rect").attr("x", margin.left + i * 165).attr("y", legY).attr("width", 10).attr("height", 10)
+          .attr("fill", colors[m]).attr("rx", 1);
+        svg.append("text").attr("x", margin.left + i * 165 + 15).attr("y", legY + 8)
+          .attr("fill", COL.ink).attr("font-size", 8.5).text(labels[m]);
+      });
+
+      art.append("p").attr("class", "figure-foot").text(
+        "Source : Eurostat, migr_resfirst (premiers titres de séjour accordés), 2022. Ramené à 1 000 habitants (pop. Eurostat au 1er janvier 2022). Pour le Royaume-Uni, les visas étudiants sont comptabilisés dans Études ; hors UK, cette catégorie est plus restreinte. Données non disponibles pour la France au-delà de 2022."
+      );
+    }
+  }
+
+  /* ── Angle 3 : Taux de reconnaissance asile (2022) ── */
+  {
+    const reconn = (data.nationalStats || {}).asileRecognition || [];
+    if (reconn.length) {
+      const art = main.append("article").attr("class", "figure");
+      figureHead(art, {
+        title: "La France reconnaît moins d'une demande sur trois, moins que la plupart de ses voisins",
+        sub: "Part des décisions positives (Convention de Genève + protection subsidiaire), 2022",
+      });
+      const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
+
+      const w = 900;
+      const margin = { top: 16, right: 64, bottom: 48, left: 116 };
+      const innerW = w - margin.left - margin.right;
+      const rowH = 36;
+      const innerH = reconn.length * rowH;
+      const h = innerH + margin.top + margin.bottom;
+      const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3.scaleLinear().domain([0, 100]).range([0, innerW]);
+      const y = d3.scaleBand().domain(reconn.map((d) => d.pays)).range([0, innerH]).paddingInner(0.3).paddingOuter(0.1);
+
+      /* Grille */
+      [0, 25, 50, 75, 100].forEach((t) => {
+        g.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", 0).attr("y2", innerH)
+          .attr("stroke", COL.grid).attr("stroke-width", 0.5);
+        g.append("text").attr("x", x(t)).attr("y", innerH + 14).attr("text-anchor", "middle")
+          .attr("fill", COL.muted).attr("font-size", 8.5).text(`${t}\u202f%`);
+      });
+
+      /* Ligne France */
+      const frRow = reconn.find((d) => d.code === "FR");
+      if (frRow) {
+        g.append("line").attr("x1", x(frRow.taux)).attr("x2", x(frRow.taux))
+          .attr("y1", 0).attr("y2", innerH)
+          .attr("stroke", COL.blue).attr("stroke-width", 1).attr("stroke-dasharray", "4,3").attr("opacity", 0.6);
+      }
+
+      reconn.forEach((d) => {
+        const ys = y(d.pays);
+        const bh = y.bandwidth();
+        const bw = x(d.taux);
+        const isFR = d.code === "FR";
+        g.append("rect").attr("x", 0).attr("y", ys).attr("width", bw).attr("height", bh)
+          .attr("fill", isFR ? COL.blue : COL.barMuted).attr("rx", 2).attr("opacity", isFR ? 1 : 0.75);
+        /* Étiquette valeur */
+        const inside = bw > 55;
+        g.append("text")
+          .attr("x", inside ? bw - 6 : bw + 6)
+          .attr("y", ys + bh / 2).attr("dy", "0.35em")
+          .attr("text-anchor", inside ? "end" : "start")
+          .attr("fill", inside ? "#fafaf9" : COL.ink)
+          .attr("font-size", 9).attr("font-weight", "700")
+          .text(`${d.taux}\u202f%`);
+        /* Pays */
+        g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
+          .attr("text-anchor", "end").attr("fill", isFR ? COL.blue : COL.ink)
+          .attr("font-size", 9.5).attr("font-weight", isFR ? "700" : "450")
+          .text(d.pays);
+      });
+
+      art.append("p").attr("class", "figure-foot").text(
+        "Source : EUAA Asylum Report 2023 / Eurostat, migr_asydcfsta. Taux calculé sur l'ensemble des décisions en première instance. Le taux français inclut les décisions de l'OFPRA uniquement (hors CNDA en appel). Les définitions nationales varient légèrement."
+      );
+    }
+  }
 }
 
 fetch("data.json")

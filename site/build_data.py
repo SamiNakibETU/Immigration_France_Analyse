@@ -430,6 +430,24 @@ NATIONAL_STATS = {
         {"year": 2024, "eu": -37, "nonEu": 832},
         {"year": 2025, "eu": -38, "nonEu": 408},
     ],
+    # Premiers titres de séjour par motif (Eurostat migr_resfirst, 2022, pour 1 000 habitants)
+    # Source : Eurostat / Home Office UK. Arrondis à une décimale.
+    "permitsMotif": [
+        {"pays": "France",      "code": "FR", "travail": 1.6, "famille": 2.2, "etudes": 1.4, "protection": 0.5},
+        {"pays": "Danemark",    "code": "DK", "travail": 5.3, "famille": 2.3, "etudes": 1.0, "protection": 1.0},
+        {"pays": "Italie",      "code": "IT", "travail": 1.4, "famille": 0.5, "etudes": 0.2, "protection": 0.3},
+        {"pays": "Royaume-Uni", "code": "UK", "travail": 4.1, "famille": 1.8, "etudes": 7.1, "protection": 1.2},
+    ],
+    # Taux de reconnaissance asile (EUAA / Eurostat migr_asydcfsta, 2022, %)
+    # Décisions positives (Convention de Genève + protection subsidiaire + humanitaire) / total.
+    "asileRecognition": [
+        {"pays": "Royaume-Uni", "code": "UK", "taux": 67},
+        {"pays": "Suède",       "code": "SE", "taux": 54},
+        {"pays": "Allemagne",   "code": "DE", "taux": 47},
+        {"pays": "France",      "code": "FR", "taux": 37},
+        {"pays": "Danemark",    "code": "DK", "taux": 23},
+        {"pays": "Italie",      "code": "IT", "taux": 20},
+    ],
 }
 
 

@@ -1431,30 +1431,39 @@ function render(data) {
           .attr("font-size", 7.5).attr("font-weight", "600")
           .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
 
-        /* Étiquette UE : positifs comme avant ; négatifs : jamais à gauche de la barre (évite chevauchement avec l'année) */
+        /* Étiquette UE : positifs inchangés ; négatifs : toujours centré sur la barre corail, blanc + contour (lisible sur le saumon) */
         const euIsNeg = r.eu < 0;
         const euLabelInsidePos = !euIsNeg && wEu > 40;
-        let euLabelX;
-        let euAnchor;
-        let euFill;
+        const yUe = ys + half + 1 + (half - 2) / 2;
         if (euIsNeg) {
-          /* Centrer dans la barre si assez large, sinon juste à gauche de la ligne zéro (toujours à droite des années) */
-          const useCenter = wEu >= 34;
-          euLabelX = useCenter ? xEu + wEu / 2 : x0 - 4;
-          euAnchor = useCenter ? "middle" : "end";
-          euFill = useCenter ? "#fafaf9" : COL.muted;
+          const fs = wEu < 22 ? 7 : 8;
+          g.append("text")
+            .attr("class", "uk-eu-neg-value")
+            .attr("x", xEu + wEu / 2)
+            .attr("y", yUe)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "middle")
+            .attr("fill", "#fafaf9")
+            .attr("stroke", "rgba(60, 28, 48, 0.55)")
+            .attr("stroke-width", 0.65)
+            .attr("paint-order", "stroke fill")
+            .attr("font-size", fs)
+            .attr("font-weight", "700")
+            .attr("font-variant-numeric", "tabular-nums")
+            .text(`${r.eu}k`);
         } else {
-          euLabelX = euLabelInsidePos ? x0 + wEu - 5 : x0 + wEu + 5;
-          euAnchor = euLabelInsidePos ? "end" : "start";
-          euFill = euLabelInsidePos ? "#fafaf9" : COL.muted;
+          const euLabelX = euLabelInsidePos ? x0 + wEu - 5 : x0 + wEu + 5;
+          const euAnchor = euLabelInsidePos ? "end" : "start";
+          const euFill = euLabelInsidePos ? "#fafaf9" : COL.muted;
+          g.append("text")
+            .attr("x", euLabelX)
+            .attr("y", yUe)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", euAnchor)
+            .attr("fill", euFill)
+            .attr("font-size", 7.5).attr("font-weight", "600")
+            .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
         }
-        g.append("text")
-          .attr("x", euLabelX)
-          .attr("y", ys + half * 1.65)
-          .attr("text-anchor", euAnchor)
-          .attr("fill", euFill)
-          .attr("font-size", 7.5).attr("font-weight", "600")
-          .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
 
         /* Année : bien à gauche du tracé */
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")

@@ -1,0 +1,2472 @@
+{
+  "meta": {
+    "generated": "2026-04-09T18:02:08.640404+00:00",
+    "indicator": "CNMIGRATRT",
+    "unit": "Pour 1 000 habitants",
+    "notes": [],
+    "datePublicationFr": "9 avril 2026"
+  },
+  "copy": {
+    "migrationFooter": "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants.",
+    "migrationSourceShort": "Source : Eurostat, demo_gind, CNMIGRATRT.",
+    "migrationSourceUkShort": "Source : Eurostat ou ONS pour le UK (long terme).",
+    "migrationFooterUk": "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants. UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. Les deux pays ne suivent pas la même méthode.",
+    "asylumFooter": "Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande dans l’année) et population au 1er janvier. Taux pour mille habitants ; ce n’est pas le solde migratoire net. Détail technique : fichier METHODOLOGIE_SERIES.txt (dossier projet). Données extraites le 9 avril 2026.",
+    "dualFooter": "Sources : Eurostat (soldes migratoires nets, base démographique harmonisée) et Eurostat (premières demandes d’asile, croisée avec la population au 1er janvier). Chaque pays est à sa dernière année disponible pour l’indicateur. Fichiers agrégés pour cette page le 9 avril 2026.",
+    "euFooter": "Sources : Eurostat, comptes démographiques harmonisés (solde migratoire net pour mille habitants), millésime 2024 pour chaque pays de l’UE à 27 membres ayant transmis une valeur. Données extraites le 9 avril 2026. Plus d’informations : ec.europa.eu/eurostat.",
+    "snapshotFooter": "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants. UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. Les deux pays ne suivent pas la même méthode. IT / FR ×1.86 DK / FR ×2.41 UK / FR ×2.26",
+    "ukFootnote": "UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. Les deux pays ne suivent pas la même méthode.",
+    "analyseRangFooter": "Sources : Eurostat, même indicateur de solde net (pour mille habitants). Le rang 1 désigne le pays de l’UE-27 avec le solde le plus élevé pour l’année considérée. Calculs à partir des séries téléchargées le 9 avril 2026.",
+    "analyseRatioFooter": "Sources : Eurostat. Numérateur : premières demandes d’asile (statistiques officielles des pays) ; dénominateur : solde migratoire net lorsqu’il est strictement positif. Lecture : plus le ratio est haut, plus l’asile représente une part marquée par rapport au solde net. Données consolidées le 9 avril 2026.",
+    "analyseQuadriFooter": "Sources : Eurostat, indicateur harmonisé de solde migratoire net (pour mille habitants), pour la France, l’Allemagne, l’Italie et l’Espagne. Extrait le 9 avril 2026.",
+    "volatilityFooter": "Sources : Eurostat pour la France, le Danemark et l’Italie ; Office for National Statistics (ONS) pour le Royaume-Uni (série du solde de longue durée, non strictement identique). La hauteur de chaque barre correspond à l’écart-type des taux annuels sur la fenêtre indiquée : elle décrit les à-coups, pas le niveau moyen d’immigration. Agrégation le 9 avril 2026.",
+    "entreesFooter": "Sources : Eurostat, statistiques annuelles d’immigration (ressortissants étrangers et apatrides, FOR_STLS) et effectifs de population au 1er janvier. Les taux sont pour mille habitants. Le Royaume-Uni n’apparaît pas après 2019 dans cette source ; pour la suite, voir les publications de l’ONS. Extrait le 9 avril 2026.",
+    "asylumBarsFooter": "Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande déposée dans l’année), rapportées à la population au 1er janvier (démographie). Les pays peuvent réviser leurs chiffres ; dernière année présente dans notre fichier : voir l’étiquette de chaque barre. Données téléchargées et traitées le 9 avril 2026.",
+    "overviewFooter": "Sources : Eurostat (soldes migratoires nets harmonisés, pour mille habitants) pour la France, le Danemark et l’Italie ; Office for National Statistics pour le Royaume-Uni (migrations internationales de longue durée, autre définition). Les courbes ne sont donc pas strictement comparables point à point entre la France et le Royaume-Uni. Agrégation pour cette visualisation : 9 avril 2026. Liens utiles : ec.europa.eu/eurostat et ons.gov.uk."
+  },
+  "annotations": {
+    "FR": [
+      {
+        "year": 2015,
+        "text": "Pic de l'asile",
+        "target": "FR"
+      },
+      {
+        "year": 2020,
+        "text": "Covid-19",
+        "target": "FR"
+      }
+    ],
+    "DK": [
+      {
+        "year": 2015,
+        "text": "Pic de l'asile",
+        "target": "peer"
+      },
+      {
+        "year": 2019,
+        "text": "Frederiksen PM",
+        "target": "peer"
+      },
+      {
+        "year": 2022,
+        "text": "Ukraine",
+        "target": "peer"
+      }
+    ],
+    "UK": [
+      {
+        "year": 2015,
+        "text": "Pic de l'asile",
+        "target": "peer"
+      },
+      {
+        "year": 2016,
+        "text": "Brexit",
+        "target": "peer"
+      },
+      {
+        "year": 2021,
+        "text": "Fin libre circ.",
+        "target": "peer"
+      },
+      {
+        "year": 2022,
+        "text": "Ukraine",
+        "target": "peer"
+      }
+    ],
+    "IT": [
+      {
+        "year": 2015,
+        "text": "Pic de l'asile",
+        "target": "IT"
+      },
+      {
+        "year": 2018,
+        "text": "Salvini ministre",
+        "target": "IT"
+      },
+      {
+        "year": 2020,
+        "text": "Covid-19",
+        "target": "IT"
+      },
+      {
+        "year": 2022,
+        "text": "G. Meloni PM",
+        "target": "IT"
+      }
+    ]
+  },
+  "asylumLineCodes": [
+    "FR",
+    "DE",
+    "IT",
+    "SE",
+    "DK"
+  ],
+  "migrationSelection": [
+    {
+      "year": 2005,
+      "DK": 1.2,
+      "FR": 3.0,
+      "FX": 3.1,
+      "IT": 4.4,
+      "UK": 4.4365
+    },
+    {
+      "year": 2006,
+      "DK": 1.9,
+      "FR": 1.8,
+      "FX": 1.9,
+      "IT": 3.8,
+      "UK": 4.3715
+    },
+    {
+      "year": 2007,
+      "DK": 3.7,
+      "FR": 1.2,
+      "FX": 1.2,
+      "IT": 8.5,
+      "UK": 4.47
+    },
+    {
+      "year": 2008,
+      "DK": 4.6,
+      "FR": 0.9,
+      "FX": 1.1,
+      "IT": 7.2,
+      "UK": 3.7192
+    },
+    {
+      "year": 2009,
+      "DK": 2.8,
+      "FR": 0.5,
+      "FX": 0.7,
+      "IT": 4.9,
+      "UK": 3.691
+    },
+    {
+      "year": 2010,
+      "DK": 3.0,
+      "FR": 0.6,
+      "FX": 0.7,
+      "IT": 4.7,
+      "UK": 4.0953
+    },
+    {
+      "year": 2011,
+      "DK": 2.4,
+      "FR": 0.3,
+      "FX": 0.8,
+      "IT": 3.4,
+      "UK": 3.2528
+    },
+    {
+      "year": 2012,
+      "DK": 3.0,
+      "FR": 1.1,
+      "FX": 1.4,
+      "IT": 4.2,
+      "UK": 3.0711
+    },
+    {
+      "year": 2013,
+      "DK": 3.8,
+      "FR": 1.5,
+      "FX": null,
+      "IT": 2.6,
+      "UK": 3.8181
+    },
+    {
+      "year": 2014,
+      "DK": 4.8,
+      "FR": 0.5,
+      "FX": null,
+      "IT": 0.8,
+      "UK": 4.4133
+    },
+    {
+      "year": 2015,
+      "DK": 7.4,
+      "FR": -0.4,
+      "FX": null,
+      "IT": 0.5,
+      "UK": 4.6721
+    },
+    {
+      "year": 2016,
+      "DK": 5.7,
+      "FR": -0.3,
+      "FX": null,
+      "IT": 0.7,
+      "UK": 3.8086
+    },
+    {
+      "year": 2017,
+      "DK": 4.2,
+      "FR": 0.8,
+      "FX": null,
+      "IT": 1.0,
+      "UK": 3.159
+    },
+    {
+      "year": 2018,
+      "DK": 3.2,
+      "FR": 1.7,
+      "FX": null,
+      "IT": 1.2,
+      "UK": 4.1646
+    },
+    {
+      "year": 2019,
+      "DK": 1.6,
+      "FR": 0.6,
+      "FX": null,
+      "IT": 0.7,
+      "UK": 2.7608
+    },
+    {
+      "year": 2020,
+      "DK": 1.9,
+      "FR": 2.8,
+      "FX": null,
+      "IT": -1.2,
+      "UK": 1.3875
+    },
+    {
+      "year": 2021,
+      "DK": 4.6,
+      "FR": 2.2,
+      "FX": null,
+      "IT": 1.6,
+      "UK": 6.9674
+    },
+    {
+      "year": 2022,
+      "DK": 10.2,
+      "FR": 2.0,
+      "FX": null,
+      "IT": 4.9,
+      "UK": 13.1799
+    },
+    {
+      "year": 2023,
+      "DK": 5.0,
+      "FR": 2.2,
+      "FX": null,
+      "IT": 4.5,
+      "UK": 12.4221
+    },
+    {
+      "year": 2024,
+      "DK": 5.3,
+      "FR": 2.2,
+      "FX": null,
+      "IT": 4.1,
+      "UK": 4.9797
+    }
+  ],
+  "migrationMulti": [
+    {
+      "year": 2005,
+      "DE": 1.0,
+      "DK": 1.2,
+      "ES": 14.5,
+      "FR": 3.0,
+      "FX": 3.1,
+      "IT": 4.4,
+      "NL": -1.4,
+      "SE": 3.0,
+      "UK": 4.4365
+    },
+    {
+      "year": 2006,
+      "DE": 0.3,
+      "DK": 1.9,
+      "ES": 14.9,
+      "FR": 1.8,
+      "FX": 1.9,
+      "IT": 3.8,
+      "NL": -1.6,
+      "SE": 5.6,
+      "UK": 4.3715
+    },
+    {
+      "year": 2007,
+      "DE": 0.5,
+      "DK": 3.7,
+      "ES": 17.2,
+      "FR": 1.2,
+      "FX": 1.2,
+      "IT": 8.5,
+      "NL": -0.1,
+      "SE": 5.9,
+      "UK": 4.47
+    },
+    {
+      "year": 2008,
+      "DE": -0.7,
+      "DK": 4.6,
+      "ES": 9.5,
+      "FR": 0.9,
+      "FX": 1.1,
+      "IT": 7.2,
+      "NL": 1.9,
+      "SE": 6.0,
+      "UK": 3.7192
+    },
+    {
+      "year": 2009,
+      "DE": -0.1,
+      "DK": 2.8,
+      "ES": 3.0,
+      "FR": 0.5,
+      "FX": 0.7,
+      "IT": 4.9,
+      "NL": 2.3,
+      "SE": 6.7,
+      "UK": 3.691
+    },
+    {
+      "year": 2010,
+      "DE": 1.6,
+      "DK": 3.0,
+      "ES": 1.6,
+      "FR": 0.6,
+      "FX": 0.7,
+      "IT": 4.7,
+      "NL": 2.0,
+      "SE": 5.3,
+      "UK": 4.0953
+    },
+    {
+      "year": 2011,
+      "DE": 3.7,
+      "DK": 2.4,
+      "ES": 1.4,
+      "FR": 0.3,
+      "FX": 0.8,
+      "IT": 3.4,
+      "NL": 1.8,
+      "SE": 4.8,
+      "UK": 3.2528
+    },
+    {
+      "year": 2012,
+      "DE": 4.9,
+      "DK": 3.0,
+      "ES": -3.0,
+      "FR": 1.1,
+      "FX": 1.4,
+      "IT": 4.2,
+      "NL": 0.8,
+      "SE": 5.4,
+      "UK": 3.0711
+    },
+    {
+      "year": 2013,
+      "DE": 5.6,
+      "DK": 3.8,
+      "ES": -5.4,
+      "FR": 1.5,
+      "FX": null,
+      "IT": 2.6,
+      "NL": 1.2,
+      "SE": 6.9,
+      "UK": 3.8181
+    },
+    {
+      "year": 2014,
+      "DE": 7.2,
+      "DK": 4.8,
+      "ES": -2.2,
+      "FR": 0.5,
+      "FX": null,
+      "IT": 0.8,
+      "NL": 2.1,
+      "SE": 7.9,
+      "UK": 4.4133
+    },
+    {
+      "year": 2015,
+      "DE": 14.3,
+      "DK": 7.4,
+      "ES": -0.1,
+      "FR": -0.4,
+      "FX": null,
+      "IT": 0.5,
+      "NL": 3.2,
+      "SE": 8.1,
+      "UK": 4.6721
+    },
+    {
+      "year": 2016,
+      "DE": 5.6,
+      "DK": 5.7,
+      "ES": 1.7,
+      "FR": -0.3,
+      "FX": null,
+      "IT": 0.7,
+      "NL": 4.6,
+      "SE": 11.9,
+      "UK": 3.8086
+    },
+    {
+      "year": 2017,
+      "DE": 5.1,
+      "DK": 4.2,
+      "ES": 3.8,
+      "FR": 0.8,
+      "FX": null,
+      "IT": 1.0,
+      "NL": 4.7,
+      "SE": 10.1,
+      "UK": 3.159
+    },
+    {
+      "year": 2018,
+      "DE": 4.8,
+      "DK": 3.2,
+      "ES": 7.0,
+      "FR": 1.7,
+      "FX": null,
+      "IT": 1.2,
+      "NL": 5.0,
+      "SE": 8.5,
+      "UK": 4.1646
+    },
+    {
+      "year": 2019,
+      "DE": 3.7,
+      "DK": 1.6,
+      "ES": 9.7,
+      "FR": 0.6,
+      "FX": null,
+      "IT": 0.7,
+      "NL": 6.2,
+      "SE": 7.0,
+      "UK": 2.7608
+    },
+    {
+      "year": 2020,
+      "DE": 2.4,
+      "DK": 1.9,
+      "ES": 5.0,
+      "FR": 2.8,
+      "FX": null,
+      "IT": -1.2,
+      "NL": 3.9,
+      "SE": 3.5,
+      "UK": 1.3875
+    },
+    {
+      "year": 2021,
+      "DE": 3.7,
+      "DK": 4.6,
+      "ES": 4.2,
+      "FR": 2.2,
+      "FX": null,
+      "IT": 1.6,
+      "NL": 6.1,
+      "SE": 4.9,
+      "UK": 6.9674
+    },
+    {
+      "year": 2022,
+      "DE": 2.5,
+      "DK": 10.2,
+      "ES": 15.3,
+      "FR": 2.0,
+      "FX": null,
+      "IT": 4.9,
+      "NL": 12.6,
+      "SE": 5.6,
+      "UK": 13.1799
+    },
+    {
+      "year": 2023,
+      "DE": 8.1,
+      "DK": 5.0,
+      "ES": 13.4,
+      "FR": 2.2,
+      "FX": null,
+      "IT": 4.5,
+      "NL": 7.6,
+      "SE": 2.3,
+      "UK": 12.4221
+    },
+    {
+      "year": 2024,
+      "DE": 5.4,
+      "DK": 5.3,
+      "ES": 11.8,
+      "FR": 2.2,
+      "FX": null,
+      "IT": 4.1,
+      "NL": 6.0,
+      "SE": 2.7,
+      "UK": 4.9797
+    }
+  ],
+  "asylum": [
+    {
+      "year": 2008,
+      "AT": null,
+      "BE": 1.0683,
+      "DE": 0.2599,
+      "DK": 0.4337,
+      "ES": null,
+      "FR": null,
+      "IT": 0.5109,
+      "NL": 0.8156,
+      "SE": 2.6533
+    },
+    {
+      "year": 2009,
+      "AT": null,
+      "BE": 1.6009,
+      "DE": 0.3372,
+      "DK": 0.6849,
+      "ES": null,
+      "FR": 0.6538,
+      "IT": 0.2927,
+      "NL": 0.9026,
+      "SE": 2.5582
+    },
+    {
+      "year": 2010,
+      "AT": null,
+      "BE": 2.0125,
+      "DE": 0.5052,
+      "DK": 0.9215,
+      "ES": 0.0549,
+      "FR": 0.7428,
+      "IT": 0.1684,
+      "NL": 0.8018,
+      "SE": 3.412
+    },
+    {
+      "year": 2011,
+      "AT": null,
+      "BE": 2.3258,
+      "DE": 0.5702,
+      "DK": 0.7166,
+      "ES": 0.0637,
+      "FR": 0.8024,
+      "IT": 0.6728,
+      "NL": 0.6941,
+      "SE": 3.1533
+    },
+    {
+      "year": 2012,
+      "AT": null,
+      "BE": 1.6658,
+      "DE": 0.8035,
+      "DK": 1.0886,
+      "ES": 0.0503,
+      "FR": 0.8315,
+      "IT": 0.2859,
+      "NL": 0.5774,
+      "SE": 4.6326
+    },
+    {
+      "year": 2013,
+      "AT": null,
+      "BE": 1.0846,
+      "DE": 1.3608,
+      "DK": 1.2905,
+      "ES": 0.0918,
+      "FR": 0.9219,
+      "IT": 0.4267,
+      "NL": 0.5849,
+      "SE": 5.1649
+    },
+    {
+      "year": 2014,
+      "AT": 3.0208,
+      "BE": 1.2638,
+      "DE": 2.1428,
+      "DK": 2.5883,
+      "ES": 0.1174,
+      "FR": 0.8894,
+      "IT": 1.0548,
+      "NL": 1.2942,
+      "SE": 7.7855
+    },
+    {
+      "year": 2015,
+      "AT": 9.9616,
+      "BE": 3.4764,
+      "DE": 5.4423,
+      "DK": 3.6848,
+      "ES": 0.3147,
+      "FR": 1.0619,
+      "IT": 1.3731,
+      "NL": 2.5463,
+      "SE": 16.0243
+    },
+    {
+      "year": 2016,
+      "AT": 4.5865,
+      "BE": 1.2634,
+      "DE": 8.7905,
+      "DK": 1.0636,
+      "ES": 0.3354,
+      "FR": 1.1523,
+      "IT": 2.0143,
+      "NL": 1.1358,
+      "SE": 2.2724
+    },
+    {
+      "year": 2017,
+      "AT": 2.5613,
+      "BE": 1.2381,
+      "DE": 2.4031,
+      "DK": 0.5462,
+      "ES": 0.7106,
+      "FR": 1.3765,
+      "IT": 2.107,
+      "NL": 0.942,
+      "SE": 2.2236
+    },
+    {
+      "year": 2018,
+      "AT": 1.316,
+      "BE": 1.5932,
+      "DE": 1.9559,
+      "DK": 0.6045,
+      "ES": 1.1308,
+      "FR": 1.8885,
+      "IT": 0.8916,
+      "NL": 1.1911,
+      "SE": 1.8463
+    },
+    {
+      "year": 2019,
+      "AT": 1.2428,
+      "BE": 2.02,
+      "DE": 1.7166,
+      "DK": 0.4556,
+      "ES": 2.4551,
+      "FR": 2.0551,
+      "IT": 0.5852,
+      "NL": 1.3042,
+      "SE": 2.0337
+    },
+    {
+      "year": 2020,
+      "AT": 1.5071,
+      "BE": 1.1222,
+      "DE": 1.2334,
+      "DK": 0.2464,
+      "ES": 1.8256,
+      "FR": 1.2114,
+      "IT": 0.3578,
+      "NL": 0.7882,
+      "SE": 1.1426
+    },
+    {
+      "year": 2021,
+      "AT": 4.235,
+      "BE": 1.6967,
+      "DE": 1.7826,
+      "DK": 0.345,
+      "ES": 1.3094,
+      "FR": 1.5327,
+      "IT": 0.763,
+      "NL": 1.4166,
+      "SE": 0.8724
+    },
+    {
+      "year": 2022,
+      "AT": 12.2286,
+      "BE": 2.7665,
+      "DE": 2.6163,
+      "DK": 0.767,
+      "ES": 2.4459,
+      "FR": 2.0209,
+      "IT": 1.3078,
+      "NL": 2.0198,
+      "SE": 1.2638
+    },
+    {
+      "year": 2023,
+      "AT": 6.1682,
+      "BE": 2.4956,
+      "DE": 3.9596,
+      "DK": 0.4012,
+      "ES": 3.3372,
+      "FR": 2.126,
+      "IT": 2.2131,
+      "NL": 2.1543,
+      "SE": 0.8516
+    },
+    {
+      "year": 2024,
+      "AT": 2.4299,
+      "BE": 2.768,
+      "DE": 2.7529,
+      "DK": 0.3707,
+      "ES": 3.4033,
+      "FR": 1.8918,
+      "IT": 2.5626,
+      "NL": 1.7834,
+      "SE": 0.6426
+    }
+  ],
+  "euRanking2024": [
+    {
+      "code": "LV",
+      "label": "Lettonie (LV)",
+      "value": -2.5
+    },
+    {
+      "code": "HU",
+      "label": "Hongrie (HU)",
+      "value": 0.4
+    },
+    {
+      "code": "SK",
+      "label": "Slovaquie (SK)",
+      "value": 0.4
+    },
+    {
+      "code": "PL",
+      "label": "Pologne (PL)",
+      "value": 0.9
+    },
+    {
+      "code": "EE",
+      "label": "Estonie (EE)",
+      "value": 1.0
+    },
+    {
+      "code": "FR",
+      "label": "France (entière) (FR)",
+      "value": 2.2
+    },
+    {
+      "code": "SE",
+      "label": "Suède (SE)",
+      "value": 2.7
+    },
+    {
+      "code": "CZ",
+      "label": "Tchéquie (CZ)",
+      "value": 3.4
+    },
+    {
+      "code": "RO",
+      "label": "Roumanie (RO)",
+      "value": 3.7
+    },
+    {
+      "code": "IT",
+      "label": "Italie (IT)",
+      "value": 4.1
+    },
+    {
+      "code": "DK",
+      "label": "Danemark (DK)",
+      "value": 5.3
+    },
+    {
+      "code": "AT",
+      "label": "Autriche (AT)",
+      "value": 5.4
+    },
+    {
+      "code": "DE",
+      "label": "Allemagne (DE)",
+      "value": 5.4
+    },
+    {
+      "code": "SI",
+      "label": "Slovénie (SI)",
+      "value": 5.4
+    },
+    {
+      "code": "NL",
+      "label": "Pays-Bas (NL)",
+      "value": 6.0
+    },
+    {
+      "code": "BG",
+      "label": "Bulgarie (BG)",
+      "value": 6.1
+    },
+    {
+      "code": "EL",
+      "label": "Grèce (EL)",
+      "value": 6.4
+    },
+    {
+      "code": "BE",
+      "label": "Belgique (BE)",
+      "value": 7.2
+    },
+    {
+      "code": "LT",
+      "label": "Lituanie (LT)",
+      "value": 8.0
+    },
+    {
+      "code": "HR",
+      "label": "Croatie (HR)",
+      "value": 8.1
+    },
+    {
+      "code": "FI",
+      "label": "Finlande (FI)",
+      "value": 8.3
+    },
+    {
+      "code": "CY",
+      "label": "Chypre (CY)",
+      "value": 10.6
+    },
+    {
+      "code": "LU",
+      "label": "Luxembourg (LU)",
+      "value": 11.7
+    },
+    {
+      "code": "ES",
+      "label": "Espagne (ES)",
+      "value": 11.8
+    },
+    {
+      "code": "IE",
+      "label": "Irlande (IE)",
+      "value": 12.8
+    },
+    {
+      "code": "PT",
+      "label": "Portugal (PT)",
+      "value": 13.4
+    },
+    {
+      "code": "MT",
+      "label": "Malte (MT)",
+      "value": 18.7
+    }
+  ],
+  "snapshot": [
+    {
+      "code": "FR",
+      "label": "France (entière)",
+      "year": 2024,
+      "value": 2.2,
+      "barKey": "ink",
+      "yLabel": "France (entière) (2024)"
+    },
+    {
+      "code": "IT",
+      "label": "Italie",
+      "year": 2024,
+      "value": 4.1,
+      "barKey": "red",
+      "yLabel": "Italie (2024)"
+    },
+    {
+      "code": "UK",
+      "label": "Royaume-Uni",
+      "year": 2024,
+      "value": 4.9797,
+      "barKey": "teal",
+      "yLabel": "Royaume-Uni (2024)"
+    },
+    {
+      "code": "DK",
+      "label": "Danemark",
+      "year": 2024,
+      "value": 5.3,
+      "barKey": "plum",
+      "yLabel": "Danemark (2024)"
+    }
+  ],
+  "asylumBars2024": [
+    {
+      "code": "DK",
+      "label": "Danemark (2024)",
+      "value": 0.3707
+    },
+    {
+      "code": "SE",
+      "label": "Suède (2024)",
+      "value": 0.6426
+    },
+    {
+      "code": "NL",
+      "label": "Pays-Bas (2024)",
+      "value": 1.7834
+    },
+    {
+      "code": "FR",
+      "label": "France (entière) (2024)",
+      "value": 1.8918
+    },
+    {
+      "code": "AT",
+      "label": "Autriche (2024)",
+      "value": 2.4299
+    },
+    {
+      "code": "IT",
+      "label": "Italie (2024)",
+      "value": 2.5626
+    },
+    {
+      "code": "DE",
+      "label": "Allemagne (2024)",
+      "value": 2.7529
+    },
+    {
+      "code": "BE",
+      "label": "Belgique (2024)",
+      "value": 2.768
+    },
+    {
+      "code": "ES",
+      "label": "Espagne (2024)",
+      "value": 3.4033
+    }
+  ],
+  "dualNetAsylum2024": {
+    "net": [
+      {
+        "code": "FR",
+        "label": "France (entière) (2024)",
+        "year": 2024,
+        "value": 2.2
+      },
+      {
+        "code": "SE",
+        "label": "Suède (2024)",
+        "year": 2024,
+        "value": 2.7
+      },
+      {
+        "code": "IT",
+        "label": "Italie (2024)",
+        "year": 2024,
+        "value": 4.1
+      },
+      {
+        "code": "DK",
+        "label": "Danemark (2024)",
+        "year": 2024,
+        "value": 5.3
+      },
+      {
+        "code": "DE",
+        "label": "Allemagne (2024)",
+        "year": 2024,
+        "value": 5.4
+      },
+      {
+        "code": "NL",
+        "label": "Pays-Bas (2024)",
+        "year": 2024,
+        "value": 6.0
+      },
+      {
+        "code": "ES",
+        "label": "Espagne (2024)",
+        "year": 2024,
+        "value": 11.8
+      }
+    ],
+    "asylum": [
+      {
+        "code": "DK",
+        "label": "Danemark (2024)",
+        "year": 2024,
+        "value": 0.3707
+      },
+      {
+        "code": "SE",
+        "label": "Suède (2024)",
+        "year": 2024,
+        "value": 0.6426
+      },
+      {
+        "code": "NL",
+        "label": "Pays-Bas (2024)",
+        "year": 2024,
+        "value": 1.7834
+      },
+      {
+        "code": "FR",
+        "label": "France (entière) (2024)",
+        "year": 2024,
+        "value": 1.8918
+      },
+      {
+        "code": "IT",
+        "label": "Italie (2024)",
+        "year": 2024,
+        "value": 2.5626
+      },
+      {
+        "code": "DE",
+        "label": "Allemagne (2024)",
+        "year": 2024,
+        "value": 2.7529
+      },
+      {
+        "code": "ES",
+        "label": "Espagne (2024)",
+        "year": 2024,
+        "value": 3.4033
+      }
+    ]
+  },
+  "analyseRangFrance": [
+    {
+      "annee": 2005,
+      "rangFrance": 11,
+      "nbPays": 27,
+      "valeurFr": 3.0,
+      "medianeUe27": 2.5
+    },
+    {
+      "annee": 2006,
+      "rangFrance": 16,
+      "nbPays": 27,
+      "valeurFr": 1.8,
+      "medianeUe27": 2.0
+    },
+    {
+      "annee": 2007,
+      "rangFrance": 18,
+      "nbPays": 27,
+      "valeurFr": 1.2,
+      "medianeUe27": 2.1
+    },
+    {
+      "annee": 2008,
+      "rangFrance": 18,
+      "nbPays": 27,
+      "valeurFr": 0.9,
+      "medianeUe27": 2.1
+    },
+    {
+      "annee": 2009,
+      "rangFrance": 17,
+      "nbPays": 27,
+      "valeurFr": 0.5,
+      "medianeUe27": 1.7
+    },
+    {
+      "annee": 2010,
+      "rangFrance": 14,
+      "nbPays": 27,
+      "valeurFr": 0.6,
+      "medianeUe27": 0.6
+    },
+    {
+      "annee": 2011,
+      "rangFrance": 17,
+      "nbPays": 27,
+      "valeurFr": 0.3,
+      "medianeUe27": 1.3
+    },
+    {
+      "annee": 2012,
+      "rangFrance": 11,
+      "nbPays": 27,
+      "valeurFr": 1.1,
+      "medianeUe27": 0.6
+    },
+    {
+      "annee": 2013,
+      "rangFrance": 10,
+      "nbPays": 27,
+      "valeurFr": 1.5,
+      "medianeUe27": -0.1
+    },
+    {
+      "annee": 2014,
+      "rangFrance": 12,
+      "nbPays": 27,
+      "valeurFr": 0.5,
+      "medianeUe27": 0.3
+    },
+    {
+      "annee": 2015,
+      "rangFrance": 20,
+      "nbPays": 27,
+      "valeurFr": -0.4,
+      "medianeUe27": 0.5
+    },
+    {
+      "annee": 2016,
+      "rangFrance": 21,
+      "nbPays": 27,
+      "valeurFr": -0.3,
+      "medianeUe27": 1.0
+    },
+    {
+      "annee": 2017,
+      "rangFrance": 19,
+      "nbPays": 27,
+      "valeurFr": 0.8,
+      "medianeUe27": 2.4
+    },
+    {
+      "annee": 2018,
+      "rangFrance": 18,
+      "nbPays": 27,
+      "valeurFr": 1.7,
+      "medianeUe27": 3.2
+    },
+    {
+      "annee": 2019,
+      "rangFrance": 22,
+      "nbPays": 27,
+      "valeurFr": 0.6,
+      "medianeUe27": 3.9
+    },
+    {
+      "annee": 2020,
+      "rangFrance": 15,
+      "nbPays": 27,
+      "valeurFr": 2.8,
+      "medianeUe27": 2.8
+    },
+    {
+      "annee": 2021,
+      "rangFrance": 18,
+      "nbPays": 27,
+      "valeurFr": 2.2,
+      "medianeUe27": 4.6
+    },
+    {
+      "annee": 2022,
+      "rangFrance": 24,
+      "nbPays": 27,
+      "valeurFr": 2.0,
+      "medianeUe27": 10.2
+    },
+    {
+      "annee": 2023,
+      "rangFrance": 24,
+      "nbPays": 27,
+      "valeurFr": 2.2,
+      "medianeUe27": 7.2
+    },
+    {
+      "annee": 2024,
+      "rangFrance": 22,
+      "nbPays": 27,
+      "valeurFr": 2.2,
+      "medianeUe27": 5.4
+    }
+  ],
+  "analyseRatioAsileSolde": [
+    {
+      "annee": 2008,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": -0.7,
+      "asilePremieres": 0.2599,
+      "ratio": null
+    },
+    {
+      "annee": 2008,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 7.2,
+      "asilePremieres": 0.5109,
+      "ratio": 0.071
+    },
+    {
+      "annee": 2008,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 6.0,
+      "asilePremieres": 2.6533,
+      "ratio": 0.4422
+    },
+    {
+      "annee": 2008,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 1.9,
+      "asilePremieres": 0.8156,
+      "ratio": 0.4293
+    },
+    {
+      "annee": 2008,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 4.6,
+      "asilePremieres": 0.4337,
+      "ratio": 0.0943
+    },
+    {
+      "annee": 2009,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 0.5,
+      "asilePremieres": 0.6538,
+      "ratio": 1.3076
+    },
+    {
+      "annee": 2009,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": -0.1,
+      "asilePremieres": 0.3372,
+      "ratio": null
+    },
+    {
+      "annee": 2009,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 4.9,
+      "asilePremieres": 0.2927,
+      "ratio": 0.0597
+    },
+    {
+      "annee": 2009,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 6.7,
+      "asilePremieres": 2.5582,
+      "ratio": 0.3818
+    },
+    {
+      "annee": 2009,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 2.3,
+      "asilePremieres": 0.9026,
+      "ratio": 0.3924
+    },
+    {
+      "annee": 2009,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 2.8,
+      "asilePremieres": 0.6849,
+      "ratio": 0.2446
+    },
+    {
+      "annee": 2010,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 0.6,
+      "asilePremieres": 0.7428,
+      "ratio": 1.238
+    },
+    {
+      "annee": 2010,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 1.6,
+      "asilePremieres": 0.5052,
+      "ratio": 0.3157
+    },
+    {
+      "annee": 2010,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 4.7,
+      "asilePremieres": 0.1684,
+      "ratio": 0.0358
+    },
+    {
+      "annee": 2010,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 1.6,
+      "asilePremieres": 0.0549,
+      "ratio": 0.0343
+    },
+    {
+      "annee": 2010,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 5.3,
+      "asilePremieres": 3.412,
+      "ratio": 0.6438
+    },
+    {
+      "annee": 2010,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 2.0,
+      "asilePremieres": 0.8018,
+      "ratio": 0.4009
+    },
+    {
+      "annee": 2010,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 3.0,
+      "asilePremieres": 0.9215,
+      "ratio": 0.3072
+    },
+    {
+      "annee": 2011,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 0.3,
+      "asilePremieres": 0.8024,
+      "ratio": 2.6747
+    },
+    {
+      "annee": 2011,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 3.7,
+      "asilePremieres": 0.5702,
+      "ratio": 0.1541
+    },
+    {
+      "annee": 2011,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 3.4,
+      "asilePremieres": 0.6728,
+      "ratio": 0.1979
+    },
+    {
+      "annee": 2011,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 1.4,
+      "asilePremieres": 0.0637,
+      "ratio": 0.0455
+    },
+    {
+      "annee": 2011,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 4.8,
+      "asilePremieres": 3.1533,
+      "ratio": 0.6569
+    },
+    {
+      "annee": 2011,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 1.8,
+      "asilePremieres": 0.6941,
+      "ratio": 0.3856
+    },
+    {
+      "annee": 2011,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 2.4,
+      "asilePremieres": 0.7166,
+      "ratio": 0.2986
+    },
+    {
+      "annee": 2012,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 1.1,
+      "asilePremieres": 0.8315,
+      "ratio": 0.7559
+    },
+    {
+      "annee": 2012,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 4.9,
+      "asilePremieres": 0.8035,
+      "ratio": 0.164
+    },
+    {
+      "annee": 2012,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 4.2,
+      "asilePremieres": 0.2859,
+      "ratio": 0.0681
+    },
+    {
+      "annee": 2012,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": -3.0,
+      "asilePremieres": 0.0503,
+      "ratio": null
+    },
+    {
+      "annee": 2012,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 5.4,
+      "asilePremieres": 4.6326,
+      "ratio": 0.8579
+    },
+    {
+      "annee": 2012,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 0.8,
+      "asilePremieres": 0.5774,
+      "ratio": 0.7218
+    },
+    {
+      "annee": 2012,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 3.0,
+      "asilePremieres": 1.0886,
+      "ratio": 0.3629
+    },
+    {
+      "annee": 2013,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 1.5,
+      "asilePremieres": 0.9219,
+      "ratio": 0.6146
+    },
+    {
+      "annee": 2013,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 5.6,
+      "asilePremieres": 1.3608,
+      "ratio": 0.243
+    },
+    {
+      "annee": 2013,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 2.6,
+      "asilePremieres": 0.4267,
+      "ratio": 0.1641
+    },
+    {
+      "annee": 2013,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": -5.4,
+      "asilePremieres": 0.0918,
+      "ratio": null
+    },
+    {
+      "annee": 2013,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 6.9,
+      "asilePremieres": 5.1649,
+      "ratio": 0.7485
+    },
+    {
+      "annee": 2013,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 1.2,
+      "asilePremieres": 0.5849,
+      "ratio": 0.4874
+    },
+    {
+      "annee": 2013,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 3.8,
+      "asilePremieres": 1.2905,
+      "ratio": 0.3396
+    },
+    {
+      "annee": 2014,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 0.5,
+      "asilePremieres": 0.8894,
+      "ratio": 1.7788
+    },
+    {
+      "annee": 2014,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 7.2,
+      "asilePremieres": 2.1428,
+      "ratio": 0.2976
+    },
+    {
+      "annee": 2014,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 0.8,
+      "asilePremieres": 1.0548,
+      "ratio": 1.3185
+    },
+    {
+      "annee": 2014,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": -2.2,
+      "asilePremieres": 0.1174,
+      "ratio": null
+    },
+    {
+      "annee": 2014,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 7.9,
+      "asilePremieres": 7.7855,
+      "ratio": 0.9855
+    },
+    {
+      "annee": 2014,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 2.1,
+      "asilePremieres": 1.2942,
+      "ratio": 0.6163
+    },
+    {
+      "annee": 2014,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 4.8,
+      "asilePremieres": 2.5883,
+      "ratio": 0.5392
+    },
+    {
+      "annee": 2015,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": -0.4,
+      "asilePremieres": 1.0619,
+      "ratio": null
+    },
+    {
+      "annee": 2015,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 14.3,
+      "asilePremieres": 5.4423,
+      "ratio": 0.3806
+    },
+    {
+      "annee": 2015,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 0.5,
+      "asilePremieres": 1.3731,
+      "ratio": 2.7462
+    },
+    {
+      "annee": 2015,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": -0.1,
+      "asilePremieres": 0.3147,
+      "ratio": null
+    },
+    {
+      "annee": 2015,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 8.1,
+      "asilePremieres": 16.0243,
+      "ratio": 1.9783
+    },
+    {
+      "annee": 2015,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 3.2,
+      "asilePremieres": 2.5463,
+      "ratio": 0.7957
+    },
+    {
+      "annee": 2015,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 7.4,
+      "asilePremieres": 3.6848,
+      "ratio": 0.4979
+    },
+    {
+      "annee": 2016,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": -0.3,
+      "asilePremieres": 1.1523,
+      "ratio": null
+    },
+    {
+      "annee": 2016,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 5.6,
+      "asilePremieres": 8.7905,
+      "ratio": 1.5697
+    },
+    {
+      "annee": 2016,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 0.7,
+      "asilePremieres": 2.0143,
+      "ratio": 2.8776
+    },
+    {
+      "annee": 2016,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 1.7,
+      "asilePremieres": 0.3354,
+      "ratio": 0.1973
+    },
+    {
+      "annee": 2016,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 11.9,
+      "asilePremieres": 2.2724,
+      "ratio": 0.191
+    },
+    {
+      "annee": 2016,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 4.6,
+      "asilePremieres": 1.1358,
+      "ratio": 0.2469
+    },
+    {
+      "annee": 2016,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 5.7,
+      "asilePremieres": 1.0636,
+      "ratio": 0.1866
+    },
+    {
+      "annee": 2017,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 0.8,
+      "asilePremieres": 1.3765,
+      "ratio": 1.7206
+    },
+    {
+      "annee": 2017,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 5.1,
+      "asilePremieres": 2.4031,
+      "ratio": 0.4712
+    },
+    {
+      "annee": 2017,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 1.0,
+      "asilePremieres": 2.107,
+      "ratio": 2.107
+    },
+    {
+      "annee": 2017,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 3.8,
+      "asilePremieres": 0.7106,
+      "ratio": 0.187
+    },
+    {
+      "annee": 2017,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 10.1,
+      "asilePremieres": 2.2236,
+      "ratio": 0.2202
+    },
+    {
+      "annee": 2017,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 4.7,
+      "asilePremieres": 0.942,
+      "ratio": 0.2004
+    },
+    {
+      "annee": 2017,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 4.2,
+      "asilePremieres": 0.5462,
+      "ratio": 0.13
+    },
+    {
+      "annee": 2018,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 1.7,
+      "asilePremieres": 1.8885,
+      "ratio": 1.1109
+    },
+    {
+      "annee": 2018,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 4.8,
+      "asilePremieres": 1.9559,
+      "ratio": 0.4075
+    },
+    {
+      "annee": 2018,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 1.2,
+      "asilePremieres": 0.8916,
+      "ratio": 0.743
+    },
+    {
+      "annee": 2018,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 7.0,
+      "asilePremieres": 1.1308,
+      "ratio": 0.1615
+    },
+    {
+      "annee": 2018,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 8.5,
+      "asilePremieres": 1.8463,
+      "ratio": 0.2172
+    },
+    {
+      "annee": 2018,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 5.0,
+      "asilePremieres": 1.1911,
+      "ratio": 0.2382
+    },
+    {
+      "annee": 2018,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 3.2,
+      "asilePremieres": 0.6045,
+      "ratio": 0.1889
+    },
+    {
+      "annee": 2019,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 0.6,
+      "asilePremieres": 2.0551,
+      "ratio": 3.4252
+    },
+    {
+      "annee": 2019,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 3.7,
+      "asilePremieres": 1.7166,
+      "ratio": 0.4639
+    },
+    {
+      "annee": 2019,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 0.7,
+      "asilePremieres": 0.5852,
+      "ratio": 0.836
+    },
+    {
+      "annee": 2019,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 9.7,
+      "asilePremieres": 2.4551,
+      "ratio": 0.2531
+    },
+    {
+      "annee": 2019,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 7.0,
+      "asilePremieres": 2.0337,
+      "ratio": 0.2905
+    },
+    {
+      "annee": 2019,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 6.2,
+      "asilePremieres": 1.3042,
+      "ratio": 0.2104
+    },
+    {
+      "annee": 2019,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 1.6,
+      "asilePremieres": 0.4556,
+      "ratio": 0.2848
+    },
+    {
+      "annee": 2020,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 2.8,
+      "asilePremieres": 1.2114,
+      "ratio": 0.4326
+    },
+    {
+      "annee": 2020,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 2.4,
+      "asilePremieres": 1.2334,
+      "ratio": 0.5139
+    },
+    {
+      "annee": 2020,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": -1.2,
+      "asilePremieres": 0.3578,
+      "ratio": null
+    },
+    {
+      "annee": 2020,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 5.0,
+      "asilePremieres": 1.8256,
+      "ratio": 0.3651
+    },
+    {
+      "annee": 2020,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 3.5,
+      "asilePremieres": 1.1426,
+      "ratio": 0.3265
+    },
+    {
+      "annee": 2020,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 3.9,
+      "asilePremieres": 0.7882,
+      "ratio": 0.2021
+    },
+    {
+      "annee": 2020,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 1.9,
+      "asilePremieres": 0.2464,
+      "ratio": 0.1297
+    },
+    {
+      "annee": 2021,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 2.2,
+      "asilePremieres": 1.5327,
+      "ratio": 0.6967
+    },
+    {
+      "annee": 2021,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 3.7,
+      "asilePremieres": 1.7826,
+      "ratio": 0.4818
+    },
+    {
+      "annee": 2021,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 1.6,
+      "asilePremieres": 0.763,
+      "ratio": 0.4769
+    },
+    {
+      "annee": 2021,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 4.2,
+      "asilePremieres": 1.3094,
+      "ratio": 0.3118
+    },
+    {
+      "annee": 2021,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 4.9,
+      "asilePremieres": 0.8724,
+      "ratio": 0.178
+    },
+    {
+      "annee": 2021,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 6.1,
+      "asilePremieres": 1.4166,
+      "ratio": 0.2322
+    },
+    {
+      "annee": 2021,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 4.6,
+      "asilePremieres": 0.345,
+      "ratio": 0.075
+    },
+    {
+      "annee": 2022,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 2.0,
+      "asilePremieres": 2.0209,
+      "ratio": 1.0105
+    },
+    {
+      "annee": 2022,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 2.5,
+      "asilePremieres": 2.6163,
+      "ratio": 1.0465
+    },
+    {
+      "annee": 2022,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 4.9,
+      "asilePremieres": 1.3078,
+      "ratio": 0.2669
+    },
+    {
+      "annee": 2022,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 15.3,
+      "asilePremieres": 2.4459,
+      "ratio": 0.1599
+    },
+    {
+      "annee": 2022,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 5.6,
+      "asilePremieres": 1.2638,
+      "ratio": 0.2257
+    },
+    {
+      "annee": 2022,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 12.6,
+      "asilePremieres": 2.0198,
+      "ratio": 0.1603
+    },
+    {
+      "annee": 2022,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 10.2,
+      "asilePremieres": 0.767,
+      "ratio": 0.0752
+    },
+    {
+      "annee": 2023,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 2.2,
+      "asilePremieres": 2.126,
+      "ratio": 0.9664
+    },
+    {
+      "annee": 2023,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 8.1,
+      "asilePremieres": 3.9596,
+      "ratio": 0.4888
+    },
+    {
+      "annee": 2023,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 4.5,
+      "asilePremieres": 2.2131,
+      "ratio": 0.4918
+    },
+    {
+      "annee": 2023,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 13.4,
+      "asilePremieres": 3.3372,
+      "ratio": 0.249
+    },
+    {
+      "annee": 2023,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 2.3,
+      "asilePremieres": 0.8516,
+      "ratio": 0.3703
+    },
+    {
+      "annee": 2023,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 7.6,
+      "asilePremieres": 2.1543,
+      "ratio": 0.2835
+    },
+    {
+      "annee": 2023,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 5.0,
+      "asilePremieres": 0.4012,
+      "ratio": 0.0802
+    },
+    {
+      "annee": 2024,
+      "code": "FR",
+      "libelle": "France",
+      "soldeNet": 2.2,
+      "asilePremieres": 1.8918,
+      "ratio": 0.8599
+    },
+    {
+      "annee": 2024,
+      "code": "DE",
+      "libelle": "Allemagne",
+      "soldeNet": 5.4,
+      "asilePremieres": 2.7529,
+      "ratio": 0.5098
+    },
+    {
+      "annee": 2024,
+      "code": "IT",
+      "libelle": "Italie",
+      "soldeNet": 4.1,
+      "asilePremieres": 2.5626,
+      "ratio": 0.625
+    },
+    {
+      "annee": 2024,
+      "code": "ES",
+      "libelle": "Espagne",
+      "soldeNet": 11.8,
+      "asilePremieres": 3.4033,
+      "ratio": 0.2884
+    },
+    {
+      "annee": 2024,
+      "code": "SE",
+      "libelle": "Suède",
+      "soldeNet": 2.7,
+      "asilePremieres": 0.6426,
+      "ratio": 0.238
+    },
+    {
+      "annee": 2024,
+      "code": "NL",
+      "libelle": "Pays-Bas",
+      "soldeNet": 6.0,
+      "asilePremieres": 1.7834,
+      "ratio": 0.2972
+    },
+    {
+      "annee": 2024,
+      "code": "DK",
+      "libelle": "Danemark",
+      "soldeNet": 5.3,
+      "asilePremieres": 0.3707,
+      "ratio": 0.0699
+    }
+  ],
+  "volatilitySoldeCore": [
+    {
+      "code": "FR",
+      "label": "France",
+      "yearLo": 2010,
+      "yearHi": 2024,
+      "n": 15,
+      "stdev": 0.9833,
+      "mean": 1.1867
+    },
+    {
+      "code": "IT",
+      "label": "Italie",
+      "yearLo": 2010,
+      "yearHi": 2024,
+      "n": 15,
+      "stdev": 1.922,
+      "mean": 2.2467
+    },
+    {
+      "code": "DK",
+      "label": "Danemark",
+      "yearLo": 2010,
+      "yearHi": 2024,
+      "n": 15,
+      "stdev": 2.2289,
+      "mean": 4.4067
+    },
+    {
+      "code": "UK",
+      "label": "Royaume-Uni",
+      "yearLo": 2010,
+      "yearHi": 2024,
+      "n": 15,
+      "stdev": 3.3678,
+      "mean": 5.0768
+    }
+  ],
+  "foreignEntries": [
+    {
+      "year": 2016,
+      "FR": 3.6103,
+      "DK": 9.5731,
+      "IT": 4.3702,
+      "UK": 7.8738
+    },
+    {
+      "year": 2017,
+      "FR": 3.6185,
+      "DK": 8.5307,
+      "IT": 5.0123,
+      "UK": 8.5559
+    },
+    {
+      "year": 2018,
+      "FR": 3.8112,
+      "DK": 7.8287,
+      "IT": 4.7633,
+      "UK": 7.9521
+    },
+    {
+      "year": 2019,
+      "FR": 3.7783,
+      "DK": 7.28,
+      "IT": 4.423,
+      "UK": 9.0535
+    },
+    {
+      "year": 2020,
+      "FR": 3.0227,
+      "DK": 6.4928,
+      "IT": 3.2153,
+      "UK": null
+    },
+    {
+      "year": 2021,
+      "FR": 3.8514,
+      "DK": 8.0936,
+      "IT": 4.1125,
+      "UK": null
+    },
+    {
+      "year": 2022,
+      "FR": 5.1405,
+      "DK": 17.4961,
+      "IT": 5.7004,
+      "UK": null
+    },
+    {
+      "year": 2023,
+      "FR": 4.7839,
+      "DK": 13.3763,
+      "IT": 6.4134,
+      "UK": null
+    },
+    {
+      "year": 2024,
+      "FR": 4.5441,
+      "DK": 13.9152,
+      "IT": 6.6662,
+      "UK": null
+    }
+  ],
+  "nationalStats": {
+    "frImmigres": [
+      {
+        "year": 2013,
+        "value": 2.94,
+        "estimated": false
+      },
+      {
+        "year": 2014,
+        "value": 2.82,
+        "estimated": false
+      },
+      {
+        "year": 2015,
+        "value": 2.94,
+        "estimated": false
+      },
+      {
+        "year": 2016,
+        "value": 2.97,
+        "estimated": false
+      },
+      {
+        "year": 2017,
+        "value": 3.09,
+        "estimated": false
+      },
+      {
+        "year": 2018,
+        "value": 3.22,
+        "estimated": false
+      },
+      {
+        "year": 2019,
+        "value": 3.35,
+        "estimated": false
+      },
+      {
+        "year": 2020,
+        "value": 2.35,
+        "estimated": false
+      },
+      {
+        "year": 2021,
+        "value": 3.09,
+        "estimated": false
+      },
+      {
+        "year": 2022,
+        "value": 3.82,
+        "estimated": true
+      },
+      {
+        "year": 2023,
+        "value": 3.97,
+        "estimated": true
+      },
+      {
+        "year": 2024,
+        "value": 3.82,
+        "estimated": true
+      }
+    ],
+    "dkEtrangers": [
+      {
+        "year": 2013,
+        "value": 4.1
+      },
+      {
+        "year": 2014,
+        "value": 5.4
+      },
+      {
+        "year": 2015,
+        "value": 7.4
+      },
+      {
+        "year": 2016,
+        "value": 1.5
+      },
+      {
+        "year": 2017,
+        "value": 3.4
+      },
+      {
+        "year": 2018,
+        "value": 3.5
+      },
+      {
+        "year": 2019,
+        "value": 1.1
+      },
+      {
+        "year": 2020,
+        "value": 1.0
+      },
+      {
+        "year": 2021,
+        "value": 2.2
+      },
+      {
+        "year": 2022,
+        "value": 10.1
+      },
+      {
+        "year": 2023,
+        "value": 5.5
+      },
+      {
+        "year": 2024,
+        "value": 5.1
+      }
+    ],
+    "itEtrangers": [
+      {
+        "year": 2014,
+        "value": 3.2
+      },
+      {
+        "year": 2015,
+        "value": 3.0
+      },
+      {
+        "year": 2016,
+        "value": 3.8
+      },
+      {
+        "year": 2017,
+        "value": 4.3
+      },
+      {
+        "year": 2018,
+        "value": 4.2
+      },
+      {
+        "year": 2019,
+        "value": 3.0
+      },
+      {
+        "year": 2020,
+        "value": 2.6
+      },
+      {
+        "year": 2021,
+        "value": 3.0
+      },
+      {
+        "year": 2022,
+        "value": 4.8
+      },
+      {
+        "year": 2023,
+        "value": 5.6
+      }
+    ],
+    "ukEtrangers": [
+      {
+        "year": 2014,
+        "value": 5.1
+      },
+      {
+        "year": 2015,
+        "value": 5.5
+      },
+      {
+        "year": 2016,
+        "value": 6.0
+      },
+      {
+        "year": 2017,
+        "value": 4.5
+      },
+      {
+        "year": 2018,
+        "value": 4.6
+      },
+      {
+        "year": 2019,
+        "value": 4.6
+      },
+      {
+        "year": 2020,
+        "value": 3.5
+      },
+      {
+        "year": 2021,
+        "value": 5.0
+      },
+      {
+        "year": 2022,
+        "value": 11.8
+      },
+      {
+        "year": 2023,
+        "value": 14.9
+      }
+    ],
+    "ukByOrigin": [
+      {
+        "year": 2012,
+        "eu": 62,
+        "nonEu": 185
+      },
+      {
+        "year": 2013,
+        "eu": 75,
+        "nonEu": 205
+      },
+      {
+        "year": 2014,
+        "eu": 110,
+        "nonEu": 228
+      },
+      {
+        "year": 2015,
+        "eu": 133,
+        "nonEu": 235
+      },
+      {
+        "year": 2016,
+        "eu": 122,
+        "nonEu": 278
+      },
+      {
+        "year": 2017,
+        "eu": 84,
+        "nonEu": 213
+      },
+      {
+        "year": 2018,
+        "eu": 88,
+        "nonEu": 224
+      },
+      {
+        "year": 2019,
+        "eu": 56,
+        "nonEu": 280
+      },
+      {
+        "year": 2020,
+        "eu": 10,
+        "nonEu": 156
+      },
+      {
+        "year": 2021,
+        "eu": -16,
+        "nonEu": 338
+      },
+      {
+        "year": 2022,
+        "eu": -17,
+        "nonEu": 757
+      },
+      {
+        "year": 2023,
+        "eu": -30,
+        "nonEu": 1058
+      },
+      {
+        "year": 2024,
+        "eu": -37,
+        "nonEu": 832
+      },
+      {
+        "year": 2025,
+        "eu": -38,
+        "nonEu": 408
+      }
+    ]
+  }
+}

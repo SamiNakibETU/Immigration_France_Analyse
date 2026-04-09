@@ -1,0 +1,8 @@
+{
+  "name": "terra-nova-migrations-site",
+  "private": true,
+  "description": "Page statique dataviz : le build copie site/ vers .vercel-output pour Vercel.",
+  "scripts": {
+    "build": "node scripts/vercel-static-build.js"
+  }
+}

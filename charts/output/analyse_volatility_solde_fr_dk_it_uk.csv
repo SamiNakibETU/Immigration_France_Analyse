@@ -1,0 +1,5 @@
+code,libelle,year_lo,year_hi,n,stdev,mean
+FR,France,2010,2024,15,0.9833,1.1867
+IT,Italie,2010,2024,15,1.922,2.2467
+DK,Danemark,2010,2024,15,2.2289,4.4067
+UK,Royaume-Uni,2010,2024,15,3.3678,5.0768

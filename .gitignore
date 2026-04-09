@@ -1,0 +1,16 @@
+.vercel-output
+.vercel
+node_modules
+__pycache__/
+*.pyc
+charts/__pycache__/
+charts/cache/
+*.xlsx
+*.xls
+*.docx
+output_final/
+figma_csv/
+texte_agent/
+font/
+Line/
+Solid/

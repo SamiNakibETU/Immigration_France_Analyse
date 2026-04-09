@@ -1,0 +1,8 @@
+Source : Eurostat — table demo_gind, indicateur CNMIGRATRT (taux brut de solde migratoire plus ajustement statistique pour 1 000 habitants). Série harmonisée ; révisions possibles.
+
+France : FR (entière) et FX (métropole) — figure Italie. Eurostat ne diffuse souvent plus FX pour CNMIGRATRT après ~2012 ; compléter avec un export national si besoin.
+Fusion des CSV estat_demo_gind_filtered_en*.csv à la racine Migrations/ lorsqu’ils sont présents.
+
+Royaume-Uni — solde migratoire net de long terme : Office for National Statistics (ONS) uniquement (2005–2011 : année civile, ref. 006408 déc. 2016 ; 2012+ : année se terminant en décembre, tableau LTIM provisional — valeurs YE Dec « All Nationalities » rechargées depuis le XLSX ONS à chaque `refresh_and_publish.py`, avec repli sur valeurs figées si hors-ligne). Taux pour 1 000 hbts : dénominateur = population 1er janv. Eurostat demo_pjan (2005–2020) et estimations mi-année ONS (2021–2024). France : Eurostat demo_gind CNMIGRATRT (année civile) — les deux pays ne suivent pas la même combinaison source/méthode.
+
+Eurostat migr_asyappctza : premières demandes (applicant=FRST, citizen=TOTAL, sex=T, age=TOTAL) ; dénominateur = population au 1er janvier (demo_pjan, age=TOTAL, sex=T). Taux annuels ; ne reflète pas les décisions finales.

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Migrations et asile</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Solde migratoire et asile en Europe</h1>
+      <p class="site-tagline">Données Eurostat et ONS</p>
+    </header>
+    <main class="figures" id="main-figures"></main>
+    <footer class="site-metho" id="site-metho" aria-label="Méthodologie">
+      <p class="site-metho-kicker">Méthodologie</p>
+      <div class="site-metho-body">
+        <p>
+          <strong>Solde net :</strong> Eurostat demo_gind, CNMIGRATRT, pour 1 000 habitants.
+        </p>
+        <p>
+          <strong>Royaume-Uni :</strong> ONS, solde long terme. Pas la même définition qu’Eurostat.
+        </p>
+        <p>
+          <strong>Asile :</strong> Eurostat migr_asyappctza, pour 1 000 habitants, population au 1er janvier (demo_pjan).
+        </p>
+        <p>
+          Les niveaux dépendent aussi des définitions et des sources.
+        </p>
+        <p class="site-metho-meta" id="metho-meta"></p>
+      </div>
+    </footer>
+    <div id="tooltip" class="tooltip-d3" aria-hidden="true"></div>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

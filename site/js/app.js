@@ -1351,9 +1351,8 @@ function render(data) {
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
       const w = 900;
-      /* Marge droite généreuse pour que les étiquettes des grandes barres restent dans le SVG */
-      /* Marge gauche pour les années ; domaine x très étendu vers les nég. + libellés UE collés au zéro, pas à gauche des barres */
-      const margin = { top: 16, right: 16, bottom: 60, left: 76 };
+      /* Marge droite pour libellés à l'extérieur des barres (souvent +800k–+1000k) ; gauche pour les années */
+      const margin = { top: 16, right: 58, bottom: 60, left: 76 };
       const innerW = w - margin.left - margin.right;
       const rowH = 32;
       const years = ukOrigin.map(r => r.year);
@@ -1420,42 +1419,60 @@ function render(data) {
         barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
           .attr("fill", COL.coral).attr("rx", 2);
 
-        /* Libellés gris à gauche du bord utile : Non-UE / UE+ ancrés en fin de barre (côté zéro) ; UE- à gauche de la ligne zéro */
+        /*
+         * Libellés (norme graphique barres horizontales) :
+         * - Barres foncées : jamais gris sur prune/corail ; dehors à droite en encre, ou dedans en blanc si pas la place.
+         * - UE négatif : barre courte à gauche du zéro → valeur dans la zone claire à droite du zéro (lisible, pas sur l’axe).
+         */
         const yNeuMid = ys + (half - 1) / 2;
         const yUeMid = ys + half + 1 + (half - 2) / 2;
         const neuBarEnd = Math.max(x0, x(r.nonEu));
-        const labelStyle = {
-          fill: COL.muted,
-          fontSize: 8,
-          fontWeight: "600",
-          fontVariant: "tabular-nums",
-        };
+        const reserveRight = 52;
+        const fsLab = 8.5;
 
+        const neuTxt = `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`;
+        const neuHasRoomOutside = neuBarEnd + reserveRight <= innerW;
         g.append("text")
-          .attr("class", "uk-bar-label-out")
-          .attr("x", neuBarEnd - 5)
+          .attr("class", "uk-bar-label")
+          .attr("x", neuHasRoomOutside ? neuBarEnd + 5 : neuBarEnd - 4)
           .attr("y", yNeuMid)
           .attr("dy", "0.35em")
-          .attr("text-anchor", "end")
-          .attr("fill", labelStyle.fill)
-          .attr("font-size", labelStyle.fontSize)
-          .attr("font-weight", labelStyle.fontWeight)
-          .attr("font-variant-numeric", labelStyle.fontVariant)
-          .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
+          .attr("text-anchor", neuHasRoomOutside ? "start" : "end")
+          .attr("fill", neuHasRoomOutside ? COL.ink : "#fafaf9")
+          .attr("font-size", fsLab)
+          .attr("font-weight", "600")
+          .attr("font-variant-numeric", "tabular-nums")
+          .text(neuTxt);
 
         const euIsNeg = r.eu < 0;
-        const euLabelX = euIsNeg ? x0 - 5 : x0 + wEu - 5;
-        g.append("text")
-          .attr("class", "uk-bar-label-out")
-          .attr("x", euLabelX)
-          .attr("y", yUeMid)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "end")
-          .attr("fill", labelStyle.fill)
-          .attr("font-size", labelStyle.fontSize)
-          .attr("font-weight", labelStyle.fontWeight)
-          .attr("font-variant-numeric", labelStyle.fontVariant)
-          .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
+        const euTxt = `${r.eu > 0 ? "+" : ""}${r.eu}k`;
+        if (euIsNeg) {
+          g.append("text")
+            .attr("class", "uk-bar-label")
+            .attr("x", x0 + 5)
+            .attr("y", yUeMid)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", "start")
+            .attr("fill", COL.ink)
+            .attr("font-size", fsLab)
+            .attr("font-weight", "600")
+            .attr("font-variant-numeric", "tabular-nums")
+            .text(euTxt);
+        } else {
+          const euEnd = x0 + wEu;
+          const euHasRoomOutside = euEnd + reserveRight <= innerW;
+          g.append("text")
+            .attr("class", "uk-bar-label")
+            .attr("x", euHasRoomOutside ? euEnd + 5 : euEnd - 4)
+            .attr("y", yUeMid)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", euHasRoomOutside ? "start" : "end")
+            .attr("fill", euHasRoomOutside ? COL.ink : "#fafaf9")
+            .attr("font-size", fsLab)
+            .attr("font-weight", "600")
+            .attr("font-variant-numeric", "tabular-nums")
+            .text(euTxt);
+        }
 
         /* Année : bien à gauche du tracé */
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")

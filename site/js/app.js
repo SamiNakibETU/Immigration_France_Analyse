@@ -21,7 +21,7 @@ const PEER_COLORS = [COL.red, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
 
 /**
  * Titres : thèse éditoriale (ce que le graphique démontre).
- * Sous-titres : variable mesurée + unité, style NYT/WSJ — une ligne max.
+ * Sous-titres : variable mesurée + unité, style NYT/WSJ, une ligne max.
  */
 const TITLES = {
   1: {
@@ -66,7 +66,7 @@ const TITLES = {
   },
   volatility: {
     title: "La France, trajectoire la plus stable parmi les quatre",
-    sub: "Écart-type du solde annuel — amplitude des variations",
+    sub: "Écart-type du solde annuel, mesure des fluctuations d'une année à l'autre",
   },
 };
 
@@ -1309,7 +1309,7 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "À partir de 2021, le Royaume-Uni s'envole — la France reste stable",
+        title: "À partir de 2021, le Royaume-Uni s'envole quand la France reste stable",
         sub: "Solde étrangers au Royaume-Uni (ONS LTIM) vs solde immigrés en France (INSEE)",
       });
       const host = art.append("div").attr("class", "chart-host");
@@ -1339,79 +1339,121 @@ function render(data) {
     }
   }
 
-  /* N4 — UK par origine : UE vs non-UE (barres empilées — l'argument Brexit) */
+  /* N4 - UK par origine : UE vs non-UE, l'argument Brexit */
   {
     const ukOrigin = NS.ukByOrigin || [];
     if (ukOrigin.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
         title: "Le Brexit a substitué l'immigration non-européenne à l'européenne",
-        sub: "Solde migratoire net du Royaume-Uni par origine — milliers de personnes (ONS LTIM)",
+        sub: "Solde migratoire net du Royaume-Uni par origine, en milliers de personnes (ONS LTIM)",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
+
       const w = 900;
-      const margin = { top: 16, right: 36, bottom: 48, left: 52 };
+      /* Marge droite généreuse pour que les étiquettes des grandes barres restent dans le SVG */
+      const margin = { top: 16, right: 16, bottom: 60, left: 56 };
       const innerW = w - margin.left - margin.right;
-      const rowH = 28;
+      const rowH = 32;
       const years = ukOrigin.map(r => r.year);
       const innerH = years.length * rowH;
       const height = innerH + margin.top + margin.bottom;
-      const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${height}`).attr("width", "100%").attr("height", height);
+
+      const svg = wrap.append("svg")
+        .attr("viewBox", `0 0 ${w} ${height}`)
+        .attr("width", "100%")
+        .attr("height", height);
+
+      /* Clip-path : les barres ne débordent pas du cadre */
+      const clipIdUk = "clip-uk-origin";
+      svg.append("defs").append("clipPath").attr("id", clipIdUk)
+        .append("rect").attr("x", 0).attr("y", 0).attr("width", innerW).attr("height", innerH);
+
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+      const barsG = g.append("g").attr("clip-path", `url(#${clipIdUk})`);
+
       const allVals = ukOrigin.flatMap(r => [r.eu, r.nonEu]);
-      const xMin = Math.min(0, d3.min(allVals));
-      const xMax = d3.max(allVals) * 1.08;
-      const x = d3.scaleLinear().domain([xMin - 20, xMax]).range([0, innerW]);
-      const y = d3.scaleBand().domain(years.map(String)).range([0, innerH]).paddingInner(0.22).paddingOuter(0.06);
+      const xMax = d3.max(allVals.filter(v => v > 0));
+      const xMin = d3.min(allVals.filter(v => v < 0));
+      /* Domaine : légèrement au-delà du max pour que la barre 2023 (1058k) reste dans le cadre */
+      const x = d3.scaleLinear().domain([Math.min(0, xMin - 10), xMax * 1.02]).range([0, innerW]);
+      const y = d3.scaleBand().domain(years.map(String)).range([0, innerH]).paddingInner(0.25).paddingOuter(0.06);
       const x0 = x(0);
-      // grille
+
+      /* Grille verticale */
       x.ticks(6).forEach(t => {
         g.append("line").attr("x1", x(t)).attr("x2", x(t)).attr("y1", 0).attr("y2", innerH)
           .attr("stroke", "#e0deda").attr("stroke-width", 0.5);
         g.append("text").attr("x", x(t)).attr("y", innerH + 16).attr("text-anchor", "middle")
           .attr("fill", COL.muted).attr("font-size", 8.5).text(t);
       });
-      g.append("text").attr("x", innerW / 2).attr("y", innerH + 34).attr("text-anchor", "middle")
+      g.append("text").attr("x", innerW / 2).attr("y", innerH + 36).attr("text-anchor", "middle")
         .attr("fill", COL.muted).attr("font-size", 9).attr("font-weight", "500").text("Milliers de personnes (net)");
-      // Ligne zéro
+
+      /* Ligne zéro */
       g.append("line").attr("x1", x0).attr("x2", x0).attr("y1", 0).attr("y2", innerH)
-        .attr("stroke", COL.muted).attr("stroke-width", 0.8);
-      // Barres
+        .attr("stroke", COL.ink).attr("stroke-width", 0.8).attr("opacity", 0.35);
+
+      /* Barres et étiquettes */
       ukOrigin.forEach(r => {
         const ys = y(String(r.year));
         const bh = y.bandwidth();
         const half = bh / 2;
-        // Non-UE (bleu — immigration de remplacement post-Brexit)
+
+        /* Non-UE */
         const xNeu = Math.min(x0, x(r.nonEu));
         const wNeu = Math.abs(x(r.nonEu) - x0);
-        g.append("rect").attr("x", xNeu).attr("y", ys).attr("width", wNeu).attr("height", half - 1)
+        barsG.append("rect").attr("x", xNeu).attr("y", ys).attr("width", wNeu).attr("height", half - 1)
           .attr("fill", COL.plum).attr("rx", 2);
-        // UE (corail — s'effondre post-Brexit)
+
+        /* UE */
         const xEu = r.eu >= 0 ? x0 : x(r.eu);
         const wEu = Math.abs(x(r.eu) - x0);
-        g.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
+        barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
           .attr("fill", COL.coral).attr("rx", 2);
-        // Labels valeurs
-        g.append("text").attr("x", Math.max(x0, x(r.nonEu)) + 4).attr("y", ys + half * 0.6)
-          .attr("fill", COL.ink).attr("font-size", 7.5).attr("font-weight", "600")
+
+        /* Étiquette non-UE : à l'intérieur si la barre est assez longue, sinon après */
+        const neuBarEnd = Math.max(x0, x(r.nonEu));
+        const neuLabelInside = wNeu > 60;
+        g.append("text")
+          .attr("x", neuLabelInside ? neuBarEnd - 5 : neuBarEnd + 5)
+          .attr("y", ys + half * 0.65)
+          .attr("text-anchor", neuLabelInside ? "end" : "start")
+          .attr("fill", neuLabelInside ? "#fafaf9" : COL.ink)
+          .attr("font-size", 7.5).attr("font-weight", "600")
           .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
-        g.append("text").attr("x", r.eu >= 0 ? x0 + Math.abs(x(r.eu) - x0) + 4 : x(r.eu) - 4)
-          .attr("y", ys + half * 1.6).attr("text-anchor", r.eu >= 0 ? "start" : "end")
-          .attr("fill", COL.muted).attr("font-size", 7.5).attr("font-weight", "600")
+
+        /* Étiquette UE : à l'intérieur si positif et large, sinon après/avant */
+        const euIsNeg = r.eu < 0;
+        const euLabelInside = !euIsNeg && wEu > 40;
+        const euLabelX = euIsNeg ? (xEu - 5) : (euLabelInside ? x0 + wEu - 5 : x0 + wEu + 5);
+        g.append("text")
+          .attr("x", euLabelX)
+          .attr("y", ys + half * 1.65)
+          .attr("text-anchor", (euIsNeg || euLabelInside) ? "end" : "start")
+          .attr("fill", euLabelInside ? "#fafaf9" : COL.muted)
+          .attr("font-size", 7.5).attr("font-weight", "600")
           .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
-        // Année
+
+        /* Année */
         g.append("text").attr("x", -6).attr("y", ys + bh / 2).attr("dy", "0.35em")
-          .attr("text-anchor", "end").attr("fill", COL.ink).attr("font-size", 8.5)
-          .attr("font-weight", "450").text(r.year);
+          .attr("text-anchor", "end").attr("fill", COL.ink)
+          .attr("font-size", 8.5).attr("font-weight", "450").text(r.year);
       });
-      // Légende
-      const leg = svg.append("g").attr("transform", `translate(${margin.left + 10},${margin.top + innerH + 44})`);
-      [[COL.plum, "Non-UE (immigration de remplacement)"],[COL.coral, "UE (solde devenu négatif après Brexit)"]].forEach(([col, lbl], i) => {
-        leg.append("rect").attr("x", i * 270).attr("y", 0).attr("width", 10).attr("height", 10).attr("fill", col).attr("rx", 1);
-        leg.append("text").attr("x", i * 270 + 15).attr("y", 8).attr("fill", COL.ink).attr("font-size", 8.5).text(lbl);
+
+      /* Légende */
+      const legY = margin.top + innerH + 46;
+      const legItems = [
+        [COL.plum, "Non-UE"],
+        [COL.coral, "UE"],
+      ];
+      legItems.forEach(([col, lbl], i) => {
+        svg.append("rect").attr("x", margin.left + i * 120).attr("y", legY).attr("width", 10).attr("height", 10).attr("fill", col).attr("rx", 1);
+        svg.append("text").attr("x", margin.left + i * 120 + 15).attr("y", legY + 8).attr("fill", COL.ink).attr("font-size", 8.5).text(lbl);
       });
+
       art.append("p").attr("class", "figure-foot").text(
-        "Source : ONS Long-Term International Migration (LTIM). Données provisoires pour 2024-2025. Le solde UE devient négatif à partir de 2021 : les ressortissants européens repartent plus qu'ils n'arrivent. Le Brexit visait à réduire l'immigration — il en a seulement changé la composition, en remplaçant une immigration européenne par une immigration non-européenne bien plus volumineuse."
+        "Source : ONS Long-Term International Migration (LTIM). Données provisoires pour 2024-2025. Le solde UE devient négatif à partir de 2021 : les ressortissants européens repartent plus qu'ils n'arrivent. Le Brexit visait à réduire l'immigration ; il en a seulement changé la composition, en remplaçant une immigration européenne par une immigration non-européenne bien plus volumineuse."
       );
     }
   }

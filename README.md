@@ -38,8 +38,18 @@ output_final/   → Figures SVG + PNG exportées
 
 ## Déploiement Vercel
 
-1. Importer le repo sur [vercel.com/new](https://vercel.com/new).
-2. **Root Directory** : `site` (obligatoire — le `vercel.json` est dans ce dossier).
-3. Laisser **Build Command** et **Output Directory** vides (site statique : `index.html` à la racine du dossier).
+**Deux configurations valides (choisir une seule) :**
 
-Ne pas utiliser de build qui copie vers `.vercel-output` : ce dossier n’existe pas dans Git et n’est pas nécessaire.
+### A — Racine du dépôt (recommandé)
+
+1. **Root Directory** : laisser **vide** (`.`)
+2. Le fichier `vercel.json` à la racine fixe `outputDirectory: "site"` : pas de dossier `.vercel-output`
+3. Dans **Settings → General → Build & Development**, si un **Output Directory** personnalisé apparaît (ex. `.vercel-output`), **supprimez-le** ou remettez-le vide pour laisser `vercel.json` s’appliquer
+
+### B — Dossier `site` comme racine
+
+1. **Root Directory** : `site`
+2. `site/vercel.json` fixe `outputDirectory: "."`
+3. Même remarque : effacer tout **Output Directory** `.vercel-output` dans les réglages du projet
+
+**Erreur « No Output Directory named .vercel-output »** : le projet pointe encore sur un ancien commit (`4ae1f39`) ou les réglages Vercel ont gardé `.vercel-output`. Faites **Redeploy** sur le dernier `main` et nettoyez l’Output Directory dans le dashboard.

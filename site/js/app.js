@@ -1419,59 +1419,31 @@ function render(data) {
         barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
           .attr("fill", COL.coral).attr("rx", 2);
 
-        /*
-         * Libellés : blanc dans la barre si assez large (px) ; sinon hors barre :
-         * positif → à droite de la barre (encre) ; négatif → à gauche de la barre (encre).
-         */
-        const yNeuMid = ys + (half - 1) / 2;
-        const yUeMid = ys + half + 1 + (half - 2) / 2;
-        const neuBarEnd = Math.max(x0, x(r.nonEu));
-        const minBarPxForInsideLabel = 30;
-        const fsLab = 8.5;
+        /* Libellés : centré blanc dans la barre si ≥ 45 px, sinon à droite (positif) ou à gauche (négatif) en encre foncée */
+        const yNeuCenter = ys + (half - 1) / 2;
+        const yUeCenter  = ys + half + 1 + (half - 2) / 2;
+        const MIN_INSIDE = 45;
+        const FS = 8;
 
-        const neuTxt = `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`;
-        const neuInside = wNeu >= minBarPxForInsideLabel;
-        g.append("text")
-          .attr("class", "uk-bar-label")
-          .attr("x", neuInside ? neuBarEnd - 4 : neuBarEnd + 5)
-          .attr("y", yNeuMid)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", neuInside ? "end" : "start")
-          .attr("fill", neuInside ? "#fafaf9" : COL.ink)
-          .attr("font-size", fsLab)
-          .attr("font-weight", "600")
-          .attr("font-variant-numeric", "tabular-nums")
-          .text(neuTxt);
-
-        const euIsNeg = r.eu < 0;
-        const euTxt = `${r.eu > 0 ? "+" : ""}${r.eu}k`;
-        const euInside = wEu >= minBarPxForInsideLabel;
-        if (euIsNeg) {
-          g.append("text")
-            .attr("class", "uk-bar-label")
-            .attr("x", euInside ? x0 - 4 : xEu - 5)
-            .attr("y", yUeMid)
+        function barLabel(grp, xPx, yPx, w, isNeg, txt) {
+          const inside = w >= MIN_INSIDE;
+          const xPos = inside
+            ? xPx + w / 2
+            : isNeg ? xPx - 5 : xPx + w + 5;
+          grp.append("text")
+            .attr("x", xPos)
+            .attr("y", yPx)
             .attr("dy", "0.35em")
-            .attr("text-anchor", "end")
-            .attr("fill", euInside ? "#fafaf9" : COL.ink)
-            .attr("font-size", fsLab)
-            .attr("font-weight", "600")
+            .attr("text-anchor", inside ? "middle" : isNeg ? "end" : "start")
+            .attr("fill", inside ? "#fafaf9" : COL.ink)
+            .attr("font-size", FS)
+            .attr("font-weight", "700")
             .attr("font-variant-numeric", "tabular-nums")
-            .text(euTxt);
-        } else {
-          const euEnd = x0 + wEu;
-          g.append("text")
-            .attr("class", "uk-bar-label")
-            .attr("x", euInside ? euEnd - 4 : euEnd + 5)
-            .attr("y", yUeMid)
-            .attr("dy", "0.35em")
-            .attr("text-anchor", euInside ? "end" : "start")
-            .attr("fill", euInside ? "#fafaf9" : COL.ink)
-            .attr("font-size", fsLab)
-            .attr("font-weight", "600")
-            .attr("font-variant-numeric", "tabular-nums")
-            .text(euTxt);
+            .text(txt);
         }
+
+        barLabel(g, xNeu, yNeuCenter, wNeu, false, `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
+        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`);
 
         /* Année : bien à gauche du tracé */
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")

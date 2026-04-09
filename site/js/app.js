@@ -1420,7 +1420,7 @@ function render(data) {
         barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
           .attr("fill", COL.coral).attr("rx", 2);
 
-        /* Libellés gris hors barres, à droite : Non-UE après la barre ; UE+ après la barre ; UE- juste à droite du zéro (zone claire, pas sur les années) */
+        /* Libellés gris à gauche du bord utile : Non-UE / UE+ ancrés en fin de barre (côté zéro) ; UE- à gauche de la ligne zéro */
         const yNeuMid = ys + (half - 1) / 2;
         const yUeMid = ys + half + 1 + (half - 2) / 2;
         const neuBarEnd = Math.max(x0, x(r.nonEu));
@@ -1433,10 +1433,10 @@ function render(data) {
 
         g.append("text")
           .attr("class", "uk-bar-label-out")
-          .attr("x", neuBarEnd + 5)
+          .attr("x", neuBarEnd - 5)
           .attr("y", yNeuMid)
           .attr("dy", "0.35em")
-          .attr("text-anchor", "start")
+          .attr("text-anchor", "end")
           .attr("fill", labelStyle.fill)
           .attr("font-size", labelStyle.fontSize)
           .attr("font-weight", labelStyle.fontWeight)
@@ -1444,13 +1444,13 @@ function render(data) {
           .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
 
         const euIsNeg = r.eu < 0;
-        const euLabelX = euIsNeg ? x0 + 5 : x0 + wEu + 5;
+        const euLabelX = euIsNeg ? x0 - 5 : x0 + wEu - 5;
         g.append("text")
           .attr("class", "uk-bar-label-out")
           .attr("x", euLabelX)
           .attr("y", yUeMid)
           .attr("dy", "0.35em")
-          .attr("text-anchor", "start")
+          .attr("text-anchor", "end")
           .attr("fill", labelStyle.fill)
           .attr("font-size", labelStyle.fontSize)
           .attr("font-weight", labelStyle.fontWeight)

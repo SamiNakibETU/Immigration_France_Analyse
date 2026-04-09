@@ -1351,8 +1351,8 @@ function render(data) {
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
       const w = 900;
-      /* Marge droite pour libellés à l'extérieur des barres (souvent +800k–+1000k) ; gauche pour les années */
-      const margin = { top: 16, right: 58, bottom: 60, left: 76 };
+      /* Droite : marge pour libellés hors barre (barres courtes) ; gauche : années */
+      const margin = { top: 16, right: 36, bottom: 60, left: 76 };
       const innerW = w - margin.left - margin.right;
       const rowH = 32;
       const years = ukOrigin.map(r => r.year);
@@ -1420,25 +1420,24 @@ function render(data) {
           .attr("fill", COL.coral).attr("rx", 2);
 
         /*
-         * Libellés (norme graphique barres horizontales) :
-         * - Barres foncées : jamais gris sur prune/corail ; dehors à droite en encre, ou dedans en blanc si pas la place.
-         * - UE négatif : barre courte à gauche du zéro → valeur dans la zone claire à droite du zéro (lisible, pas sur l’axe).
+         * Libellés : blanc dans la barre si assez large (px) ; sinon hors barre :
+         * positif → à droite de la barre (encre) ; négatif → à gauche de la barre (encre).
          */
         const yNeuMid = ys + (half - 1) / 2;
         const yUeMid = ys + half + 1 + (half - 2) / 2;
         const neuBarEnd = Math.max(x0, x(r.nonEu));
-        const reserveRight = 52;
+        const minBarPxForInsideLabel = 30;
         const fsLab = 8.5;
 
         const neuTxt = `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`;
-        const neuHasRoomOutside = neuBarEnd + reserveRight <= innerW;
+        const neuInside = wNeu >= minBarPxForInsideLabel;
         g.append("text")
           .attr("class", "uk-bar-label")
-          .attr("x", neuHasRoomOutside ? neuBarEnd + 5 : neuBarEnd - 4)
+          .attr("x", neuInside ? neuBarEnd - 4 : neuBarEnd + 5)
           .attr("y", yNeuMid)
           .attr("dy", "0.35em")
-          .attr("text-anchor", neuHasRoomOutside ? "start" : "end")
-          .attr("fill", neuHasRoomOutside ? COL.ink : "#fafaf9")
+          .attr("text-anchor", neuInside ? "end" : "start")
+          .attr("fill", neuInside ? "#fafaf9" : COL.ink)
           .attr("font-size", fsLab)
           .attr("font-weight", "600")
           .attr("font-variant-numeric", "tabular-nums")
@@ -1446,28 +1445,28 @@ function render(data) {
 
         const euIsNeg = r.eu < 0;
         const euTxt = `${r.eu > 0 ? "+" : ""}${r.eu}k`;
+        const euInside = wEu >= minBarPxForInsideLabel;
         if (euIsNeg) {
           g.append("text")
             .attr("class", "uk-bar-label")
-            .attr("x", x0 + 5)
+            .attr("x", euInside ? x0 - 4 : xEu - 5)
             .attr("y", yUeMid)
             .attr("dy", "0.35em")
-            .attr("text-anchor", "start")
-            .attr("fill", COL.ink)
+            .attr("text-anchor", "end")
+            .attr("fill", euInside ? "#fafaf9" : COL.ink)
             .attr("font-size", fsLab)
             .attr("font-weight", "600")
             .attr("font-variant-numeric", "tabular-nums")
             .text(euTxt);
         } else {
           const euEnd = x0 + wEu;
-          const euHasRoomOutside = euEnd + reserveRight <= innerW;
           g.append("text")
             .attr("class", "uk-bar-label")
-            .attr("x", euHasRoomOutside ? euEnd + 5 : euEnd - 4)
+            .attr("x", euInside ? euEnd - 4 : euEnd + 5)
             .attr("y", yUeMid)
             .attr("dy", "0.35em")
-            .attr("text-anchor", euHasRoomOutside ? "start" : "end")
-            .attr("fill", euHasRoomOutside ? COL.ink : "#fafaf9")
+            .attr("text-anchor", euInside ? "end" : "start")
+            .attr("fill", euInside ? "#fafaf9" : COL.ink)
             .attr("font-size", fsLab)
             .attr("font-weight", "600")
             .attr("font-variant-numeric", "tabular-nums")

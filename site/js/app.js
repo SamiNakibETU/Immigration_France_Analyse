@@ -1352,8 +1352,8 @@ function render(data) {
 
       const w = 900;
       /* Marge droite généreuse pour que les étiquettes des grandes barres restent dans le SVG */
-      /* Marge gauche un peu plus large pour les années ; l'axe x s'étend vers les négatifs pour éviter le chevauchement barres UE / années */
-      const margin = { top: 16, right: 16, bottom: 60, left: 64 };
+      /* Marge gauche pour les années ; domaine x très étendu vers les nég. + libellés UE collés au zéro, pas à gauche des barres */
+      const margin = { top: 16, right: 16, bottom: 60, left: 76 };
       const innerW = w - margin.left - margin.right;
       const rowH = 32;
       const years = ukOrigin.map(r => r.year);
@@ -1377,12 +1377,12 @@ function render(data) {
       const xMax = d3.max(allVals.filter((v) => v > 0));
       const xMinNeg = d3.min(allVals.filter((v) => v < 0));
       /*
-       * Étendre fortement le côté négatif du domaine : la ligne zéro se décale vers la droite,
-       * les barres et libellés UE négatifs ne se superposent plus aux années (à gauche).
+       * Large marge négative sur l'axe : la ligne zéro est bien à droite, loin des libellés d'années.
+       * Les valeurs UE négatives sont petites (-40 à 0) : sans ça, l'échelle serait trop serrée à gauche.
        */
       const domainHi = xMax * 1.02;
       const domainLo = Number.isFinite(xMinNeg)
-        ? Math.min(xMinNeg - 20, -130)
+        ? Math.min(xMinNeg - 45, -240)
         : 0;
       const x = d3.scaleLinear().domain([domainLo, domainHi]).range([0, innerW]);
       const y = d3.scaleBand().domain(years.map(String)).range([0, innerH]).paddingInner(0.25).paddingOuter(0.06);
@@ -1431,20 +1431,33 @@ function render(data) {
           .attr("font-size", 7.5).attr("font-weight", "600")
           .text(`${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
 
-        /* Étiquette UE : à l'intérieur si positif et large, sinon après/avant */
+        /* Étiquette UE : positifs comme avant ; négatifs : jamais à gauche de la barre (évite chevauchement avec l'année) */
         const euIsNeg = r.eu < 0;
-        const euLabelInside = !euIsNeg && wEu > 40;
-        const euLabelX = euIsNeg ? (xEu - 5) : (euLabelInside ? x0 + wEu - 5 : x0 + wEu + 5);
+        const euLabelInsidePos = !euIsNeg && wEu > 40;
+        let euLabelX;
+        let euAnchor;
+        let euFill;
+        if (euIsNeg) {
+          /* Centrer dans la barre si assez large, sinon juste à gauche de la ligne zéro (toujours à droite des années) */
+          const useCenter = wEu >= 34;
+          euLabelX = useCenter ? xEu + wEu / 2 : x0 - 4;
+          euAnchor = useCenter ? "middle" : "end";
+          euFill = useCenter ? "#fafaf9" : COL.muted;
+        } else {
+          euLabelX = euLabelInsidePos ? x0 + wEu - 5 : x0 + wEu + 5;
+          euAnchor = euLabelInsidePos ? "end" : "start";
+          euFill = euLabelInsidePos ? "#fafaf9" : COL.muted;
+        }
         g.append("text")
           .attr("x", euLabelX)
           .attr("y", ys + half * 1.65)
-          .attr("text-anchor", (euIsNeg || euLabelInside) ? "end" : "start")
-          .attr("fill", euLabelInside ? "#fafaf9" : COL.muted)
+          .attr("text-anchor", euAnchor)
+          .attr("fill", euFill)
           .attr("font-size", 7.5).attr("font-weight", "600")
           .text(`${r.eu > 0 ? "+" : ""}${r.eu}k`);
 
-        /* Année */
-        g.append("text").attr("x", -6).attr("y", ys + bh / 2).attr("dy", "0.35em")
+        /* Année : bien à gauche du tracé */
+        g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
           .attr("text-anchor", "end").attr("fill", COL.ink)
           .attr("font-size", 8.5).attr("font-weight", "450").text(r.year);
       });

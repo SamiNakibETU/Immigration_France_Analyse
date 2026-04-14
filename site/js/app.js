@@ -832,18 +832,154 @@ function parseSvgPixelSize(svgEl) {
   return { w, h };
 }
 
-/** Clone SVG avec xmlns et police de secours pour export (Word / PNG). */
-function cloneSvgForExport(svgEl) {
-  const svg = /** @type {SVGSVGElement} */ (svgEl.cloneNode(true));
-  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  if (!svg.getAttribute("xmlns:xlink")) {
-    svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** Retours à la ligne pour titres / sous-titres dans l’export (largeur ~px implicite). */
+function wrapTextToLines(text, maxChars) {
+  if (!text) return [];
+  const words = String(text).trim().split(/\s+/);
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    const trial = cur ? `${cur} ${w}` : w;
+    if (trial.length > maxChars && cur) {
+      lines.push(cur);
+      cur = w;
+    } else cur = trial;
   }
-  const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
-  style.textContent =
-    "text,tspan{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif!important}";
-  svg.insertBefore(style, svg.firstChild);
-  return svg;
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+/**
+ * Styles critiques inlinés dans le SVG exporté (Word n’applique pas main.css).
+ * Couleurs alignées sur :root dans main.css.
+ */
+const EXPORT_SVG_STYLES = `
+svg { background-color: #fafaf9; }
+text, tspan { font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif !important; }
+.chart-line-swiss .chart-grid-line {
+  stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
+  vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
+}
+.chart-line-swiss .end-labels path { stroke-width: 0.55px; opacity: 0.75; }
+.chart-line-swiss .y-axis-label text { fill: #5a5a58; }
+g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
+.annotation-markers line {
+  stroke: currentColor; stroke-width: 0.75px; stroke-dasharray: 2.5 2; opacity: 0.6;
+}
+.annotation-markers .ann-label {
+  font-size: 7px; font-weight: 600; letter-spacing: 0.055em; text-transform: uppercase;
+}
+.chart-bar-swiss .bar-plot-grid .bar-grid-line {
+  stroke: #ecebe8; stroke-width: 0.5px; opacity: 0.42;
+  vector-effect: non-scaling-stroke;
+}
+.chart-bar-swiss .bar-fill { vector-effect: non-scaling-stroke; }
+`;
+
+/**
+ * SVG autonome : bandeau titre + sous-titre (+ panneau optionnel), styles inline,
+ * graphique décalé sous le bandeau (comme sur la page).
+ */
+function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
+  const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
+  const title = articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure";
+  const sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
+  const titleLines = wrapTextToLines(title, 52);
+  const subLines = wrapTextToLines(sub, 92);
+  const panelLines = miniPanelLabel ? wrapTextToLines(String(miniPanelLabel), 80) : [];
+
+  const titleH = 18 + titleLines.length * 22;
+  const subH = subLines.length ? 10 + subLines.length * 17 : 0;
+  const panelH = panelLines.length ? 8 + panelLines.length * 15 : 0;
+  const headerH = Math.min(220, Math.max(88, titleH + subH + panelH + 24));
+
+  const totalW = cw;
+  const totalH = ch + headerH;
+
+  const root = document.createElementNS(SVG_NS, "svg");
+  root.setAttribute("xmlns", SVG_NS);
+  root.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  root.setAttribute("viewBox", `0 0 ${totalW} ${totalH}`);
+  root.setAttribute("width", String(totalW));
+  root.setAttribute("height", String(totalH));
+  root.setAttribute("overflow", "hidden");
+
+  const styleEl = document.createElementNS(SVG_NS, "style");
+  styleEl.textContent = EXPORT_SVG_STYLES;
+  root.appendChild(styleEl);
+
+  const headBg = document.createElementNS(SVG_NS, "rect");
+  headBg.setAttribute("x", "0");
+  headBg.setAttribute("y", "0");
+  headBg.setAttribute("width", String(totalW));
+  headBg.setAttribute("height", String(headerH));
+  headBg.setAttribute("fill", "#fafaf9");
+  root.appendChild(headBg);
+
+  const headRule = document.createElementNS(SVG_NS, "line");
+  headRule.setAttribute("x1", "24");
+  headRule.setAttribute("x2", String(totalW - 24));
+  headRule.setAttribute("y1", String(headerH - 1));
+  headRule.setAttribute("y2", String(headerH - 1));
+  headRule.setAttribute("stroke", "#dededc");
+  headRule.setAttribute("stroke-width", "1");
+  root.appendChild(headRule);
+
+  let ty = 22;
+  titleLines.forEach((line) => {
+    const t = document.createElementNS(SVG_NS, "text");
+    t.setAttribute("x", "28");
+    t.setAttribute("y", String(ty));
+    t.setAttribute("fill", "#141414");
+    t.setAttribute("font-size", "17");
+    t.setAttribute("font-weight", "500");
+    t.setAttribute("letter-spacing", "-0.028em");
+    t.textContent = line;
+    root.appendChild(t);
+    ty += 22;
+  });
+  ty += 4;
+  subLines.forEach((line) => {
+    const t = document.createElementNS(SVG_NS, "text");
+    t.setAttribute("x", "28");
+    t.setAttribute("y", String(ty));
+    t.setAttribute("fill", "#5a5a58");
+    t.setAttribute("font-size", "11");
+    t.setAttribute("font-weight", "450");
+    t.setAttribute("letter-spacing", "0.01em");
+    t.textContent = line;
+    root.appendChild(t);
+    ty += 17;
+  });
+  panelLines.forEach((line) => {
+    const t = document.createElementNS(SVG_NS, "text");
+    t.setAttribute("x", "28");
+    t.setAttribute("y", String(ty));
+    t.setAttribute("fill", "#5a5a58");
+    t.setAttribute("font-size", "10");
+    t.setAttribute("font-weight", "600");
+    t.setAttribute("letter-spacing", "0.08em");
+    t.setAttribute("text-transform", "uppercase");
+    t.textContent = line;
+    root.appendChild(t);
+    ty += 15;
+  });
+
+  const chartLayer = document.createElementNS(SVG_NS, "g");
+  const host = chartSvg.closest(".chart-host");
+  const layerClasses = ["export-chart-shift"];
+  const svgClass = chartSvg.getAttribute("class");
+  if (svgClass) layerClasses.push(svgClass);
+  if (host && host.classList.contains("chart-bar-swiss")) layerClasses.push("chart-bar-swiss");
+  chartLayer.setAttribute("class", layerClasses.join(" ").trim());
+  chartLayer.setAttribute("transform", `translate(0,${headerH})`);
+  const innerClone = chartSvg.cloneNode(true);
+  while (innerClone.firstChild) chartLayer.appendChild(innerClone.firstChild);
+  root.appendChild(chartLayer);
+
+  return root;
 }
 
 function downloadBlob(blob, filename) {
@@ -857,22 +993,19 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2500);
 }
 
-function exportFigureSvg(svgEl, filenameBase) {
-  const svg = cloneSvgForExport(svgEl);
-  const { w, h } = parseSvgPixelSize(svgEl);
-  svg.setAttribute("width", String(w));
-  svg.setAttribute("height", String(h));
-  const xml = new XMLSerializer().serializeToString(svg);
+function exportFigureSvg(svgEl, filenameBase, articleEl, miniPanelLabel) {
+  const root = buildExportRootSvg(svgEl, articleEl, miniPanelLabel);
+  const xml = new XMLSerializer().serializeToString(root);
   const out = `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`;
   downloadBlob(new Blob([out], { type: "image/svg+xml;charset=utf-8" }), `${filenameBase}.svg`);
 }
 
-function exportFigurePng(svgEl, filenameBase, scale = 2) {
-  const { w, h } = parseSvgPixelSize(svgEl);
-  const svg = cloneSvgForExport(svgEl);
-  svg.setAttribute("width", String(w));
-  svg.setAttribute("height", String(h));
-  const str = new XMLSerializer().serializeToString(svg);
+function exportFigurePng(svgEl, filenameBase, scale, articleEl, miniPanelLabel) {
+  const root = buildExportRootSvg(svgEl, articleEl, miniPanelLabel);
+  const { w, h } = parseSvgPixelSize(root);
+  root.setAttribute("width", String(w));
+  root.setAttribute("height", String(h));
+  const str = new XMLSerializer().serializeToString(root);
   const blob = new Blob([str], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const img = new Image();
@@ -914,6 +1047,9 @@ function attachFigureExports() {
     const miniTitles = [...article.querySelectorAll(".mini-panel-title")].map((el) =>
       slugifyTitle(el.textContent || "")
     );
+    const miniLabelsRaw = [...article.querySelectorAll(".mini-panel-title")].map((el) =>
+      (el.textContent || "").trim()
+    );
 
     const bar = document.createElement("div");
     bar.className = "figure-export";
@@ -951,14 +1087,16 @@ function attachFigureExports() {
         return b;
       };
 
+      const miniLabel = svgs.length > 1 ? miniLabelsRaw[i] || "" : "";
+
       grp.appendChild(
-        mkBtn("SVG", "Fichier vectoriel, idéal dans Word (Insertion > Images)", () =>
-          exportFigureSvg(svgEl, base)
+        mkBtn("SVG", "Fichier vectoriel avec titre et styles (Word)", () =>
+          exportFigureSvg(svgEl, base, article, miniLabel)
         )
       );
       grp.appendChild(
         mkBtn("PNG 2×", "Image matricielle haute définition (fond papier)", () =>
-          exportFigurePng(svgEl, base, 2)
+          exportFigurePng(svgEl, base, 2, article, miniLabel)
         )
       );
       bar.appendChild(grp);

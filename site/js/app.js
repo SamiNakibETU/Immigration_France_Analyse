@@ -856,7 +856,7 @@ function wrapTextToLines(text, maxChars) {
  * Couleurs alignées sur :root dans main.css.
  */
 const EXPORT_SVG_STYLES = `
-svg { background-color: #fafaf9; }
+svg { background-color: #ffffff; }
 text, tspan { font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif !important; }
 .chart-line-swiss .chart-grid-line {
   stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
@@ -915,7 +915,7 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   headBg.setAttribute("y", "0");
   headBg.setAttribute("width", String(totalW));
   headBg.setAttribute("height", String(headerH));
-  headBg.setAttribute("fill", "#fafaf9");
+  headBg.setAttribute("fill", "#ffffff");
   root.appendChild(headBg);
 
   const headRule = document.createElementNS(SVG_NS, "line");
@@ -926,6 +926,15 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   headRule.setAttribute("stroke", "#dededc");
   headRule.setAttribute("stroke-width", "1");
   root.appendChild(headRule);
+
+  /* Fond blanc explicite sous le tracé (Word ne peint pas toujours le fond du svg) */
+  const plotBg = document.createElementNS(SVG_NS, "rect");
+  plotBg.setAttribute("x", "0");
+  plotBg.setAttribute("y", String(headerH));
+  plotBg.setAttribute("width", String(totalW));
+  plotBg.setAttribute("height", String(totalH - headerH));
+  plotBg.setAttribute("fill", "#ffffff");
+  root.appendChild(plotBg);
 
   let ty = 22;
   titleLines.forEach((line) => {
@@ -1017,7 +1026,7 @@ function exportFigurePng(svgEl, filenameBase, scale, articleEl, miniPanelLabel) 
       canvas.height = Math.round(h * scale);
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.fillStyle = "#fafaf9";
+      ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       canvas.toBlob((pngBlob) => {

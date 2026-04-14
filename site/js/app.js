@@ -807,6 +807,169 @@ function barHFigure(container, opts) {
   });
 }
 
+/** Slug fichier à partir du titre de figure (export Word). */
+function slugifyTitle(s) {
+  const ascii = String(s || "figure")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return (ascii || "figure").toLowerCase().slice(0, 55);
+}
+
+function parseSvgPixelSize(svgEl) {
+  const vb = svgEl.getAttribute("viewBox");
+  if (vb) {
+    const parts = vb.trim().split(/[\s,]+/);
+    if (parts.length >= 4) {
+      const w = Number.parseFloat(parts[2]);
+      const h = Number.parseFloat(parts[3]);
+      if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) return { w, h };
+    }
+  }
+  const w = Number.parseFloat(svgEl.getAttribute("width")) || 900;
+  const h = Number.parseFloat(svgEl.getAttribute("height")) || 460;
+  return { w, h };
+}
+
+/** Clone SVG avec xmlns et police de secours pour export (Word / PNG). */
+function cloneSvgForExport(svgEl) {
+  const svg = /** @type {SVGSVGElement} */ (svgEl.cloneNode(true));
+  svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  if (!svg.getAttribute("xmlns:xlink")) {
+    svg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  }
+  const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+  style.textContent =
+    "text,tspan{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif!important}";
+  svg.insertBefore(style, svg.firstChild);
+  return svg;
+}
+
+function downloadBlob(blob, filename) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2500);
+}
+
+function exportFigureSvg(svgEl, filenameBase) {
+  const svg = cloneSvgForExport(svgEl);
+  const { w, h } = parseSvgPixelSize(svgEl);
+  svg.setAttribute("width", String(w));
+  svg.setAttribute("height", String(h));
+  const xml = new XMLSerializer().serializeToString(svg);
+  const out = `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`;
+  downloadBlob(new Blob([out], { type: "image/svg+xml;charset=utf-8" }), `${filenameBase}.svg`);
+}
+
+function exportFigurePng(svgEl, filenameBase, scale = 2) {
+  const { w, h } = parseSvgPixelSize(svgEl);
+  const svg = cloneSvgForExport(svgEl);
+  svg.setAttribute("width", String(w));
+  svg.setAttribute("height", String(h));
+  const str = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([str], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.decoding = "async";
+  img.onload = () => {
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.fillStyle = "#fafaf9";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((pngBlob) => {
+        if (pngBlob) downloadBlob(pngBlob, `${filenameBase}-${scale}x.png`);
+      }, "image/png");
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+  img.onerror = () => URL.revokeObjectURL(url);
+  img.src = url;
+}
+
+/**
+ * Ajoute les boutons d'export sur chaque article.figure (après rendu D3).
+ * Plusieurs SVG (ex. duo solde / asile) : un groupe de boutons par panneau.
+ */
+function attachFigureExports() {
+  const root = document.getElementById("main-figures");
+  if (!root) return;
+  root.querySelectorAll("article.figure").forEach((article) => {
+    if (article.querySelector(".figure-export")) return;
+    const titleEl = article.querySelector(".figure-title");
+    const baseTitle = slugifyTitle(titleEl?.textContent || "figure");
+    const svgs = [...article.querySelectorAll(".chart-host svg")];
+    if (!svgs.length) return;
+    const miniTitles = [...article.querySelectorAll(".mini-panel-title")].map((el) =>
+      slugifyTitle(el.textContent || "")
+    );
+
+    const bar = document.createElement("div");
+    bar.className = "figure-export";
+    bar.setAttribute("role", "group");
+    bar.setAttribute("aria-label", "Exporter la figure");
+
+    const label = document.createElement("span");
+    label.className = "figure-export-kicker";
+    label.textContent = "Export (Word, haute qualité)";
+    bar.appendChild(label);
+
+    svgs.forEach((svgEl, i) => {
+      const suffix = svgs.length > 1 ? `-${miniTitles[i] || `partie-${i + 1}`}` : "";
+      const base = `${baseTitle}${suffix}`;
+
+      const grp = document.createElement("span");
+      grp.className = "figure-export-group";
+
+      const mkBtn = (text, titleAttr, onClick) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "figure-export-btn";
+        b.textContent = text;
+        b.title = titleAttr;
+        b.addEventListener("click", () => {
+          try {
+            b.disabled = true;
+            onClick();
+          } finally {
+            setTimeout(() => {
+              b.disabled = false;
+            }, 800);
+          }
+        });
+        return b;
+      };
+
+      grp.appendChild(
+        mkBtn("SVG", "Fichier vectoriel, idéal dans Word (Insertion > Images)", () =>
+          exportFigureSvg(svgEl, base)
+        )
+      );
+      grp.appendChild(
+        mkBtn("PNG 2×", "Image matricielle haute définition (fond papier)", () =>
+          exportFigurePng(svgEl, base, 2)
+        )
+      );
+      bar.appendChild(grp);
+    });
+
+    const firstHost = article.querySelector(".chart-host");
+    if (firstHost) firstHost.insertAdjacentElement("beforebegin", bar);
+    else article.prepend(bar);
+  });
+}
+
 function dualBarRow(container, data, footer) {
   figureHead(container, TITLES.dual);
 
@@ -1714,6 +1877,8 @@ function render(data) {
       );
     }
   }
+
+  attachFigureExports();
 }
 
 fetch("data.json")

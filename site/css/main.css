@@ -143,13 +143,61 @@ article.figure:last-of-type {
 }
 
 .figure-sub {
-  margin: 0 0 var(--space-md);
+  margin: 0 0 var(--space-sm);
   color: var(--tn-muted);
   font-size: 0.78rem;
   font-weight: var(--fw-book);
   max-width: 763px;
   line-height: 1.48;
   letter-spacing: 0.01em;
+}
+
+/* Export Word : SVG vectoriel + PNG 2× */
+.figure-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+  margin: 0 0 var(--space-md);
+  padding: var(--space-xs) 0;
+}
+
+.figure-export-kicker {
+  font-size: 0.65rem;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tn-muted);
+}
+
+.figure-export-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.figure-export-btn {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--tn-hairline);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--tn-ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.figure-export-btn:hover:not(:disabled) {
+  background: var(--tn-grid);
+  border-color: var(--tn-muted);
+}
+
+.figure-export-btn:disabled {
+  opacity: 0.45;
+  cursor: wait;
 }
 
 .figure-foot {

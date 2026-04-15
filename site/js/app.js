@@ -511,17 +511,15 @@ function lineChartFigure(container, opts) {
       .attr("d", line);
     if (s.dash) path.attr("stroke-dasharray", s.dash);
 
-    /* Points visibles sur la courbe (Thierry : rendre les données plus lisibles) */
+    /* Points visibles sur la courbe — minimalistes, sans halo */
     linesG.selectAll(`.vis-dot-${s.key}`)
       .data(s.points.filter((d) => d.value != null))
       .join("circle")
       .attr("class", `vis-dot-${s.key}`)
       .attr("cx", (d) => x(d.year))
       .attr("cy", (d) => y(d.value))
-      .attr("r", 3.5)
+      .attr("r", 2.5)
       .attr("fill", s.color)
-      .attr("stroke", "#ffffff")
-      .attr("stroke-width", 1.2)
       .attr("pointer-events", "none");
 
     /* Zones de survol invisibles (plus grandes pour faciliter le tooltip) */

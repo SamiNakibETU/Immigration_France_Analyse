@@ -472,6 +472,19 @@ function lineChartFigure(container, opts) {
     .attr("y1", (d) => y(d))
     .attr("y2", (d) => y(d));
 
+  /* Grille verticale légère */
+  const xGridTicks = Math.min(12, Math.max(6, Math.floor((xDom[1] - xDom[0]) / 2)));
+  g.append("g")
+    .attr("class", "chart-grid-v")
+    .selectAll("line")
+    .data(x.ticks(xGridTicks))
+    .join("line")
+    .attr("class", "chart-grid-line-v")
+    .attr("x1", (d) => x(d))
+    .attr("x2", (d) => x(d))
+    .attr("y1", 0)
+    .attr("y2", innerH);
+
   const yAxisG = g.append("g").call(
     d3.axisLeft(y).ticks(6).tickFormat(d3.format(".1f")).tickSize(0).tickPadding(9),
   );
@@ -873,7 +886,11 @@ const EXPORT_SVG_STYLES = `
 svg { background-color: #ffffff; }
 text, tspan { font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif !important; }
 .chart-line-swiss .chart-grid-line {
-  stroke: #c2c0ba; stroke-width: 1px; opacity: 1;
+  stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
+  vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
+}
+.chart-line-swiss .chart-grid-line-v {
+  stroke: #dddbd7; stroke-width: 0.5px; opacity: 0.7;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
 }
 .chart-line-swiss .end-labels path { stroke-width: 0.55px; opacity: 0.75; }

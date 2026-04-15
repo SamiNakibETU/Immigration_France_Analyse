@@ -222,9 +222,17 @@ article.figure:last-of-type {
 
 /* Courbes : grille horizontale lisible ; pas de trait de cadre (domain retiré en JS) */
 .chart-line-swiss .chart-grid-line {
-  stroke: #c2c0ba;
-  stroke-width: 1px;
-  opacity: 1;
+  stroke: #d4d2cd;
+  stroke-width: 0.85px;
+  opacity: 0.95;
+  vector-effect: non-scaling-stroke;
+  shape-rendering: crispEdges;
+}
+
+.chart-line-swiss .chart-grid-line-v {
+  stroke: #dddbd7;
+  stroke-width: 0.5px;
+  opacity: 0.7;
   vector-effect: non-scaling-stroke;
   shape-rendering: crispEdges;
 }

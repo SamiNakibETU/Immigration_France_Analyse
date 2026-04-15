@@ -1607,7 +1607,7 @@ function render(data) {
         margin: { top: 20, right: 240, bottom: 52, left: 64 },
       });
       art.append("p").attr("class", "figure-foot").text(
-        "Sources : Statistics Denmark (solde migratoire des étrangers, citizenship-based) ; INSEE (solde migratoire des immigrés, France métropolitaine). 2022-2024 France = estimation (94 000 sorties/an). Indicateurs non strictement équivalents : l'indicateur danois est un minorant par rapport au français."
+        "Sources : Statistics Denmark (solde migratoire des étrangers, citizenship-based) ; INSEE (solde migratoire des immigrés, France métropolitaine). 2022-2023 France = estimation (entrées réelles INSEE EAR 2024 : 375k en 2022, 347k en 2023 ; sorties estimées à 94 000/an, moyenne 2012-2021). Source : INSEE Première n°2050, mai 2025. Indicateurs non strictement équivalents : l'indicateur danois est un minorant par rapport au français."
       );
     }
   }
@@ -1647,7 +1647,7 @@ function render(data) {
         margin: { top: 20, right: 240, bottom: 52, left: 64 },
       });
       art.append("p").attr("class", "figure-foot").text(
-        "Sources : Istat (solde migratoire des étrangers, Italie) ; INSEE (solde migratoire des immigrés, France). 2022-2024 France = estimation. Même biais méthodologique que pour le Danemark : l'indicateur Istat est citizenship-based, l'indicateur INSEE est birthplace-based."
+        "Sources : Istat (solde migratoire des étrangers, Italie) ; INSEE (solde migratoire des immigrés, France). 2022-2023 France = estimation (entrées réelles INSEE, sorties ~94 000/an). Source : INSEE Première n°2050, mai 2025. Même biais méthodologique que pour le Danemark : l'indicateur Istat est citizenship-based, l'indicateur INSEE est birthplace-based."
       );
     }
   }

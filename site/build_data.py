@@ -356,28 +356,34 @@ def dual_panel_latest(mig: list[dict], asy: list[dict], codes: list[str]) -> tup
 # ── Données statistiques nationales (hors Eurostat harmonisé) ─────────────────
 # Sources :
 #   - INSEE : solde migratoire des immigrés (nés étrangers à l'étranger), France métropolitaine.
-#     Série officielle disponible jusqu'en 2021 ; 2022-2024 = estimation (94 000 sorties/an).
+#     Source : INSEE Première n°2050, mai 2025 (figure 2a). Méthodologie révisée sur 2006-2023.
+#     Solde = entrées (EAR) - sorties estimées. 2022-2023 : entrées connues (EAR 2024),
+#     sorties = hypothèse 94 000/an (moyenne 2012-2021, conforme à la note de Thierry Pech).
+#     2024 : données non encore disponibles → non inclus.
 #   - Statistics Denmark (statistikbanken.dk) : solde migratoire des étrangers (citizenship-based).
 #   - Istat (demo.istat.it) : solde migratoire des étrangers, Italie.
 #   - ONS Long-Term International Migration (LTIM), Royaume-Uni : solde net global étrangers
 #     + décomposition UE / non-UE en valeur absolue (milliers).
 # Population de référence : estimations nationales (France 68M, DK 5.9M, IT 59M, UK 67M).
 NATIONAL_STATS = {
-    # ── Solde immigrés France (INSEE) ──────────────────────────────────────────
-    # Taux pour 1 000 habitants. 2022-2024 en italique = estimation.
+    # ── Solde immigrés France (INSEE Première 2050, mai 2025) ──────────────────
+    # Taux pour 1 000 habitants. Solde = entrées (EAR) - sorties.
+    # 2022-2023 : entrées réelles, sorties = hypothèse 94 000/an → estimated=True.
     "frImmigres": [
-        {"year": 2013, "value": 2.94, "estimated": False},
-        {"year": 2014, "value": 2.82, "estimated": False},
-        {"year": 2015, "value": 2.94, "estimated": False},
-        {"year": 2016, "value": 2.97, "estimated": False},
-        {"year": 2017, "value": 3.09, "estimated": False},
-        {"year": 2018, "value": 3.22, "estimated": False},
-        {"year": 2019, "value": 3.35, "estimated": False},
-        {"year": 2020, "value": 2.35, "estimated": False},
-        {"year": 2021, "value": 3.09, "estimated": False},
-        {"year": 2022, "value": 3.82, "estimated": True},
-        {"year": 2023, "value": 3.97, "estimated": True},
-        {"year": 2024, "value": 3.82, "estimated": True},
+        {"year": 2013, "value": 2.87, "estimated": False},   # solde +185k / pop 64.5M
+        {"year": 2014, "value": 2.93, "estimated": False},   # solde +194k / pop 66.1M
+        {"year": 2015, "value": 2.79, "estimated": False},   # solde +185k / pop 66.4M
+        {"year": 2016, "value": 3.33, "estimated": False},   # solde +222k / pop 66.7M
+        {"year": 2017, "value": 2.96, "estimated": False},   # solde +198k / pop 67.0M
+        {"year": 2018, "value": 3.30, "estimated": False},   # solde +222k / pop 67.3M
+        {"year": 2019, "value": 2.69, "estimated": False},   # solde +182k / pop 67.6M
+        {"year": 2020, "value": 2.24, "estimated": False},   # solde +152k / pop 67.8M (estimation INSEE validée)
+        {"year": 2021, "value": 2.33, "estimated": False},   # solde +159k / pop 68.1M
+        # 2022 : entrées réelles 375k (EAR 2024), sorties estimées 94k → solde +281k / pop 68.04M
+        {"year": 2022, "value": 4.13, "estimated": True},
+        # 2023 : entrées réelles 347k (EAR 2024), sorties estimées 94k → solde +253k / pop 68.17M
+        {"year": 2023, "value": 3.71, "estimated": True},
+        # 2024 : données d'entrées non encore disponibles (EAR 2025 à paraître) → non inclus
     ],
     # ── Solde étrangers Danemark (Statistics Denmark) ──────────────────────────
     "dkEtrangers": [

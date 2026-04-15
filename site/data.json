@@ -2203,62 +2203,57 @@
     "frImmigres": [
       {
         "year": 2013,
-        "value": 2.94,
+        "value": 2.87,
         "estimated": false
       },
       {
         "year": 2014,
-        "value": 2.82,
+        "value": 2.93,
         "estimated": false
       },
       {
         "year": 2015,
-        "value": 2.94,
+        "value": 2.79,
         "estimated": false
       },
       {
         "year": 2016,
-        "value": 2.97,
+        "value": 3.33,
         "estimated": false
       },
       {
         "year": 2017,
-        "value": 3.09,
+        "value": 2.96,
         "estimated": false
       },
       {
         "year": 2018,
-        "value": 3.22,
+        "value": 3.3,
         "estimated": false
       },
       {
         "year": 2019,
-        "value": 3.35,
+        "value": 2.69,
         "estimated": false
       },
       {
         "year": 2020,
-        "value": 2.35,
+        "value": 2.24,
         "estimated": false
       },
       {
         "year": 2021,
-        "value": 3.09,
+        "value": 2.33,
         "estimated": false
       },
       {
         "year": 2022,
-        "value": 3.82,
+        "value": 4.13,
         "estimated": true
       },
       {
         "year": 2023,
-        "value": 3.97,
-        "estimated": true
-      },
-      {
-        "year": 2024,
-        "value": 3.82,
+        "value": 3.71,
         "estimated": true
       }
     ],

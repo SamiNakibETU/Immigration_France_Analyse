@@ -208,6 +208,31 @@ def load_analyse_rang_france(path: Path) -> list[dict]:
     return out
 
 
+def load_fr_immigres(path: Path) -> list[dict]:
+    """Charge le solde migratoire des immigrés depuis le CSV extrait de INSEE Première n°2050.
+    Source primaire : insee.fr/fr/statistiques/8570316 (IP2050.xlsx, figure 2a).
+    2022-2023 : entrées réelles connues, sorties = hypothèse 94k/an (moyenne 2012-2021 = exactement 94k).
+    2024 : non inclus (données d'entrées non encore publiées par l'INSEE).
+    """
+    if not path.exists():
+        return []
+    rows = []
+    with path.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            yr = int(r["year"])
+            if yr < 2013:
+                continue  # on démarre à 2013 comme la note Thierry Pech
+            taux = r["taux_permil"]
+            if not taux:
+                continue
+            rows.append({
+                "year": yr,
+                "value": round(float(taux), 2),
+                "estimated": r["estimated"].strip().lower() == "true",
+            })
+    return rows
+
+
 def read_foreign_entries(path: Path) -> list[dict]:
     """Eurostat migr_imm1ctz FOR_STLS / demo_pjan, pour 1 000 hab.
     Complète avec les données ONS pour le Royaume-Uni après 2019 (Eurostat indisponible post-Brexit).
@@ -355,36 +380,22 @@ def dual_panel_latest(mig: list[dict], asy: list[dict], codes: list[str]) -> tup
 
 # ── Données statistiques nationales (hors Eurostat harmonisé) ─────────────────
 # Sources :
-#   - INSEE : solde migratoire des immigrés (nés étrangers à l'étranger), France métropolitaine.
-#     Source : INSEE Première n°2050, mai 2025 (figure 2a). Méthodologie révisée sur 2006-2023.
-#     Solde = entrées (EAR) - sorties estimées. 2022-2023 : entrées connues (EAR 2024),
-#     sorties = hypothèse 94 000/an (moyenne 2012-2021, conforme à la note de Thierry Pech).
-#     2024 : données non encore disponibles → non inclus.
+#   - INSEE : solde migratoire des immigrés (nés étrangers à l'étranger), France.
+#     Source : INSEE Première n°2050, mai 2025 (figure 2a), téléchargée en xlsx puis convertie
+#     en CSV → charts/output/fr_immigres_solde_insee_IP2050.csv.
+#     Solde = entrées (EAR) - sorties. 2022-2023 : entrées réelles connues, sorties = hypothèse
+#     94 000/an (= moyenne exacte 2012-2021, conforme à la note de Thierry Pech).
+#     2024 : données d'entrées non encore disponibles → non inclus.
 #   - Statistics Denmark (statistikbanken.dk) : solde migratoire des étrangers (citizenship-based).
 #   - Istat (demo.istat.it) : solde migratoire des étrangers, Italie.
 #   - ONS Long-Term International Migration (LTIM), Royaume-Uni : solde net global étrangers
 #     + décomposition UE / non-UE en valeur absolue (milliers).
 # Population de référence : estimations nationales (France 68M, DK 5.9M, IT 59M, UK 67M).
 NATIONAL_STATS = {
-    # ── Solde immigrés France (INSEE Première 2050, mai 2025) ──────────────────
-    # Taux pour 1 000 habitants. Solde = entrées (EAR) - sorties.
-    # 2022-2023 : entrées réelles, sorties = hypothèse 94 000/an → estimated=True.
-    "frImmigres": [
-        {"year": 2013, "value": 2.87, "estimated": False},   # solde +185k / pop 64.5M
-        {"year": 2014, "value": 2.93, "estimated": False},   # solde +194k / pop 66.1M
-        {"year": 2015, "value": 2.79, "estimated": False},   # solde +185k / pop 66.4M
-        {"year": 2016, "value": 3.33, "estimated": False},   # solde +222k / pop 66.7M
-        {"year": 2017, "value": 2.96, "estimated": False},   # solde +198k / pop 67.0M
-        {"year": 2018, "value": 3.30, "estimated": False},   # solde +222k / pop 67.3M
-        {"year": 2019, "value": 2.69, "estimated": False},   # solde +182k / pop 67.6M
-        {"year": 2020, "value": 2.24, "estimated": False},   # solde +152k / pop 67.8M (estimation INSEE validée)
-        {"year": 2021, "value": 2.33, "estimated": False},   # solde +159k / pop 68.1M
-        # 2022 : entrées réelles 375k (EAR 2024), sorties estimées 94k → solde +281k / pop 68.04M
-        {"year": 2022, "value": 4.13, "estimated": True},
-        # 2023 : entrées réelles 347k (EAR 2024), sorties estimées 94k → solde +253k / pop 68.17M
-        {"year": 2023, "value": 3.71, "estimated": True},
-        # 2024 : données d'entrées non encore disponibles (EAR 2025 à paraître) → non inclus
-    ],
+    # ── Solde immigrés France (lu depuis CSV INSEE Première 2050) ──────────────
+    # Généré dynamiquement dans main() depuis charts/output/fr_immigres_solde_insee_IP2050.csv
+    # Ne pas modifier ici : modifier la fonction _load_fr_immigres() ci-dessous.
+    "frImmigres": [],  # rempli dans main()
     # ── Solde étrangers Danemark (Statistics Denmark) ──────────────────────────
     "dkEtrangers": [
         {"year": 2013, "value": 4.1},
@@ -596,7 +607,11 @@ def main() -> None:
         "volatilitySoldeCore": load_volatility_core(CHARTS_OUT / "analyse_volatility_solde_fr_dk_it_uk.csv"),
         "foreignEntries": read_foreign_entries(CHARTS_OUT / "entrees_etrangers_pour_1000.csv"),
         # Statistiques nationales (hors Eurostat) — sources officielles, granularité supérieure
-        "nationalStats": NATIONAL_STATS,
+        "nationalStats": {
+            **NATIONAL_STATS,
+            # Écrasé ici pour charger depuis le CSV officiel INSEE IP2050
+            "frImmigres": load_fr_immigres(CHARTS_OUT / "fr_immigres_solde_insee_IP2050.csv"),
+        },
     }
 
     SITE.mkdir(parents=True, exist_ok=True)

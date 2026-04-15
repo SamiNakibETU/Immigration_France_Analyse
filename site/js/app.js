@@ -341,7 +341,7 @@ function drawMarkerLabels(svg, items, innerH) {
 
     // Placement haut ou bas selon que le point est dans la moitié basse ou haute
     const goUp = sy > MID * 0.55;
-    const STEM = 34;
+    const STEM = 42;
     const ty = goUp ? sy - STEM : sy + STEM;
     const anchor = "middle";
 
@@ -367,7 +367,7 @@ function drawMarkerLabels(svg, items, innerH) {
     for (let i = 0; i < words.length; i += 2) {
       lines.push(words.slice(i, i + 2).join(" "));
     }
-    const lineH = 8.5;
+    const lineH = 10;
     const totalH = lines.length * lineH;
     const yStart = goUp ? ty - totalH + lineH * 0.8 : ty + lineH * 0.8;
 
@@ -498,6 +498,20 @@ function lineChartFigure(container, opts) {
       .attr("d", line);
     if (s.dash) path.attr("stroke-dasharray", s.dash);
 
+    /* Points visibles sur la courbe (Thierry : rendre les données plus lisibles) */
+    linesG.selectAll(`.vis-dot-${s.key}`)
+      .data(s.points.filter((d) => d.value != null))
+      .join("circle")
+      .attr("class", `vis-dot-${s.key}`)
+      .attr("cx", (d) => x(d.year))
+      .attr("cy", (d) => y(d.value))
+      .attr("r", 3.5)
+      .attr("fill", s.color)
+      .attr("stroke", "#ffffff")
+      .attr("stroke-width", 1.2)
+      .attr("pointer-events", "none");
+
+    /* Zones de survol invisibles (plus grandes pour faciliter le tooltip) */
     g.selectAll(`.dot-${s.key}`)
       .data(s.points)
       .join("circle")
@@ -505,7 +519,7 @@ function lineChartFigure(container, opts) {
       .attr("cx", (d) => x(d.year))
       .attr("cy", (d) => y(d.value))
       .attr("r", 9)
-      .attr("fill", "transparent")
+      .attr("fill", "none")
       .attr("pointer-events", "all")
       .on("mouseenter", (ev, d) => {
         const frSeries = series.find((ss) => ss.key === "FR");
@@ -859,7 +873,7 @@ const EXPORT_SVG_STYLES = `
 svg { background-color: #ffffff; }
 text, tspan { font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif !important; }
 .chart-line-swiss .chart-grid-line {
-  stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
+  stroke: #c2c0ba; stroke-width: 1px; opacity: 1;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
 }
 .chart-line-swiss .end-labels path { stroke-width: 0.55px; opacity: 0.75; }
@@ -869,7 +883,7 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
   stroke: currentColor; stroke-width: 0.75px; stroke-dasharray: 2.5 2; opacity: 0.6;
 }
 .annotation-markers .ann-label {
-  font-size: 7px; font-weight: 600; letter-spacing: 0.055em; text-transform: uppercase;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.045em; text-transform: uppercase;
 }
 .chart-bar-swiss .bar-plot-grid .bar-grid-line {
   stroke: #ecebe8; stroke-width: 0.5px; opacity: 0.42;
@@ -985,6 +999,16 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   chartLayer.setAttribute("class", layerClasses.join(" ").trim());
   chartLayer.setAttribute("transform", `translate(0,${headerH})`);
   const innerClone = chartSvg.cloneNode(true);
+  /* Retirer les cercles de survol (fill="none" ou anciennement "transparent")
+   * qui s'affichent en noir dans Word / Illustrator car SVG standalone
+   * n'applique pas pointer-events et interprète fill vide comme #000. */
+  innerClone.querySelectorAll("circle").forEach((el) => {
+    const f = el.getAttribute("fill");
+    if (f === "none" || f === "transparent" || f === "") {
+      const r = parseFloat(el.getAttribute("r") || "0");
+      if (r >= 6) el.remove();
+    }
+  });
   while (innerClone.firstChild) chartLayer.appendChild(innerClone.firstChild);
   root.appendChild(chartLayer);
 
@@ -1503,24 +1527,29 @@ function render(data) {
       const frPts = pointsFromRows(fe, "FR");
       const dkPts = pointsFromRows(fe, "DK");
       const itPts = pointsFromRows(fe, "IT");
-      const yDom = extentValuesFrom([frPts, dkPts, itPts], 0.08, 0.35);
+      const ukPtsE = pointsFromRows(fe, "UK");
+      const yDom = extentValuesFrom([frPts, dkPts, itPts, ukPtsE], 0.08, 0.35);
       lineChartFigure(host, {
         rows: fe,
         seriesDefs: [
           { key: "FR", label: "France", color: COL.blue, width: 2.75 },
           { key: "DK", label: "Danemark", color: COL.red, width: 2.2 },
           { key: "IT", label: "Italie", color: COL.coral, width: 2.2 },
+          { key: "UK", label: "Royaume-Uni", color: COL.plum, width: 2.2, dash: "4 2" },
         ],
-        annotations: [],
+        annotations: [
+          { year: 2021, text: "Fin libre circ. RU", target: "UK" },
+        ],
         tooltip,
         yLabel: "Entrées pour 1 000 habitants",
         yDomain: yDom,
         xDomain: [2016, 2024],
         height: 420,
-        margin: { top: 20, right: 200, bottom: 52, left: 64 },
+        margin: { top: 20, right: 210, bottom: 52, left: 64 },
       });
-      const enf = data.copy?.entreesFooter;
-      if (enf) art.append("p").attr("class", "figure-foot").text(enf);
+      art.append("p").attr("class", "figure-foot").text(
+        "Sources : Eurostat migr_imm1ctz (FR, DK, IT, UK 2016-2019) ; ONS Long-Term International Migration (UK 2020-2024, estimation cohérente). Rupture méthodologique UK en 2020 : données Eurostat indisponibles après Brexit, données ONS utilisées. Lecture : le Royaume-Uni, en pointillés, connaît une explosion post-Brexit que les autres pays n'ont pas."
+      );
     }
   }
 
@@ -1604,6 +1633,49 @@ function render(data) {
       });
       art.append("p").attr("class", "figure-foot").text(
         "Sources : Istat (solde migratoire des étrangers, Italie) ; INSEE (solde migratoire des immigrés, France). 2022-2024 France = estimation. Même biais méthodologique que pour le Danemark : l'indicateur Istat est citizenship-based, l'indicateur INSEE est birthplace-based."
+      );
+    }
+  }
+
+  /* N2b — Italie : écart Eurostat (total) vs Istat (étrangers seulement) — explication 2020 */
+  {
+    const itNat = (NS.itEtrangers || []);
+    const itEur = (NS.itEurostatNet || []);
+    if (itNat.length && itEur.length) {
+      const art = main.append("article").attr("class", "figure");
+      figureHead(art, {
+        title: "En 2020, l'Italie semble fermer ses portes : un artefact statistique",
+        sub: "Solde migratoire net Eurostat (tous profils) vs Istat (étrangers uniquement), pour 1 000 habitants",
+      });
+      const host = art.append("div").attr("class", "chart-host");
+
+      /* Fusion des deux séries sur les années communes */
+      const allYears = Array.from(new Set([...itNat.map(r => r.year), ...itEur.map(r => r.year)])).sort();
+      const natByYear = Object.fromEntries(itNat.map(r => [r.year, r.value]));
+      const eurByYear = Object.fromEntries(itEur.map(r => [r.year, r.value]));
+      const rows = allYears.map(yr => ({ year: yr, ISTAT: natByYear[yr] ?? null, EUROSTAT: eurByYear[yr] ?? null }));
+
+      const natPts = rows.filter(r => r.ISTAT != null).map(r => ({ year: r.year, value: r.ISTAT }));
+      const eurPts = rows.filter(r => r.EUROSTAT != null).map(r => ({ year: r.year, value: r.EUROSTAT }));
+
+      lineChartFigure(host, {
+        rows,
+        seriesDefs: [
+          { key: "ISTAT",    label: "Istat — étrangers uniquement",  color: COL.coral, width: 2.6 },
+          { key: "EUROSTAT", label: "Eurostat — solde total (nationaux inclus)", color: COL.muted, width: 1.8, dash: "5 3" },
+        ],
+        annotations: [
+          { year: 2020, text: "Italiens restés à l'étranger (Covid)", target: "EUROSTAT" },
+        ],
+        tooltip,
+        yDomain: [d3.min([...natPts, ...eurPts].map(p => p.value)) - 0.5,
+                  d3.max([...natPts, ...eurPts].map(p => p.value)) + 0.5],
+        xDomain: [2014, 2023],
+        height: 400,
+        margin: { top: 20, right: 260, bottom: 52, left: 64 },
+      });
+      art.append("p").attr("class", "figure-foot").text(
+        "Sources : Istat (solde migratoire des étrangers, Italie) ; Eurostat CNMIGRATRT (solde migratoire total, nationaux inclus). En 2020, l'écart atteint 3,8 ‰ : Eurostat affiche -1,2 ‰ tandis qu'Istat enregistre +2,6 ‰ pour les seuls étrangers. La différence (3,8 ‰) correspond à la migration nette des Italiens eux-mêmes, qui ont massivement choisi de rester à l'étranger durant la pandémie plutôt que de rentrer, faisant chuter le solde total en territoire négatif."
       );
     }
   }

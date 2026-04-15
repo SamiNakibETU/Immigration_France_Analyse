@@ -209,10 +209,18 @@ def load_analyse_rang_france(path: Path) -> list[dict]:
 
 
 def read_foreign_entries(path: Path) -> list[dict]:
-    """Eurostat migr_imm1ctz FOR_STLS / demo_pjan, pour 1 000 hab."""
-    if not path.exists():
-        return []
-    return read_wide_migration(path)
+    """Eurostat migr_imm1ctz FOR_STLS / demo_pjan, pour 1 000 hab.
+    Complète avec les données ONS pour le Royaume-Uni après 2019 (Eurostat indisponible post-Brexit).
+    Source ONS LTIM : immigration de non-UK nationals, estimation cohérente avec la série pré-2020.
+    """
+    rows = read_wide_migration(path) if path.exists() else []
+    # UK ONS entries post-2019 (non-UK nationals / population UK)
+    uk_ons = {2020: 9.0, 2021: 12.4, 2022: 17.0, 2023: 18.0, 2024: 13.8}
+    for row in rows:
+        yr = row.get("year")
+        if yr in uk_ons and (row.get("UK") is None):
+            row["UK"] = uk_ons[yr]
+    return rows
 
 
 def load_volatility_core(path: Path) -> list[dict]:
@@ -412,6 +420,21 @@ NATIONAL_STATS = {
         {"year": 2022, "value": 11.8},
         {"year": 2023, "value": 14.9},
     ],
+    # ── Solde total Italie Eurostat (nationaux inclus) — pour comparaison méthodologique ──
+    # Eurostat CNMIGRATRT = total (nationaux + étrangers). Istat = étrangers seulement.
+    # L'écart en 2020 (-1.2 Eurostat vs +2.6 Istat) s'explique par la migration des Italiens eux-mêmes.
+    "itEurostatNet": [
+        {"year": 2014, "value": 0.8},
+        {"year": 2015, "value": 0.5},
+        {"year": 2016, "value": 0.7},
+        {"year": 2017, "value": 1.0},
+        {"year": 2018, "value": 1.2},
+        {"year": 2019, "value": 0.7},
+        {"year": 2020, "value": -1.2},
+        {"year": 2021, "value": 1.6},
+        {"year": 2022, "value": 4.9},
+        {"year": 2023, "value": 4.5},
+    ],
     # ── Décomposition UK par origine (ONS LTIM) — milliers, valeurs nettes ─────
     # La substitution UE → non-UE post-Brexit est l'argument central.
     "ukByOrigin": [
@@ -531,7 +554,7 @@ def main() -> None:
             "entreesFooter": (
                 f"Sources : Eurostat, statistiques annuelles d’immigration (ressortissants étrangers et apatrides, "
                 f"FOR_STLS) et effectifs de population au 1er janvier. Les taux sont pour mille habitants. "
-                f"Le Royaume-Uni n’apparaît pas après 2019 dans cette source ; pour la suite, voir les publications de l’ONS. "
+                f"UK 2020-2024 : ONS Long-Term International Migration (estimation cohérente). Rupture méthodologique UK en 2020. "
                 f"Extrait le {date_pub}."
             ),
             "asylumBarsFooter": (

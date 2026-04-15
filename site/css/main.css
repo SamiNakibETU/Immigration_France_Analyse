@@ -222,9 +222,9 @@ article.figure:last-of-type {
 
 /* Courbes : grille horizontale lisible ; pas de trait de cadre (domain retiré en JS) */
 .chart-line-swiss .chart-grid-line {
-  stroke: #d4d2cd;
-  stroke-width: 0.85px;
-  opacity: 0.95;
+  stroke: #c2c0ba;
+  stroke-width: 1px;
+  opacity: 1;
   vector-effect: non-scaling-stroke;
   shape-rendering: crispEdges;
 }
@@ -258,9 +258,9 @@ article.figure:last-of-type {
 }
 
 .annotation-markers .ann-label {
-  font-size: 7px;
+  font-size: 9px;
   font-weight: var(--fw-semibold);
-  letter-spacing: 0.055em;
+  letter-spacing: 0.045em;
   text-transform: uppercase;
   font-family: var(--font-sans);
 }

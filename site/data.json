@@ -2168,35 +2168,35 @@
       "FR": 3.0227,
       "DK": 6.4928,
       "IT": 3.2153,
-      "UK": null
+      "UK": 9.0
     },
     {
       "year": 2021,
       "FR": 3.8514,
       "DK": 8.0936,
       "IT": 4.1125,
-      "UK": null
+      "UK": 12.4
     },
     {
       "year": 2022,
       "FR": 5.1405,
       "DK": 17.4961,
       "IT": 5.7004,
-      "UK": null
+      "UK": 17.0
     },
     {
       "year": 2023,
       "FR": 4.7839,
       "DK": 13.3763,
       "IT": 6.4134,
-      "UK": null
+      "UK": 18.0
     },
     {
       "year": 2024,
       "FR": 4.5441,
       "DK": 13.9152,
       "IT": 6.6662,
-      "UK": null
+      "UK": 13.8
     }
   ],
   "nationalStats": {
@@ -2469,18 +2469,112 @@
       }
     ],
     "permitsMotif": [
-      {"pays": "France",      "code": "FR", "travail": 1.6, "famille": 2.2, "etudes": 1.4, "protection": 0.5},
-      {"pays": "Danemark",    "code": "DK", "travail": 5.3, "famille": 2.3, "etudes": 1.0, "protection": 1.0},
-      {"pays": "Italie",      "code": "IT", "travail": 1.4, "famille": 0.5, "etudes": 0.2, "protection": 0.3},
-      {"pays": "Royaume-Uni", "code": "UK", "travail": 4.1, "famille": 1.8, "etudes": 7.1, "protection": 1.2}
+      {
+        "pays": "France",
+        "code": "FR",
+        "travail": 1.6,
+        "famille": 2.2,
+        "etudes": 1.4,
+        "protection": 0.5
+      },
+      {
+        "pays": "Danemark",
+        "code": "DK",
+        "travail": 5.3,
+        "famille": 2.3,
+        "etudes": 1.0,
+        "protection": 1.0
+      },
+      {
+        "pays": "Italie",
+        "code": "IT",
+        "travail": 1.4,
+        "famille": 0.5,
+        "etudes": 0.2,
+        "protection": 0.3
+      },
+      {
+        "pays": "Royaume-Uni",
+        "code": "UK",
+        "travail": 4.1,
+        "famille": 1.8,
+        "etudes": 7.1,
+        "protection": 1.2
+      }
     ],
     "asileRecognition": [
-      {"pays": "Royaume-Uni", "code": "UK", "taux": 67},
-      {"pays": "Suède",       "code": "SE", "taux": 54},
-      {"pays": "Allemagne",   "code": "DE", "taux": 47},
-      {"pays": "France",      "code": "FR", "taux": 37},
-      {"pays": "Danemark",    "code": "DK", "taux": 23},
-      {"pays": "Italie",      "code": "IT", "taux": 20}
+      {
+        "pays": "Royaume-Uni",
+        "code": "UK",
+        "taux": 67
+      },
+      {
+        "pays": "Suède",
+        "code": "SE",
+        "taux": 54
+      },
+      {
+        "pays": "Allemagne",
+        "code": "DE",
+        "taux": 47
+      },
+      {
+        "pays": "France",
+        "code": "FR",
+        "taux": 37
+      },
+      {
+        "pays": "Danemark",
+        "code": "DK",
+        "taux": 23
+      },
+      {
+        "pays": "Italie",
+        "code": "IT",
+        "taux": 20
+      }
+    ],
+    "itEurostatNet": [
+      {
+        "year": 2014,
+        "value": 0.8
+      },
+      {
+        "year": 2015,
+        "value": 0.5
+      },
+      {
+        "year": 2016,
+        "value": 0.7
+      },
+      {
+        "year": 2017,
+        "value": 1.0
+      },
+      {
+        "year": 2018,
+        "value": 1.2
+      },
+      {
+        "year": 2019,
+        "value": 0.7
+      },
+      {
+        "year": 2020,
+        "value": -1.2
+      },
+      {
+        "year": 2021,
+        "value": 1.6
+      },
+      {
+        "year": 2022,
+        "value": 4.9
+      },
+      {
+        "year": 2023,
+        "value": 4.5
+      }
     ]
   }
 }

@@ -77,6 +77,7 @@ const DYADS = [
     title: "Le Danemark de Frederiksen reste plus ouvert que la France",
     sub: "Solde migratoire net pour 1 000 habitants, 2013-2024",
     colorPeer: COL.red,
+    footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
     peerKey: "IT",
@@ -84,6 +85,7 @@ const DYADS = [
     title: "L’Italie de Meloni accueille davantage que la France",
     sub: "Solde migratoire net pour 1 000 habitants, 2013-2024",
     colorPeer: COL.coral,
+    footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
     peerKey: "UK",
@@ -91,6 +93,7 @@ const DYADS = [
     title: "Le Brexit n’a pas fermé le Royaume-Uni à l’immigration",
     sub: "Solde migratoire net pour 1 000 habitants, 2013-2024",
     colorPeer: COL.plum,
+    footer: "Sources : Eurostat, CNMIGRATRT (France, 2013-2024, données harmonisées) ; Office for National Statistics, Long-Term International Migration (Royaume-Uni, 2013-2024). Les deux séries mesurent le solde de longue durée mais avec des méthodes non strictement identiques : la comparaison reste indicative.",
   },
 ];
 
@@ -273,6 +276,7 @@ function dyadLineFigure(container, data, tooltip, spec) {
     margin: { top: 20, right: 188, bottom: 52, left: 64 },
     labelGap: 14,
   });
+  if (spec.footer) container.append("p").attr("class", "figure-foot").text(spec.footer);
 }
 
 /**
@@ -742,6 +746,9 @@ function neighborsLineFigure(container, data, tooltip) {
     margin: { top: 22, right: 148, bottom: 56, left: 64 },
     labelGap: 16,
   });
+  container.append("p").attr("class", "figure-foot").text(
+    "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Série annuelle pour les pays de l'UE-27 + Royaume-Uni disponibles dans la base Eurostat demo_gind. La France est mise en valeur en bleu : elle s'inscrit systématiquement dans la partie basse du spectre européen."
+  );
 }
 
 function barHFigure(container, opts) {

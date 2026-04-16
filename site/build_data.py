@@ -233,6 +233,87 @@ def load_fr_immigres(path: Path) -> list[dict]:
     return rows
 
 
+def load_dk_etrangers(path: Path) -> list[dict]:
+    """Charge le solde migratoire des étrangers au Danemark depuis CSV.
+    Source : Statistics Denmark INDVAN/UDVAN (STATSB=UDLAND) + BEFOLK1.
+    Script de téléchargement : scripts/fetch_dk.py
+    """
+    if not path.exists():
+        return []
+    rows = []
+    with path.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            yr = int(r["year"])
+            if yr < 2013:
+                continue
+            taux = r.get("taux_permil", "")
+            if not taux:
+                continue
+            rows.append({"year": yr, "value": round(float(taux), 2)})
+    return rows
+
+
+def load_it_etrangers(path: Path) -> list[dict]:
+    """Charge le solde migratoire des étrangers en Italie depuis CSV.
+    Source : Eurostat migr_imm1ctz/emi1ctz (citizen=TOTAL minus citizen=IT).
+    Script de téléchargement : scripts/fetch_it.py
+    """
+    if not path.exists():
+        return []
+    rows = []
+    with path.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            yr = int(r["year"])
+            if yr < 2013:
+                continue
+            taux = r.get("taux_permil", "")
+            if not taux:
+                continue
+            rows.append({"year": yr, "value": round(float(taux), 2)})
+    return rows
+
+
+def load_uk_etrangers(path: Path) -> list[dict]:
+    """Charge le solde migratoire des non-UK nationals depuis CSV.
+    Source : ONS LTIM YE December 2024 (provisional, publié fév. 2025).
+    Script : scripts/fetch_uk.py
+    """
+    if not path.exists():
+        return []
+    rows = []
+    with path.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            yr = int(r["year"])
+            if yr < 2013:
+                continue
+            taux = r.get("taux_permil", "")
+            if not taux:
+                continue
+            rows.append({"year": yr, "value": round(float(taux), 2)})
+    return rows
+
+
+def load_uk_by_origin(path: Path) -> list[dict]:
+    """Charge la décomposition UK par origine (UE vs non-UE) depuis CSV.
+    Source : ONS LTIM YE December 2024.
+    Script : scripts/fetch_uk.py
+    """
+    if not path.exists():
+        return []
+    rows = []
+    with path.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            yr = int(r["year"])
+            if yr < 2012:
+                continue
+            rows.append({
+                "year": yr,
+                "eu": int(r["eu"]),
+                "nonEu": int(r["nonEu"]),
+            })
+    return rows
+
+
 def read_foreign_entries(path: Path) -> list[dict]:
     """Eurostat migr_imm1ctz FOR_STLS / demo_pjan, pour 1 000 hab.
     Complète avec les données ONS pour le Royaume-Uni après 2019 (Eurostat indisponible post-Brexit).
@@ -396,47 +477,15 @@ NATIONAL_STATS = {
     # Généré dynamiquement dans main() depuis charts/output/fr_immigres_solde_insee_IP2050.csv
     # Ne pas modifier ici : modifier la fonction _load_fr_immigres() ci-dessous.
     "frImmigres": [],  # rempli dans main()
-    # ── Solde étrangers Danemark (Statistics Denmark) ──────────────────────────
-    "dkEtrangers": [
-        {"year": 2013, "value": 4.1},
-        {"year": 2014, "value": 5.4},
-        {"year": 2015, "value": 7.4},
-        {"year": 2016, "value": 1.5},
-        {"year": 2017, "value": 3.4},
-        {"year": 2018, "value": 3.5},
-        {"year": 2019, "value": 1.1},
-        {"year": 2020, "value": 1.0},
-        {"year": 2021, "value": 2.2},
-        {"year": 2022, "value": 10.1},
-        {"year": 2023, "value": 5.5},
-        {"year": 2024, "value": 5.1},
-    ],
-    # ── Solde étrangers Italie (Istat) ─────────────────────────────────────────
-    "itEtrangers": [
-        {"year": 2014, "value": 3.2},
-        {"year": 2015, "value": 3.0},
-        {"year": 2016, "value": 3.8},
-        {"year": 2017, "value": 4.3},
-        {"year": 2018, "value": 4.2},
-        {"year": 2019, "value": 3.0},
-        {"year": 2020, "value": 2.6},
-        {"year": 2021, "value": 3.0},
-        {"year": 2022, "value": 4.8},
-        {"year": 2023, "value": 5.6},
-    ],
-    # ── Solde étrangers Royaume-Uni (ONS LTIM) ─────────────────────────────────
-    "ukEtrangers": [
-        {"year": 2014, "value": 5.1},
-        {"year": 2015, "value": 5.5},
-        {"year": 2016, "value": 6.0},
-        {"year": 2017, "value": 4.5},
-        {"year": 2018, "value": 4.6},
-        {"year": 2019, "value": 4.6},
-        {"year": 2020, "value": 3.5},
-        {"year": 2021, "value": 5.0},
-        {"year": 2022, "value": 11.8},
-        {"year": 2023, "value": 14.9},
-    ],
+    # ── Solde étrangers Danemark — chargé depuis CSV (scripts/fetch_dk.py) ─────
+    # Source : Statistics Denmark, tables INDVAN/UDVAN (STATSB=UDLAND) + BEFOLK1
+    "dkEtrangers": [],   # rempli dans main()
+    # ── Solde étrangers Italie — chargé depuis CSV (scripts/fetch_it.py) ───────
+    # Source : Eurostat migr_imm1ctz/emi1ctz (citizen=TOTAL minus citizen=IT)
+    "itEtrangers": [],   # rempli dans main()
+    # ── Solde étrangers Royaume-Uni — chargé depuis CSV (scripts/fetch_uk.py) ──
+    # Source : ONS LTIM YE December 2024 (provisional, Feb 2025)
+    "ukEtrangers": [],   # rempli dans main()
     # ── Solde total Italie Eurostat (nationaux inclus) — pour comparaison méthodologique ──
     # Eurostat CNMIGRATRT = total (nationaux + étrangers). Istat = étrangers seulement.
     # L'écart en 2020 (-1.2 Eurostat vs +2.6 Istat) s'explique par la migration des Italiens eux-mêmes.
@@ -452,24 +501,9 @@ NATIONAL_STATS = {
         {"year": 2022, "value": 4.9},
         {"year": 2023, "value": 4.5},
     ],
-    # ── Décomposition UK par origine (ONS LTIM) — milliers, valeurs nettes ─────
-    # La substitution UE → non-UE post-Brexit est l'argument central.
-    "ukByOrigin": [
-        {"year": 2012, "eu": 62,  "nonEu": 185},
-        {"year": 2013, "eu": 75,  "nonEu": 205},
-        {"year": 2014, "eu": 110, "nonEu": 228},
-        {"year": 2015, "eu": 133, "nonEu": 235},
-        {"year": 2016, "eu": 122, "nonEu": 278},
-        {"year": 2017, "eu": 84,  "nonEu": 213},
-        {"year": 2018, "eu": 88,  "nonEu": 224},
-        {"year": 2019, "eu": 56,  "nonEu": 280},
-        {"year": 2020, "eu": 10,  "nonEu": 156},
-        {"year": 2021, "eu": -16, "nonEu": 338},
-        {"year": 2022, "eu": -17, "nonEu": 757},
-        {"year": 2023, "eu": -30, "nonEu": 1058},
-        {"year": 2024, "eu": -37, "nonEu": 832},
-        {"year": 2025, "eu": -38, "nonEu": 408},
-    ],
+    # ── Décomposition UK par origine — chargé depuis CSV (scripts/fetch_uk.py) ──
+    # Source : ONS LTIM YE December 2024, net migration EU vs non-EU, milliers.
+    "ukByOrigin": [],    # rempli dans main()
     # Premiers titres de séjour par motif (Eurostat migr_resfirst, 2022, pour 1 000 habitants)
     # Source : Eurostat / Home Office UK. Arrondis à une décimale.
     "permitsMotif": [
@@ -609,8 +643,15 @@ def main() -> None:
         # Statistiques nationales (hors Eurostat) — sources officielles, granularité supérieure
         "nationalStats": {
             **NATIONAL_STATS,
-            # Écrasé ici pour charger depuis le CSV officiel INSEE IP2050
+            # Chargé depuis CSV officiel INSEE IP2050
             "frImmigres": load_fr_immigres(CHARTS_OUT / "fr_immigres_solde_insee_IP2050.csv"),
+            # Chargé depuis Statistics Denmark (INDVAN/UDVAN + BEFOLK1)
+            "dkEtrangers": load_dk_etrangers(CHARTS_OUT / "dk_etrangers_solde.csv"),
+            # Chargé depuis Eurostat migr_imm1ctz/emi1ctz (TOTAL - IT nationals)
+            "itEtrangers": load_it_etrangers(CHARTS_OUT / "it_etrangers_solde.csv"),
+            # Chargé depuis ONS LTIM YE December 2024
+            "ukEtrangers": load_uk_etrangers(CHARTS_OUT / "uk_etrangers_solde.csv"),
+            "ukByOrigin":  load_uk_by_origin(CHARTS_OUT / "uk_by_origin.csv"),
         },
     }
 

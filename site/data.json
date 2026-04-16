@@ -1,28 +1,28 @@
 {
   "meta": {
-    "generated": "2026-04-15T21:16:06.533328+00:00",
+    "generated": "2026-04-16T13:35:12.433058+00:00",
     "indicator": "CNMIGRATRT",
     "unit": "Pour 1 000 habitants",
     "notes": [],
-    "datePublicationFr": "15 avril 2026"
+    "datePublicationFr": "16 avril 2026"
   },
   "copy": {
     "migrationFooter": "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants.",
     "migrationSourceShort": "Source : Eurostat, demo_gind, CNMIGRATRT.",
     "migrationSourceUkShort": "Source : Eurostat ou ONS pour le UK (long terme).",
     "migrationFooterUk": "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants. UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. Les deux pays ne suivent pas la même méthode.",
-    "asylumFooter": "Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande dans l’année) et population au 1er janvier. Taux pour mille habitants ; ce n’est pas le solde migratoire net. Détail technique : fichier METHODOLOGIE_SERIES.txt (dossier projet). Données extraites le 15 avril 2026.",
-    "dualFooter": "Sources : Eurostat (soldes migratoires nets, base démographique harmonisée) et Eurostat (premières demandes d’asile, croisée avec la population au 1er janvier). Chaque pays est à sa dernière année disponible pour l’indicateur. Fichiers agrégés pour cette page le 15 avril 2026.",
-    "euFooter": "Sources : Eurostat, comptes démographiques harmonisés (solde migratoire net pour mille habitants), millésime 2024 pour chaque pays de l’UE à 27 membres ayant transmis une valeur. Données extraites le 15 avril 2026. Plus d’informations : ec.europa.eu/eurostat.",
+    "asylumFooter": "Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande dans l’année) et population au 1er janvier. Taux pour mille habitants ; ce n’est pas le solde migratoire net. Détail technique : fichier METHODOLOGIE_SERIES.txt (dossier projet). Données extraites le 16 avril 2026.",
+    "dualFooter": "Sources : Eurostat (soldes migratoires nets, base démographique harmonisée) et Eurostat (premières demandes d’asile, croisée avec la population au 1er janvier). Chaque pays est à sa dernière année disponible pour l’indicateur. Fichiers agrégés pour cette page le 16 avril 2026.",
+    "euFooter": "Sources : Eurostat, comptes démographiques harmonisés (solde migratoire net pour mille habitants), millésime 2024 pour chaque pays de l’UE à 27 membres ayant transmis une valeur. Données extraites le 16 avril 2026. Plus d’informations : ec.europa.eu/eurostat.",
     "snapshotFooter": "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants. UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. Les deux pays ne suivent pas la même méthode. IT / FR ×1.86 DK / FR ×2.41 UK / FR ×2.26",
     "ukFootnote": "UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. Les deux pays ne suivent pas la même méthode.",
-    "analyseRangFooter": "Sources : Eurostat, même indicateur de solde net (pour mille habitants). Le rang 1 désigne le pays de l’UE-27 avec le solde le plus élevé pour l’année considérée. Calculs à partir des séries téléchargées le 15 avril 2026.",
-    "analyseRatioFooter": "Sources : Eurostat. Numérateur : premières demandes d’asile (statistiques officielles des pays) ; dénominateur : solde migratoire net lorsqu’il est strictement positif. Lecture : plus le ratio est haut, plus l’asile représente une part marquée par rapport au solde net. Données consolidées le 15 avril 2026.",
-    "analyseQuadriFooter": "Sources : Eurostat, indicateur harmonisé de solde migratoire net (pour mille habitants), pour la France, l’Allemagne, l’Italie et l’Espagne. Extrait le 15 avril 2026.",
-    "volatilityFooter": "Sources : Eurostat pour la France, le Danemark et l’Italie ; Office for National Statistics (ONS) pour le Royaume-Uni (série du solde de longue durée, non strictement identique). La hauteur de chaque barre correspond à l’écart-type des taux annuels sur la fenêtre indiquée : elle décrit les à-coups, pas le niveau moyen d’immigration. Agrégation le 15 avril 2026.",
-    "entreesFooter": "Sources : Eurostat, statistiques annuelles d’immigration (ressortissants étrangers et apatrides, FOR_STLS) et effectifs de population au 1er janvier. Les taux sont pour mille habitants. UK 2020-2024 : ONS Long-Term International Migration (estimation cohérente). Rupture méthodologique UK en 2020. Extrait le 15 avril 2026.",
-    "asylumBarsFooter": "Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande déposée dans l’année), rapportées à la population au 1er janvier (démographie). Les pays peuvent réviser leurs chiffres ; dernière année présente dans notre fichier : voir l’étiquette de chaque barre. Données téléchargées et traitées le 15 avril 2026.",
-    "overviewFooter": "Sources : Eurostat (soldes migratoires nets harmonisés, pour mille habitants) pour la France, le Danemark et l’Italie ; Office for National Statistics pour le Royaume-Uni (migrations internationales de longue durée, autre définition). Les courbes ne sont donc pas strictement comparables point à point entre la France et le Royaume-Uni. Agrégation pour cette visualisation : 15 avril 2026. Liens utiles : ec.europa.eu/eurostat et ons.gov.uk."
+    "analyseRangFooter": "Sources : Eurostat, même indicateur de solde net (pour mille habitants). Le rang 1 désigne le pays de l’UE-27 avec le solde le plus élevé pour l’année considérée. Calculs à partir des séries téléchargées le 16 avril 2026.",
+    "analyseRatioFooter": "Sources : Eurostat. Numérateur : premières demandes d’asile (statistiques officielles des pays) ; dénominateur : solde migratoire net lorsqu’il est strictement positif. Lecture : plus le ratio est haut, plus l’asile représente une part marquée par rapport au solde net. Données consolidées le 16 avril 2026.",
+    "analyseQuadriFooter": "Sources : Eurostat, indicateur harmonisé de solde migratoire net (pour mille habitants), pour la France, l’Allemagne, l’Italie et l’Espagne. Extrait le 16 avril 2026.",
+    "volatilityFooter": "Sources : Eurostat pour la France, le Danemark et l’Italie ; Office for National Statistics (ONS) pour le Royaume-Uni (série du solde de longue durée, non strictement identique). La hauteur de chaque barre correspond à l’écart-type des taux annuels sur la fenêtre indiquée : elle décrit les à-coups, pas le niveau moyen d’immigration. Agrégation le 16 avril 2026.",
+    "entreesFooter": "Sources : Eurostat, statistiques annuelles d’immigration (ressortissants étrangers et apatrides, FOR_STLS) et effectifs de population au 1er janvier. Les taux sont pour mille habitants. UK 2020-2024 : ONS Long-Term International Migration (estimation cohérente). Rupture méthodologique UK en 2020. Extrait le 16 avril 2026.",
+    "asylumBarsFooter": "Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande déposée dans l’année), rapportées à la population au 1er janvier (démographie). Les pays peuvent réviser leurs chiffres ; dernière année présente dans notre fichier : voir l’étiquette de chaque barre. Données téléchargées et traitées le 16 avril 2026.",
+    "overviewFooter": "Sources : Eurostat (soldes migratoires nets harmonisés, pour mille habitants) pour la France, le Danemark et l’Italie ; Office for National Statistics pour le Royaume-Uni (migrations internationales de longue durée, autre définition). Les courbes ne sont donc pas strictement comparables point à point entre la France et le Royaume-Uni. Agrégation pour cette visualisation : 16 avril 2026. Liens utiles : ec.europa.eu/eurostat et ons.gov.uk."
   },
   "annotations": {
     "FR": [
@@ -2260,107 +2260,123 @@
     "dkEtrangers": [
       {
         "year": 2013,
-        "value": 4.1
+        "value": 4.09
       },
       {
         "year": 2014,
-        "value": 5.4
+        "value": 4.98
       },
       {
         "year": 2015,
-        "value": 7.4
+        "value": 7.39
       },
       {
         "year": 2016,
-        "value": 1.5
+        "value": 5.72
       },
       {
         "year": 2017,
-        "value": 3.4
+        "value": 4.12
       },
       {
         "year": 2018,
-        "value": 3.5
+        "value": 3.06
       },
       {
         "year": 2019,
-        "value": 1.1
+        "value": 1.41
       },
       {
         "year": 2020,
-        "value": 1.0
+        "value": 0.88
       },
       {
         "year": 2021,
-        "value": 2.2
+        "value": 4.18
       },
       {
         "year": 2022,
-        "value": 10.1
+        "value": 10.04
       },
       {
         "year": 2023,
-        "value": 5.5
+        "value": 4.89
       },
       {
         "year": 2024,
-        "value": 5.1
+        "value": 5.14
+      },
+      {
+        "year": 2025,
+        "value": 5.07
       }
     ],
     "itEtrangers": [
       {
+        "year": 2013,
+        "value": 3.9
+      },
+      {
         "year": 2014,
-        "value": 3.2
+        "value": 3.33
       },
       {
         "year": 2015,
-        "value": 3.0
+        "value": 3.4
       },
       {
         "year": 2016,
-        "value": 3.8
+        "value": 3.66
       },
       {
         "year": 2017,
-        "value": 4.3
+        "value": 4.34
       },
       {
         "year": 2018,
-        "value": 4.2
+        "value": 4.09
       },
       {
         "year": 2019,
-        "value": 3.0
+        "value": 3.46
       },
       {
         "year": 2020,
-        "value": 2.6
+        "value": 2.56
       },
       {
         "year": 2021,
-        "value": 3.0
+        "value": 3.03
       },
       {
         "year": 2022,
-        "value": 4.8
+        "value": 4.84
       },
       {
         "year": 2023,
-        "value": 5.6
+        "value": 5.66
+      },
+      {
+        "year": 2024,
+        "value": 5.86
       }
     ],
     "ukEtrangers": [
       {
+        "year": 2013,
+        "value": 4.37
+      },
+      {
         "year": 2014,
-        "value": 5.1
+        "value": 5.23
       },
       {
         "year": 2015,
-        "value": 5.5
+        "value": 5.65
       },
       {
         "year": 2016,
-        "value": 6.0
+        "value": 6.09
       },
       {
         "year": 2017,
@@ -2368,27 +2384,31 @@
       },
       {
         "year": 2018,
-        "value": 4.6
+        "value": 4.7
       },
       {
         "year": 2019,
-        "value": 4.6
+        "value": 5.03
       },
       {
         "year": 2020,
-        "value": 3.5
+        "value": 2.48
       },
       {
         "year": 2021,
-        "value": 5.0
+        "value": 4.8
       },
       {
         "year": 2022,
-        "value": 11.8
+        "value": 10.95
       },
       {
         "year": 2023,
-        "value": 14.9
+        "value": 15.13
+      },
+      {
+        "year": 2024,
+        "value": 11.65
       }
     ],
     "itEurostatNet": [
@@ -2498,11 +2518,6 @@
         "year": 2024,
         "eu": -37,
         "nonEu": 832
-      },
-      {
-        "year": 2025,
-        "eu": -38,
-        "nonEu": 408
       }
     ],
     "permitsMotif": [

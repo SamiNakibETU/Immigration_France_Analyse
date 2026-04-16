@@ -922,17 +922,23 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
   const title = articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure";
   const sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
+  const footText = articleEl?.querySelector(".figure-foot")?.textContent?.trim() || "";
   const titleLines = wrapTextToLines(title, 52);
   const subLines = wrapTextToLines(sub, 92);
   const panelLines = miniPanelLabel ? wrapTextToLines(String(miniPanelLabel), 80) : [];
+  const footLines = footText ? wrapTextToLines(footText, 110) : [];
 
   const titleH = 18 + titleLines.length * 22;
   const subH = subLines.length ? 10 + subLines.length * 17 : 0;
   const panelH = panelLines.length ? 8 + panelLines.length * 15 : 0;
   const headerH = Math.min(220, Math.max(88, titleH + subH + panelH + 24));
 
+  /* Footer : zone sous le graphique avec fond blanc et texte source */
+  const footerLineH = 13;
+  const footerH = footLines.length ? 8 + footLines.length * footerLineH + 10 : 0;
+
   const totalW = cw;
-  const totalH = ch + headerH;
+  const totalH = ch + headerH + footerH;
 
   const root = document.createElementNS(SVG_NS, "svg");
   root.setAttribute("xmlns", SVG_NS);
@@ -1033,6 +1039,43 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   });
   while (innerClone.firstChild) chartLayer.appendChild(innerClone.firstChild);
   root.appendChild(chartLayer);
+
+  /* ── Footer : texte source/méthodo sous le graphique ──────────────────── */
+  if (footLines.length) {
+    /* Fond blanc de la zone footer */
+    const footBg = document.createElementNS(SVG_NS, "rect");
+    footBg.setAttribute("x", "0");
+    footBg.setAttribute("y", String(headerH + ch));
+    footBg.setAttribute("width", String(totalW));
+    footBg.setAttribute("height", String(footerH));
+    footBg.setAttribute("fill", "#ffffff");
+    root.appendChild(footBg);
+
+    /* Filet de séparation fin */
+    const footRule = document.createElementNS(SVG_NS, "line");
+    footRule.setAttribute("x1", "24");
+    footRule.setAttribute("x2", String(totalW - 24));
+    footRule.setAttribute("y1", String(headerH + ch + 1));
+    footRule.setAttribute("y2", String(headerH + ch + 1));
+    footRule.setAttribute("stroke", "#dededc");
+    footRule.setAttribute("stroke-width", "0.75");
+    root.appendChild(footRule);
+
+    let fy = headerH + ch + 10;
+    footLines.forEach((line) => {
+      const ft = document.createElementNS(SVG_NS, "text");
+      ft.setAttribute("x", "28");
+      ft.setAttribute("y", String(fy));
+      ft.setAttribute("fill", "#888884");
+      ft.setAttribute("font-size", "9");
+      ft.setAttribute("font-style", "italic");
+      ft.setAttribute("font-weight", "400");
+      ft.setAttribute("letter-spacing", "0.01em");
+      ft.textContent = line;
+      root.appendChild(ft);
+      fy += footerLineH;
+    });
+  }
 
   return root;
 }

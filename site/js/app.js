@@ -2017,8 +2017,8 @@ function render(data) {
     if (permits.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "La France accueille peu parce qu'elle délivre peu de titres de travail",
-        sub: "Premiers titres de séjour par motif pour 1 000 habitants, 2022 (Eurostat migr_resfirst)",
+        title: "La France délivre moins de titres de travail et d'études que ses voisins",
+        sub: "Premiers permis de long séjour (>= 12 mois) par motif pour 1 000 habitants, 2022",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
@@ -2031,9 +2031,9 @@ function render(data) {
       const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const motifs = ["travail", "famille", "etudes", "protection"];
-      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, protection: COL.coral };
-      const labels = { travail: "Travail", famille: "Famille", etudes: "Études", protection: "Protection" };
+      const motifs = ["travail", "famille", "etudes", "autres"];
+      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, autres: COL.coral };
+      const labels = { travail: "Travail", famille: "Famille", etudes: "Études", autres: "Autres / protection" };
 
       const xMax = d3.max(permits, (d) => motifs.reduce((s, m) => s + d[m], 0));
       const x = d3.scaleLinear().domain([0, xMax * 1.08]).range([0, innerW]);
@@ -2089,7 +2089,7 @@ function render(data) {
       });
 
       art.append("p").attr("class", "figure-foot").text(
-        "Source : Eurostat, migr_resfirst (premiers titres de séjour accordés), 2022. Ramené à 1 000 habitants (pop. Eurostat au 1er janvier 2022). Pour le Royaume-Uni, les visas étudiants sont comptabilisés dans Études ; hors UK, cette catégorie est plus restreinte. Données non disponibles pour la France au-delà de 2022."
+        "Source : Eurostat, table migr_resfirst (premiers permis de séjour de longue durée, >= 12 mois, citizen=TOTAL, 2022). Pour le Royaume-Uni : Home Office Immigration Statistics, year ending December 2022. Population : Eurostat au 1er janvier 2022. La catégorie « Autres / protection » regroupe les titres humanitaires, subsidiaires, et résidualiers (Eurostat ne les isole pas dans migr_resfirst)."
       );
     }
   }
@@ -2100,8 +2100,8 @@ function render(data) {
     if (reconn.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "La France reconnaît moins d'une demande sur trois, moins que la plupart de ses voisins",
-        sub: "Part des décisions positives (Convention de Genève + protection subsidiaire), 2022",
+        title: "La France affiche l'un des taux de protection les plus bas d'Europe occidentale",
+        sub: "Part des décisions positives (statut réfugié + protection subsidiaire + humanitaire), première instance, 2022",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
@@ -2157,7 +2157,7 @@ function render(data) {
       });
 
       art.append("p").attr("class", "figure-foot").text(
-        "Source : EUAA Asylum Report 2023 / Eurostat, migr_asydcfsta. Taux calculé sur l'ensemble des décisions en première instance. Le taux français inclut les décisions de l'OFPRA uniquement (hors CNDA en appel). Les définitions nationales varient légèrement."
+        "Source : Eurostat, table migr_asydcfsta (décisions en première instance), 2022, age=TOTAL, sex=T, citizen=TOTAL. Pour le Royaume-Uni : Home Office Asylum Statistics year ending December 2022 (initial decisions). Lecture : le taux reflète à la fois la politique d'octroi et la composition des demandeurs (nationalités à fort ou faible taux de reconnaissance varient selon les pays) ; il ne doit pas être lu comme un indice de sévérité isolé."
       );
     }
   }

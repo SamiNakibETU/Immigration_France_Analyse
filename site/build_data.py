@@ -504,23 +504,29 @@ NATIONAL_STATS = {
     # ── Décomposition UK par origine — chargé depuis CSV (scripts/fetch_uk.py) ──
     # Source : ONS LTIM YE December 2024, net migration EU vs non-EU, milliers.
     "ukByOrigin": [],    # rempli dans main()
-    # Premiers titres de séjour par motif (Eurostat migr_resfirst, 2022, pour 1 000 habitants)
-    # Source : Eurostat / Home Office UK. Arrondis à une décimale.
+    # Premiers titres de séjour par motif (Eurostat migr_resfirst, duration=M_GE12, 2022, pour 1 000 hab.)
+    # Source : Eurostat table migr_resfirst, citizen=TOTAL, duration=M_GE12 (longs séjours >= 12 mois).
+    # UK : Home Office Immigration Statistics year ending December 2022 (publié Feb 2023).
+    # "autres" inclut protection subsidiaire, humanitaire, et autres raisons (Eurostat ne les sépare pas).
     "permitsMotif": [
-        {"pays": "France",      "code": "FR", "travail": 1.6, "famille": 2.2, "etudes": 1.4, "protection": 0.5},
-        {"pays": "Danemark",    "code": "DK", "travail": 5.3, "famille": 2.3, "etudes": 1.0, "protection": 1.0},
-        {"pays": "Italie",      "code": "IT", "travail": 1.4, "famille": 0.5, "etudes": 0.2, "protection": 0.3},
-        {"pays": "Royaume-Uni", "code": "UK", "travail": 4.1, "famille": 1.8, "etudes": 7.1, "protection": 1.2},
+        {"pays": "France",      "code": "FR", "travail": 0.71, "famille": 1.39, "etudes": 1.14, "autres": 0.97},
+        {"pays": "Danemark",    "code": "DK", "travail": 1.95, "famille": 1.66, "etudes": 0.64, "autres": 0.30},
+        {"pays": "Italie",      "code": "IT", "travail": 1.06, "famille": 2.14, "etudes": 0.39, "autres": 1.08},
+        {"pays": "Royaume-Uni", "code": "UK", "travail": 5.02, "famille": 1.88, "etudes": 8.29, "autres": 1.75},
     ],
-    # Taux de reconnaissance asile (EUAA / Eurostat migr_asydcfsta, 2022, %)
-    # Décisions positives (Convention de Genève + protection subsidiaire + humanitaire) / total.
+    # Taux de reconnaissance asile (Eurostat migr_asydcfsta, 2022, %)
+    # Décisions positives (POS = statut réfugié + protection subsidiaire + humanitaire) / total décisions.
+    # Source : Eurostat table migr_asydcfsta, age=TOTAL, sex=T, citizen=TOTAL.
+    # UK : Home Office Asylum Statistics year ending December 2022 (initial decisions).
+    # Note : le taux reflète à la fois la politique d'octroi ET la composition des demandeurs
+    # (nationalités à fort ou faible taux de reconnaissance). Ne pas lire comme indice de sévérité seul.
     "asileRecognition": [
-        {"pays": "Royaume-Uni", "code": "UK", "taux": 67},
-        {"pays": "Suède",       "code": "SE", "taux": 54},
-        {"pays": "Allemagne",   "code": "DE", "taux": 47},
-        {"pays": "France",      "code": "FR", "taux": 37},
-        {"pays": "Danemark",    "code": "DK", "taux": 23},
-        {"pays": "Italie",      "code": "IT", "taux": 20},
+        {"pays": "Royaume-Uni", "code": "UK", "taux": 67.0},
+        {"pays": "Allemagne",   "code": "DE", "taux": 65.0},
+        {"pays": "Danemark",    "code": "DK", "taux": 51.0},
+        {"pays": "Italie",      "code": "IT", "taux": 48.4},
+        {"pays": "Suède",       "code": "SE", "taux": 28.8},
+        {"pays": "France",      "code": "FR", "taux": 27.5},
     ],
 }
 

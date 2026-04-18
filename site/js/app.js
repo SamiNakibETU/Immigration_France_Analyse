@@ -463,20 +463,11 @@ function lineChartFigure(container, opts) {
 
   const x = d3.scaleLinear().domain(xDom).range([0, innerW]);
   const y = d3.scaleLinear().domain(yDom).range([innerH, 0]);
+  const yMax = yDom[1];
 
-  const yTicks = y.ticks(6);
-  g.append("g")
-    .attr("class", "chart-grid-h")
-    .selectAll("line")
-    .data(yTicks)
-    .join("line")
-    .attr("class", "chart-grid-line")
-    .attr("x1", 0)
-    .attr("x2", innerW)
-    .attr("y1", (d) => y(d))
-    .attr("y2", (d) => y(d));
-
-  /* Grille verticale légère */
+  /* Grille verticale d’abord, horizontale ensuite : les traits horizontaux restent au-dessus aux
+   * intersections (couleur homogène). On n’affiche pas le trait au tick max Y : il se confond avec
+   * le bord haut et paraît plus foncé (superposition / antialiasing). */
   const xGridTicks = Math.min(12, Math.max(6, Math.floor((xDom[1] - xDom[0]) / 2)));
   g.append("g")
     .attr("class", "chart-grid-v")
@@ -488,6 +479,18 @@ function lineChartFigure(container, opts) {
     .attr("x2", (d) => x(d))
     .attr("y1", 0)
     .attr("y2", innerH);
+
+  const yTicks = y.ticks(6).filter((d) => d < yMax - 1e-9);
+  g.append("g")
+    .attr("class", "chart-grid-h")
+    .selectAll("line")
+    .data(yTicks)
+    .join("line")
+    .attr("class", "chart-grid-line")
+    .attr("x1", 0)
+    .attr("x2", innerW)
+    .attr("y1", (d) => y(d))
+    .attr("y2", (d) => y(d));
 
   const yAxisG = g.append("g").call(
     d3.axisLeft(y).ticks(6).tickFormat(d3.format(".1f")).tickSize(0).tickPadding(9),
@@ -1952,10 +1955,14 @@ function render(data) {
           .attr("font-size", 8).attr("font-weight", "500").text(label);
       });
 
-      /* Grille Y */
+      /* Grille Y (sans trait au dernier tick : évite le bord haut plus foncé) */
+      y.ticks(5)
+        .filter((t) => t < yHi - 1e-9)
+        .forEach((t) => {
+          g.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", y(t)).attr("y2", y(t))
+            .attr("stroke", COL.grid).attr("stroke-width", 0.6);
+        });
       y.ticks(5).forEach((t) => {
-        g.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", y(t)).attr("y2", y(t))
-          .attr("stroke", COL.grid).attr("stroke-width", 0.6);
         g.append("text").attr("x", -8).attr("y", y(t)).attr("dy", "0.35em")
           .attr("text-anchor", "end").attr("fill", COL.muted).attr("font-size", 8.5).text(t);
       });

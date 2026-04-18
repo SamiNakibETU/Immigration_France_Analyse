@@ -147,7 +147,7 @@ article.figure:last-of-type {
   color: var(--tn-muted);
   font-size: 0.78rem;
   font-weight: var(--fw-book);
-  max-width: 763px;
+  max-width: 900px;
   line-height: 1.48;
   letter-spacing: 0.01em;
 }
@@ -202,7 +202,7 @@ article.figure:last-of-type {
 
 .figure-foot {
   margin: var(--space-sm) 0 0;
-  max-width: 763px;
+  max-width: 900px;
   color: var(--tn-muted);
   font-size: 0.76rem;
   font-weight: var(--fw-book);

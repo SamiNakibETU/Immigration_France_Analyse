@@ -866,7 +866,7 @@ function parseSvgPixelSize(svgEl) {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** Retours à la ligne pour titres / sous-titres dans l’export (largeur ~px implicite). */
+/** Retours à la ligne pour titres / sous-titres dans l’export (largeur ~ largeur SVG). */
 function wrapTextToLines(text, maxChars) {
   if (!text) return [];
   const words = String(text).trim().split(/\s+/);
@@ -881,6 +881,17 @@ function wrapTextToLines(text, maxChars) {
   }
   if (cur) lines.push(cur);
   return lines;
+}
+
+/** Limites de césure (caractères) calibrées sur la largeur utile du SVG (~900px). */
+function exportWrapLimits(chartWidthPx) {
+  const usable = Math.max(360, chartWidthPx - 56);
+  return {
+    title: Math.max(78, Math.floor(usable / 6.8)),
+    sub: Math.max(110, Math.floor(usable / 5.6)),
+    panel: Math.max(95, Math.floor(usable / 6.0)),
+    foot: Math.max(130, Math.floor(usable / 4.9)),
+  };
 }
 
 /**
@@ -920,13 +931,14 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
  */
 function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
+  const lim = exportWrapLimits(cw);
   const title = articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure";
   const sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
   const footText = articleEl?.querySelector(".figure-foot")?.textContent?.trim() || "";
-  const titleLines = wrapTextToLines(title, 52);
-  const subLines = wrapTextToLines(sub, 92);
-  const panelLines = miniPanelLabel ? wrapTextToLines(String(miniPanelLabel), 80) : [];
-  const footLines = footText ? wrapTextToLines(footText, 110) : [];
+  const titleLines = wrapTextToLines(title, lim.title);
+  const subLines = wrapTextToLines(sub, lim.sub);
+  const panelLines = miniPanelLabel ? wrapTextToLines(String(miniPanelLabel), lim.panel) : [];
+  const footLines = footText ? wrapTextToLines(footText, lim.foot) : [];
 
   const titleH = 18 + titleLines.length * 22;
   const subH = subLines.length ? 10 + subLines.length * 17 : 0;
@@ -934,8 +946,8 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   const headerH = Math.min(220, Math.max(88, titleH + subH + panelH + 24));
 
   /* Footer : zone sous le graphique avec fond blanc et texte source */
-  const footerLineH = 13;
-  const footerH = footLines.length ? 8 + footLines.length * footerLineH + 10 : 0;
+  const footerLineH = 12.5;
+  const footerH = footLines.length ? 10 + footLines.length * footerLineH + 12 : 0;
 
   const totalW = cw;
   const totalH = ch + headerH + footerH;
@@ -959,15 +971,6 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   headBg.setAttribute("height", String(headerH));
   headBg.setAttribute("fill", "#ffffff");
   root.appendChild(headBg);
-
-  const headRule = document.createElementNS(SVG_NS, "line");
-  headRule.setAttribute("x1", "24");
-  headRule.setAttribute("x2", String(totalW - 24));
-  headRule.setAttribute("y1", String(headerH - 1));
-  headRule.setAttribute("y2", String(headerH - 1));
-  headRule.setAttribute("stroke", "#dededc");
-  headRule.setAttribute("stroke-width", "1");
-  root.appendChild(headRule);
 
   /* Fond blanc explicite sous le tracé (Word ne peint pas toujours le fond du svg) */
   const plotBg = document.createElementNS(SVG_NS, "rect");
@@ -1051,17 +1054,7 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
     footBg.setAttribute("fill", "#ffffff");
     root.appendChild(footBg);
 
-    /* Filet de séparation fin */
-    const footRule = document.createElementNS(SVG_NS, "line");
-    footRule.setAttribute("x1", "24");
-    footRule.setAttribute("x2", String(totalW - 24));
-    footRule.setAttribute("y1", String(headerH + ch + 1));
-    footRule.setAttribute("y2", String(headerH + ch + 1));
-    footRule.setAttribute("stroke", "#dededc");
-    footRule.setAttribute("stroke-width", "0.75");
-    root.appendChild(footRule);
-
-    let fy = headerH + ch + 10;
+    let fy = headerH + ch + 12;
     footLines.forEach((line) => {
       const ft = document.createElementNS(SVG_NS, "text");
       ft.setAttribute("x", "28");

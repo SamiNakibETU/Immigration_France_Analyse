@@ -20,53 +20,52 @@ const COL = {
 const PEER_COLORS = [COL.red, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
 
 /**
- * Titres : lecture data-journalisme (indicateur + comparaison), sans métaphore à charge.
- * Sous-titres : variable mesurée + unité. L’interprétation politique reste dans le texte (note Pech).
+ * Titres / sous-titres : langage clair (grand public), indicateur expliqué en une phrase.
  */
 const TITLES = {
   1: {
-    title: "Soldes migratoires nets : la France affiche les niveaux les plus bas du quatuor",
-    sub: "Pour 1 000 habitants, France, Danemark, Italie, Royaume-Uni",
+    title: "Quatre pays : combien d’arrivées nettes pour 1 000 habitants ?",
+    sub: "Solde net = personnes arrivées moins personnes parties. Courbe bleue : France. Chiffres Eurostat.",
   },
   2: {
-    title: "Soldes nets 2005-2024 : la France sous les grandes économies européennes comparées",
-    sub: "Solde migratoire net pour 1 000 habitants",
+    title: "France et grands pays voisins sur 20 ans",
+    sub: "Même idée : arrivées nettes pour 1 000 habitants (Eurostat, 2005-2024).",
   },
   3: {
-    title: "Premières demandes d’asile : la France dans le bas de la fourchette européenne",
-    sub: "Nombre rapporté à la population (pour 1 000 habitants)",
+    title: "Demandes d’asile : combien de nouvelles demandes pour 1 000 habitants ?",
+    sub: "Même façon de compter pour chaque pays (statistiques officielles).",
   },
   4: {
-    title: "Solde migratoire net par habitant : position de la France dans l’UE en 2024",
-    sub: "Indicateur harmonisé Eurostat, pour 1 000 habitants",
+    title: "En 2024, où se situe la France parmi les pays de l’Union européenne ?",
+    sub: "Classement selon le solde net de migration par habitant (Eurostat).",
   },
   5: {
-    title: "Quatre grandes économies : écart à la moyenne européenne des soldes nets",
-    sub: "Solde migratoire net pour 1 000 habitants",
+    title: "Quatre grandes économies : au-dessus ou en dessous de la moyenne européenne ?",
+    sub: "Solde net pour 1 000 habitants, comparé à la moyenne de l’UE.",
   },
   6: {
-    title: "Rang du solde migratoire : évolution relative de la France dans l’UE-27",
-    sub: "Classement annuel (1 = solde net le plus élevé par habitant)",
+    title: "Classement de la France : comment il change d’une année sur l’autre",
+    sub: "Place parmi les 27 pays membres (1er = plus fort solde net par habitant).",
   },
   7: {
-    title: "Part des premières demandes d’asile dans le solde migratoire net, par pays",
-    sub: "Ratio premières demandes / solde net (lorsque le solde est strictement positif)",
+    title: "Demande d’asile et solde migratoire : le rapport entre les deux, par pays",
+    sub: "On divise le nombre de premières demandes par le solde net, lorsque ce solde est positif.",
   },
   asylumBars: {
-    title: "Premières demandes d’asile par habitant, dernière année disponible",
-    sub: "Pour 1 000 habitants, comparaison transversale",
+    title: "Nouvelles demandes d’asile : combien pour 1 000 habitants ?",
+    sub: "Dernière année disponible pour chaque pays (chiffres officiels).",
   },
   entrees: {
-    title: "Entrées de ressortissants étrangers : France, Danemark, Italie, Royaume-Uni",
-    sub: "Pour 1 000 habitants, série Eurostat harmonisée",
+    title: "Entrées de personnes de nationalité étrangère, quatre pays comparés",
+    sub: "Pour 1 000 habitants — France, Danemark, Italie, Royaume-Uni (Eurostat).",
   },
   dual: {
-    title: "Solde migratoire net et premières demandes d’asile : hiérarchie relative inchangée",
-    sub: "Pour 1 000 habitants, dernière année disponible par indicateur",
+    title: "À gauche : solde migratoire. À droite : demandes d’asile.",
+    sub: "Les deux sont ramenés à 1 000 habitants pour pouvoir comparer les pays.",
   },
   volatility: {
-    title: "Volatilité des soldes annuels : écart-type le plus faible pour la France",
-    sub: "Écart-type du solde pour 1 000 habitants",
+    title: "Qui a les courbes qui montent et descendent le plus ? La France, la plus régulière",
+    sub: "Chaque barre mesure l’ampleur des variations d’une année sur l’autre (méthode statistique : écart-type).",
   },
 };
 
@@ -74,24 +73,24 @@ const DYADS = [
   {
     peerKey: "DK",
     peerLabel: "Danemark",
-    title: "Soldes nets harmonisés : Danemark au-dessus de la France sur 2013-2024",
-    sub: "Solde migratoire net pour 1 000 habitants (Eurostat, même définition)",
+    title: "France et Danemark : même calcul officiel, côte à côte",
+    sub: "Arrivées nettes pour 1 000 habitants, 2013-2024 (Eurostat, même règle pour les deux).",
     colorPeer: COL.red,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
     peerKey: "IT",
     peerLabel: "Italie",
-    title: "Soldes nets harmonisés : Italie au-dessus de la France sur 2013-2024",
-    sub: "Solde migratoire net pour 1 000 habitants (Eurostat, même définition)",
+    title: "France et Italie : même calcul officiel, côte à côte",
+    sub: "Arrivées nettes pour 1 000 habitants, 2013-2024 (Eurostat, même règle pour les deux).",
     colorPeer: COL.coral,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
     peerKey: "UK",
     peerLabel: "Royaume-Uni",
-    title: "Soldes nets : Royaume-Uni et France avant et après 2020 (séries officielles)",
-    sub: "Pour 1 000 habitants — France Eurostat, Royaume-Uni ONS (LTIM), 2013-2024",
+    title: "France et Royaume-Uni : attention, ce ne sont pas tout à fait les mêmes statistiques",
+    sub: "France : Eurostat. Royaume-Uni : statistiques nationales (migrations de longue durée). Pour 1 000 habitants, 2013-2024.",
     colorPeer: COL.plum,
     footer: "Sources : Eurostat, CNMIGRATRT (France, 2013-2024, données harmonisées) ; Office for National Statistics, Long-Term International Migration (Royaume-Uni, 2013-2024). Les deux séries mesurent le solde de longue durée mais avec des méthodes non strictement identiques : la comparaison reste indicative.",
   },
@@ -1394,7 +1393,7 @@ function render(data) {
       rows: asyRows,
       seriesDefs: defs,
       tooltip,
-      yLabel: "Premières demandes / 1 000 hab.",
+      yLabel: "Premières demandes pour 1 000 habitants",
       height: 472,
       margin: { top: 20, right: 210, bottom: 56, left: 64 },
       yDomain: [0, Math.max(yHi, hi + 0.5)],
@@ -1532,7 +1531,7 @@ function render(data) {
         rows: rankRows,
         seriesDefs: [{ key: "rang", label: "Rang France", color: COL.red, width: 2.75 }],
         tooltip,
-        yLabel: "Rang (1 = plus fort)",
+        yLabel: "Place au classement (1er = solde net le plus élevé)",
         yDomain: [27, 1],
         height: 400,
       });
@@ -1564,7 +1563,7 @@ function render(data) {
           { key: "ES", label: "Espagne", color: COL.teal, width: 2.05 },
         ],
         tooltip,
-        yLabel: "Ratio asile / solde",
+        yLabel: "Demandes d’asile ÷ solde migratoire net",
         height: 420,
       });
       const rtf = data.copy?.analyseRatioFooter;
@@ -1628,8 +1627,8 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Séries nationales : solde des étrangers (Danemark) et des immigrés (France)",
-        sub: "Pour 1 000 habitants — Statistics Denmark et INSEE (définitions non strictement identiques)",
+        title: "Danemark et France : deux statistiques nationales qu’on ne peut pas superposer à l’identique",
+        sub: "Danemark : personnes sans nationalité danoise. France : personnes nées à l’étranger et venues s’installer. Pour 1 000 habitants.",
       });
       const host = art.append("div").attr("class", "chart-host");
       const frPts = mRows.filter(r => r.FR != null).map(r => ({ year: r.year, value: r.FR }));
@@ -1669,8 +1668,8 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Séries nationales : solde des étrangers (Italie) et des immigrés (France)",
-        sub: "Pour 1 000 habitants — Istat et INSEE (définitions non strictement identiques)",
+        title: "Italie et France : deux statistiques nationales qu’on ne peut pas superposer à l’identique",
+        sub: "Italie : personnes sans nationalité italienne. France : personnes nées à l’étranger et venues s’installer. Pour 1 000 habitants.",
       });
       const host = art.append("div").attr("class", "chart-host");
       const frPts = mRows.filter(r => r.FR != null).map(r => ({ year: r.year, value: r.FR }));
@@ -1705,8 +1704,8 @@ function render(data) {
     if (itNat.length && itEur.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Italie, 2020 : deux indicateurs de solde migratoire ne mesurent pas la même population",
-        sub: "Solde total Eurostat (nationaux inclus) et solde des seuls étrangers (Istat), pour 1 000 habitants",
+        title: "Italie en 2020 : pourquoi un graphique dit « baisse » et l’autre « hausse » ?",
+        sub: "L’un compte tout le monde (Italiens compris), l’autre seulement les personnes de nationalité étrangère. Pour 1 000 habitants.",
       });
       const host = art.append("div").attr("class", "chart-host");
 
@@ -1752,8 +1751,8 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Royaume-Uni : forte hausse du solde des non-Britanniques après 2020 ; France, série plus stable",
-        sub: "ONS LTIM (étrangers) et INSEE (immigrés), pour 1 000 habitants — définitions non équivalentes",
+        title: "Royaume-Uni : forte hausse après 2020 ; France : courbe plus stable",
+        sub: "R.-U. : personnes sans nationalité britannique. France : immigrés selon l’Insee. Pour 1 000 habitants — à comparer avec prudence.",
       });
       const host = art.append("div").attr("class", "chart-host");
       const frPts = mRows.filter(r => r.FR != null).map(r => ({ year: r.year, value: r.FR }));
@@ -1788,8 +1787,8 @@ function render(data) {
     if (ukOrigin.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Royaume-Uni : solde migratoire net par origine (Union européenne / hors UE)",
-        sub: "Milliers de personnes, série ONS Long-Term International Migration",
+        title: "Royaume-Uni : arrivées nettes, séparées entre Europe et reste du monde",
+        sub: "En milliers de personnes par an (statistiques officielles britanniques).",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
@@ -1917,8 +1916,8 @@ function render(data) {
     if (rows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "France et Danemark : soldes nets 2005-2024, avec repères des mandats présidentiels français",
-        sub: "Solde migratoire net pour 1 000 habitants (Eurostat, même indicateur pour les deux pays)",
+        title: "France et Danemark sur 20 ans : les bandes de couleur sont les mandats présidentiels français",
+        sub: "Arrivées nettes pour 1 000 habitants — même définition pour les deux pays (Eurostat).",
       });
       const host = art.append("div").attr("class", "chart-host");
       const w = 900;
@@ -2017,8 +2016,8 @@ function render(data) {
     if (permits.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Premiers titres de séjour de longue durée par motif : comparaison 2022",
-        sub: "Pour 1 000 habitants, travail, famille, études et autres motifs (Eurostat ; Royaume-Uni : Home Office)",
+        title: "Titres de séjour d’au moins un an : travail, famille, études… en 2022",
+        sub: "Combien en délivrer pour 1 000 habitants, selon le motif (Europe : Eurostat ; Royaume-Uni : chiffres britanniques).",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
@@ -2100,8 +2099,8 @@ function render(data) {
     if (reconn.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Décisions positives en première instance : part sur le total des décisions, 2022",
-        sub: "Statut réfugié, protection subsidiaire et humanitaire (Eurostat ; Royaume-Uni : Home Office)",
+        title: "Demandeurs d’asile : quelle part obtient une protection en 2022 ?",
+        sub: "Part des réponses favorables sur toutes les décisions rendues (statistiques officielles ; Royaume-Uni : chiffres nationaux).",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 

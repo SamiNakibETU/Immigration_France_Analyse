@@ -20,52 +20,52 @@ const COL = {
 const PEER_COLORS = [COL.red, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
 
 /**
- * Titres / sous-titres : langage clair (grand public), indicateur expliqué en une phrase.
+ * Titres / sous-titres : alignés sur la note v4 (ton factuel, thèse sur le positionnement relatif de la France).
  */
 const TITLES = {
   1: {
-    title: "Quatre pays : combien d’arrivées nettes pour 1 000 habitants ?",
-    sub: "Solde net = personnes arrivées moins personnes parties. Courbe bleue : France. Chiffres Eurostat.",
+    title: "La France reste l’un des pays les plus fermés à l’immigration",
+    sub: "Solde migratoire net pour 1 000 habitants — France, Danemark, Italie, Royaume-Uni (Eurostat, ONS).",
   },
   2: {
-    title: "France et grands pays voisins sur 20 ans",
-    sub: "Même idée : arrivées nettes pour 1 000 habitants (Eurostat, 2005-2024).",
+    title: "Vingt ans de solde migratoire : la France décroche",
+    sub: "Solde net pour 1 000 habitants, France comparée à six grands voisins européens (Eurostat, 2005-2024).",
   },
   3: {
-    title: "Demandes d’asile : combien de nouvelles demandes pour 1 000 habitants ?",
-    sub: "Même façon de compter pour chaque pays (statistiques officielles).",
+    title: "Demandes d’asile : la France dans la moyenne basse européenne",
+    sub: "Premières demandes pour 1 000 habitants — ce ne sont pas les demandes d’asile qui font la différence (Eurostat).",
   },
   4: {
-    title: "En 2024, où se situe la France parmi les pays de l’Union européenne ?",
-    sub: "Classement selon le solde net de migration par habitant (Eurostat).",
+    title: "En 2024, la France reste dans le bas du tableau européen",
+    sub: "Classement des 27 selon le solde migratoire net pour 1 000 habitants (Eurostat, CNMIGRATRT).",
   },
   5: {
-    title: "Quatre grandes économies : au-dessus ou en dessous de la moyenne européenne ?",
-    sub: "Solde net pour 1 000 habitants, comparé à la moyenne de l’UE.",
+    title: "Parmi les grandes économies, seule la France reste sous la moyenne européenne",
+    sub: "Solde net pour 1 000 habitants, comparé à la médiane de l’UE à 27 (Eurostat).",
   },
   6: {
-    title: "Classement de la France : comment il change d’une année sur l’autre",
-    sub: "Place parmi les 27 pays membres (1er = plus fort solde net par habitant).",
+    title: "En vingt ans, la France a reculé de plus de dix places",
+    sub: "Rang parmi les 27 États membres selon le solde net par habitant — 1er = plus ouvert (Eurostat).",
   },
   7: {
-    title: "Demande d’asile et solde migratoire : le rapport entre les deux, par pays",
-    sub: "On divise le nombre de premières demandes par le solde net, lorsque ce solde est positif.",
+    title: "L’asile ne pèse qu’une fraction du solde migratoire",
+    sub: "Premières demandes d’asile rapportées au solde net, lorsque celui-ci est positif (Eurostat).",
   },
   asylumBars: {
-    title: "Nouvelles demandes d’asile : combien pour 1 000 habitants ?",
-    sub: "Dernière année disponible pour chaque pays (chiffres officiels).",
+    title: "Demandes d’asile en 2024 : la France loin derrière ses voisins",
+    sub: "Premières demandes pour 1 000 habitants, dernière année disponible (Eurostat, migr_asyappctza).",
   },
   entrees: {
-    title: "Entrées de personnes de nationalité étrangère, quatre pays comparés",
-    sub: "Pour 1 000 habitants — France, Danemark, Italie, Royaume-Uni (Eurostat).",
+    title: "Entrées d’étrangers : si la France avait l’ouverture du Danemark, elle en compterait un million",
+    sub: "Entrées pour 1 000 habitants — l’indicateur le plus direct du degré d’ouverture (Eurostat).",
   },
   dual: {
-    title: "À gauche : solde migratoire. À droite : demandes d’asile.",
-    sub: "Les deux sont ramenés à 1 000 habitants pour pouvoir comparer les pays.",
+    title: "Solde migratoire modeste, asile dans la moyenne basse : la double singularité française",
+    sub: "Deux indicateurs, ramenés à 1 000 habitants, dernière année disponible par pays (Eurostat).",
   },
   volatility: {
-    title: "Qui a les courbes qui montent et descendent le plus ? La France, la plus régulière",
-    sub: "Chaque barre mesure l’ampleur des variations d’une année sur l’autre (méthode statistique : écart-type).",
+    title: "La France : la courbe la plus plate de ses voisins",
+    sub: "Ampleur des variations annuelles du solde net — écart-type 2010-2024 (Eurostat, ONS).",
   },
 };
 
@@ -2172,16 +2172,28 @@ fetch("data.json")
   .then((data) => {
     render(data);
     const metaEl = document.getElementById("metho-meta");
-    if (metaEl && data.meta?.generated) {
-      const d = new Date(data.meta.generated);
-      metaEl.textContent = `Jeu de données agrégé : ${d.toLocaleString("fr-FR", {
-        timeZone: "UTC",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })} UTC.`;
+    if (metaEl && data.meta) {
+      const bits = [];
+      if (data.meta.datePublicationFr) {
+        bits.push(`Données consolidées (libellé projet) : ${data.meta.datePublicationFr}.`);
+      }
+      if (data.meta.generated) {
+        const d = new Date(data.meta.generated);
+        bits.push(
+          `Horodatage technique (UTC) : ${d.toLocaleString("fr-FR", {
+            timeZone: "UTC",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.`,
+        );
+      }
+      if (data.meta.pipeline) {
+        bits.push(`Chaîne : ${data.meta.pipeline}`);
+      }
+      metaEl.textContent = bits.join(" ");
     }
   })
   .catch((e) => {

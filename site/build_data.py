@@ -560,8 +560,12 @@ def main() -> None:
             "generated": gen_iso,
             "indicator": "CNMIGRATRT",
             "unit": "Pour 1 000 habitants",
-            "notes": [],
+            "notes": [
+                "Séries solde net (hors UK) : API Eurostat demo_gind, sans fusion avec d’anciens exports CSV locaux lorsque le jeu est produit via charts/refresh_and_publish.py (TERRA_PURE_API).",
+                "Royaume-Uni : solde net = ONS long terme, pas Eurostat CNMIGRATRT.",
+            ],
             "datePublicationFr": date_pub,
+            "pipeline": "refresh_and_publish.py → plot_publication (Eurostat + ONS) ; fetch_entrees_etrangers ; build_data.py",
         },
         "copy": {
             "migrationFooter": MIGRATION_FOOTER,

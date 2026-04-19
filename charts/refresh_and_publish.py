@@ -8,6 +8,7 @@ Usage (depuis la racine du dossier Migrations) :
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -35,6 +36,9 @@ def main() -> int:
     cache.mkdir(parents=True, exist_ok=True)
     cleared = _clear_cache(cache)
     print(f"({cleared} fichier(s) supprimé(s).)\n")
+
+    # Données CNMIGRATRT = API Eurostat uniquement (pas de fusion avec d’anciens exports CSV locaux).
+    os.environ["TERRA_PURE_API"] = "1"
 
     sys.path.insert(0, str(root))
     import plot_publication

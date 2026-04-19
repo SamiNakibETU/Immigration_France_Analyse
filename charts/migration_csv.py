@@ -1,6 +1,9 @@
 """
 Lecture des exports SDMX-CSV Eurostat (demo_gind, CNMIGRATRT) déposés à la racine du dépôt Migrations/.
 Fusion avec les séries API : les valeurs du CSV l’emportent sur le cache pour les années présentes.
+
+`python charts/refresh_and_publish.py` définit TERRA_PURE_API=1 : aucune fusion, séries = API Eurostat
+(+ UK = ONS comme dans plot_publication). Pour forcer la fusion CSV : lancer plot_publication sans cette variable.
 """
 
 from __future__ import annotations

@@ -3,8 +3,8 @@ Spécification figée des séries Eurostat utilisées dans les exports.
 Toute figure du dossier output/ doit rester alignée sur ces libellés.
 
 Pourquoi les chiffres peuvent différer d’anciens graphiques Excel / INSEE :
-- CNMIGRATRT = solde migratoire + ajustement statistique, harmonisé Eurostat ;
-  les instituts nationaux publient parfois des millésimes ou définitions voisines mais non identiques.
+- CNMIGRATRT = solde migratoire total + ajustement statistique (Eurostat), pas le « solde migratoire des seuls immigrés » INSEE.
+- Les instituts nationaux publient parfois des millésimes ou définitions voisines mais non identiques.
 - Royaume-Uni : les graphiques n’utilisent pas Eurostat pour le solde ; la série UK est construite
   à partir de publications ONS (voir `uk_ons_series.py`) avec dénominateur population documenté.
 """

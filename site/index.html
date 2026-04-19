@@ -3,29 +3,36 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Migrations et asile</title>
+    <meta
+      name="description"
+      content="Solde migratoire net et demandes d’asile en Europe — données Eurostat (CNMIGRATRT, asile) et Office for National Statistics pour le Royaume-Uni. Comparaisons et classements UE."
+    />
+    <title>Solde migratoire et asile en Europe — Eurostat &amp; ONS</title>
     <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
     <header class="site-header">
       <h1>Solde migratoire et asile en Europe</h1>
-      <p class="site-tagline">Données Eurostat et ONS</p>
+      <p class="site-tagline">Données officielles — Eurostat et ONS (Royaume-Uni)</p>
     </header>
     <main class="figures" id="main-figures"></main>
     <footer class="site-metho" id="site-metho" aria-label="Méthodologie">
       <p class="site-metho-kicker">Méthodologie</p>
       <div class="site-metho-body">
         <p>
-          <strong>Solde net :</strong> Eurostat demo_gind, CNMIGRATRT, pour 1 000 habitants.
+          <strong>Solde migratoire net :</strong> Eurostat, table demo_gind, indicateur CNMIGRATRT (taux pour 1 000 habitants, solde total et ajustement statistique). Ce n’est pas le « solde des seuls immigrés » publié par l’Insee : les définitions diffèrent.
         </p>
         <p>
-          <strong>Royaume-Uni :</strong> ONS, solde long terme. Pas la même définition qu’Eurostat.
+          <strong>Royaume-Uni :</strong> Office for National Statistics (ONS), migration internationale de long terme ; le site n’utilise pas le solde Eurostat pour le UK. Les comparaisons France–UK restent indicatives (calendrier et méthodes distincts).
         </p>
         <p>
-          <strong>Asile :</strong> Eurostat migr_asyappctza, pour 1 000 habitants, population au 1er janvier (demo_pjan).
+          <strong>Asile :</strong> Eurostat migr_asyappctza (premières demandes), ramenées à la population au 1er janvier (demo_pjan).
         </p>
         <p>
-          Les niveaux dépendent aussi des définitions et des sources.
+          <strong>Entrées de ressortissants étrangers :</strong> Eurostat migr_imm1ctz (FOR_STLS), taux pour 1 000 habitants ; la série UK sur le graphique peut être incomplète selon la diffusion Eurostat.
+        </p>
+        <p>
+          Les agrégats du site sont régénérés à partir des API (voir la date en bas de page). Les instituts révisent parfois les millésimes récents.
         </p>
         <p class="site-metho-meta" id="metho-meta"></p>
       </div>

@@ -7,6 +7,7 @@ Exécution : python plot_publication.py
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from datetime import datetime
 
@@ -885,7 +886,9 @@ def main() -> None:
     all_geos = sorted(set(["FR", "FX", "DK", "IT", "UK", "DE", "ES", "SE", "NL"]))
     # Cache versionné : inclut FX (métropole) ; renommer si les géographies changent pour forcer un re-téléchargement.
     full_series = load_or_fetch(all_geos, 2005, 2024, cache_json=cache / "demo_gind_cnmigratrt_full_v2_fx.json")
-    apply_user_csv_overrides(full_series, 2005, 2024, default_user_csv_paths(repo_root))
+    _pure = os.environ.get("TERRA_PURE_API", "").lower() in ("1", "true", "yes")
+    _csv_paths = [] if _pure else default_user_csv_paths(repo_root)
+    apply_user_csv_overrides(full_series, 2005, 2024, _csv_paths)
     # Royaume-Uni : ONS uniquement pour les figures (pas les séries Eurostat UK du CSV).
     full_series["UK"] = uk_rate_per_1000_series(2005, 2024)
 
@@ -897,7 +900,8 @@ def main() -> None:
         f"{DS.MIGRATION_FOOTER}\n\n"
         f"France : FR (entière) et FX (métropole) — figure Italie. "
         f"Eurostat ne diffuse souvent plus FX pour CNMIGRATRT après ~2012 ; compléter avec un export national si besoin.\n"
-        f"Fusion des CSV estat_demo_gind_filtered_en*.csv à la racine Migrations/ lorsqu’ils sont présents.\n\n"
+        f"Fusion des CSV estat_demo_gind_filtered_en*.csv : uniquement si TERRA_PURE_API n’est pas défini "
+        f"(refresh_and_publish force l’API seule).\n\n"
         f"{UK_SOURCE_FOOTNOTE}\n\n{DS.ASYLUM_FOOTER_DETAIL}\n",
         encoding="utf-8",
     )

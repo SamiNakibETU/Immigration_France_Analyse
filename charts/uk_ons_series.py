@@ -19,6 +19,10 @@ Dénominateur (population résidente) :
 
 Les comparaisons France–UK juxtaposent donc : France = Eurostat CNMIGRATRT (année civile) ;
 UK = solde ONS / population selon la note ci-dessus (à expliciter en source sur la figure).
+
+Révisions ONS : le classeur « latest » (ex. ltimnov25.xlsx) peut ramener le YE Dec 2024 à ~345k personnes
+(~4,9–5,1 ‰) alors qu’une édition antérieure (ex. mai 2025) annonçait ~431k (~6,2 ‰).
+Le cache téléchargé par ons_fetch prime sur les constantes figées ci-dessous.
 """
 
 from __future__ import annotations

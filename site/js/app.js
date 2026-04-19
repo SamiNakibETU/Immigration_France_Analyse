@@ -24,48 +24,62 @@ const PEER_COLORS = [COL.red, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
  */
 const TITLES = {
   1: {
-    title: "La France reste l’un des pays les plus fermés à l’immigration",
-    sub: "Solde migratoire net pour 1 000 habitants — France, Danemark, Italie, Royaume-Uni (Eurostat, ONS).",
+    title:
+      "Solde migratoire : la France accueille 1,9 fois moins que le Danemark et 1,5 fois moins que l’Italie",
+    sub:
+      "Solde migratoire net pour 1 000 habitants, 2005-2024. France, Danemark et Italie : Eurostat (CNMIGRATRT). Royaume-Uni : ONS (LTIM).",
   },
   2: {
-    title: "Vingt ans de solde migratoire : la France décroche",
-    sub: "Solde net pour 1 000 habitants, France comparée à six grands voisins européens (Eurostat, 2005-2024).",
+    title: "En vingt ans, la France est passée sous la trajectoire de ses six principaux voisins européens",
+    sub: "Solde migratoire net pour 1 000 habitants, 2005-2024. Eurostat (CNMIGRATRT).",
   },
   3: {
-    title: "Demandes d’asile : la France dans la moyenne basse européenne",
-    sub: "Premières demandes pour 1 000 habitants — ce ne sont pas les demandes d’asile qui font la différence (Eurostat).",
+    title:
+      "Demandes d’asile : avec 1,9 demande pour 1 000 habitants, la France se situe dans la moyenne basse",
+    sub:
+      "Premières demandes d’asile pour 1 000 habitants, 2008-2024. Eurostat (migr_asyappctza, demo_pjan).",
   },
   4: {
-    title: "En 2024, la France reste dans le bas du tableau européen",
-    sub: "Classement des 27 selon le solde migratoire net pour 1 000 habitants (Eurostat, CNMIGRATRT).",
+    title: "Solde migratoire en 2024 : la France se classe 21e sur 27 dans l’Union européenne",
+    sub:
+      "Solde migratoire net pour 1 000 habitants, 27 États membres, 2024. Eurostat (CNMIGRATRT).",
   },
   5: {
-    title: "Parmi les grandes économies, seule la France reste sous la moyenne européenne",
-    sub: "Solde net pour 1 000 habitants, comparé à la médiane de l’UE à 27 (Eurostat).",
+    title: "Parmi les quatre premières économies de l’UE, la France est la seule sous la médiane européenne",
+    sub:
+      "Solde migratoire net pour 1 000 habitants, France, Allemagne, Italie, Espagne et médiane UE-27, 2005-2024. Eurostat.",
   },
   6: {
-    title: "En vingt ans, la France a reculé de plus de dix places",
-    sub: "Rang parmi les 27 États membres selon le solde net par habitant — 1er = plus ouvert (Eurostat).",
+    title: "Classement au sein de l’UE : la France est passée du 11e au 21e rang en vingt ans",
+    sub:
+      "Place de la France parmi les 27 selon le solde migratoire net par habitant, 2005-2024. 1er = solde le plus élevé. Eurostat.",
   },
   7: {
-    title: "L’asile ne pèse qu’une fraction du solde migratoire",
-    sub: "Premières demandes d’asile rapportées au solde net, lorsque celui-ci est positif (Eurostat).",
+    title:
+      "Demandes d’asile rapportées au solde migratoire : un rapport variable selon les pays, rarement majoritaire",
+    sub:
+      "Premières demandes d’asile divisées par le solde migratoire net (quand il est positif), 2008-2024. Eurostat.",
   },
   asylumBars: {
-    title: "Demandes d’asile en 2024 : la France loin derrière ses voisins",
-    sub: "Premières demandes pour 1 000 habitants, dernière année disponible (Eurostat, migr_asyappctza).",
+    title:
+      "Premières demandes d’asile en 2024 : la France reçoit moins de demandes que l’Allemagne, l’Espagne ou l’Italie",
+    sub: "Premières demandes pour 1 000 habitants, 2024. Eurostat (migr_asyappctza).",
   },
   entrees: {
-    title: "Entrées d’étrangers : si la France avait l’ouverture du Danemark, elle en compterait un million",
-    sub: "Entrées pour 1 000 habitants — l’indicateur le plus direct du degré d’ouverture (Eurostat).",
+    title:
+      "Entrées de ressortissants étrangers : le Danemark en accueille trois fois plus que la France, rapporté à sa population",
+    sub:
+      "Entrées pour 1 000 habitants, 2016-2024. Eurostat (migr_imm1ctz), ONS (LTIM, UK en pointillés, rupture en 2020).",
   },
   dual: {
-    title: "Solde migratoire modeste, asile dans la moyenne basse : la double singularité française",
-    sub: "Deux indicateurs, ramenés à 1 000 habitants, dernière année disponible par pays (Eurostat).",
+    title:
+      "En 2024, la France combine un solde migratoire et un niveau de demandes d’asile inférieurs à la plupart de ses voisins",
+    sub:
+      "Solde migratoire net et premières demandes d’asile, pour 1 000 habitants, dernière année disponible. Eurostat.",
   },
   volatility: {
-    title: "La France : la courbe la plus plate de ses voisins",
-    sub: "Ampleur des variations annuelles du solde net — écart-type 2010-2024 (Eurostat, ONS).",
+    title: "La France est le pays où le solde migratoire varie le moins d’une année à l’autre",
+    sub: "Écart-type des variations annuelles du solde net pour 1 000 habitants, 2010-2024. Eurostat, ONS.",
   },
 };
 
@@ -73,24 +87,24 @@ const DYADS = [
   {
     peerKey: "DK",
     peerLabel: "Danemark",
-    title: "France et Danemark : même calcul officiel, côte à côte",
-    sub: "Arrivées nettes pour 1 000 habitants, 2013-2024 (Eurostat, même règle pour les deux).",
+    title: "En 2024, le solde migratoire danois est près de deux fois supérieur au français",
+    sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
     colorPeer: COL.red,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
     peerKey: "IT",
     peerLabel: "Italie",
-    title: "France et Italie : même calcul officiel, côte à côte",
-    sub: "Arrivées nettes pour 1 000 habitants, 2013-2024 (Eurostat, même règle pour les deux).",
+    title: "Depuis 2021, l’Italie affiche un solde migratoire supérieur à celui de la France",
+    sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
     colorPeer: COL.coral,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
     peerKey: "UK",
     peerLabel: "Royaume-Uni",
-    title: "France et Royaume-Uni : attention, ce ne sont pas tout à fait les mêmes statistiques",
-    sub: "France : Eurostat. Royaume-Uni : statistiques nationales (migrations de longue durée). Pour 1 000 habitants, 2013-2024.",
+    title: "En 2022, le solde migratoire britannique a atteint un pic cinq fois supérieur au français",
+    sub: "Solde net pour 1 000 habitants, 2013-2024. France : Eurostat. Royaume-Uni : ONS (séries non strictement comparables).",
     colorPeer: COL.plum,
     footer: "Sources : Eurostat, CNMIGRATRT (France, 2013-2024, données harmonisées) ; Office for National Statistics, Long-Term International Migration (Royaume-Uni, 2013-2024). Les deux séries mesurent le solde de longue durée mais avec des méthodes non strictement identiques : la comparaison reste indicative.",
   },
@@ -1329,12 +1343,7 @@ function render(data) {
     const vol = data.volatilitySoldeCore || [];
     if (vol.length) {
       const art = main.append("article").attr("class", "figure");
-      const y0 = vol[0].yearLo;
-      const y1 = vol[0].yearHi;
-      figureHead(art, {
-        title: TITLES.volatility.title,
-        sub: `${TITLES.volatility.sub}, ${y0 ?? "…"}–${y1 ?? "…"}`,
-      });
+      figureHead(art, TITLES.volatility);
       /* Volatilité : exception à la règle « France rouge / autres gris » — une couleur par pays. */
       const barColor = (d) => {
         if (d.code === "FR") return COL.blue;
@@ -1370,10 +1379,20 @@ function render(data) {
   /* 3 Asile */
   {
     const art = main.append("article").attr("class", "figure");
-    figureHead(art, TITLES[3]);
+    const asyRows = data.asylum || [];
+    const lastFrAsy = [...asyRows].reverse().find((r) => r.FR != null && Number.isFinite(r.FR));
+    const frAsyVal = lastFrAsy ? lastFrAsy.FR : null;
+    const frAsyStr =
+      frAsyVal != null
+        ? frAsyVal.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+        : null;
+    const title3 =
+      frAsyStr != null
+        ? `Demandes d’asile : avec ${frAsyStr} demande pour 1 000 habitants, la France se situe dans la moyenne basse`
+        : TITLES[3].title;
+    figureHead(art, { title: title3, sub: TITLES[3].sub });
     const host = art.append("div").attr("class", "chart-host");
     const codes = data.asylumLineCodes || ["FR", "DE", "IT", "SE", "DK"];
-    const asyRows = data.asylum || [];
     let peerIdx = 0;
     const defs = codes.map((code) => {
       const isFr = code === "FR";
@@ -1431,8 +1450,15 @@ function render(data) {
   /* 4 Classement UE */
   {
     const art = main.append("article").attr("class", "figure");
-    figureHead(art, TITLES[4]);
     const eu = data.euRanking2024 || [];
+    const frIdx = eu.findIndex((d) => d.code === "FR");
+    const nEu = eu.length;
+    const frRank = frIdx >= 0 && nEu > 0 ? nEu - frIdx : null;
+    const title4 =
+      frRank != null
+        ? `Solde migratoire en 2024 : la France se classe ${frRank}e sur ${nEu} dans l'Union européenne`
+        : TITLES[4].title;
+    figureHead(art, { title: title4, sub: TITLES[4].sub });
     const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
     const w = 900;
     const rowH = 26;
@@ -1525,7 +1551,10 @@ function render(data) {
       .map((r) => ({ year: r.annee, rang: r.rangFrance }));
     if (rankRows.length) {
       const art = main.append("article").attr("class", "figure");
-      figureHead(art, TITLES[6]);
+      const rA = rankRows[0];
+      const rZ = rankRows[rankRows.length - 1];
+      const title6 = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}–${rZ.year})`;
+      figureHead(art, { title: title6, sub: TITLES[6].sub });
       const host = art.append("div").attr("class", "chart-host");
       lineChartFigure(host, {
         rows: rankRows,
@@ -1627,8 +1656,9 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Danemark et France : deux statistiques nationales qu’on ne peut pas superposer à l’identique",
-        sub: "Danemark : personnes sans nationalité danoise. France : personnes nées à l’étranger et venues s’installer. Pour 1 000 habitants.",
+        title: "Solde migratoire selon les instituts nationaux : le Danemark reste au-dessus de la France depuis 2015",
+        sub:
+          "Danemark : étrangers (Statistics DK). France : immigrés (INSEE Première n°2050). Pour 1 000 habitants, 2013-2024. Indicateurs non strictement équivalents.",
       });
       const host = art.append("div").attr("class", "chart-host");
       const frPts = mRows.filter(r => r.FR != null).map(r => ({ year: r.year, value: r.FR }));
@@ -1668,8 +1698,10 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Italie et France : deux statistiques nationales qu’on ne peut pas superposer à l’identique",
-        sub: "Italie : personnes sans nationalité italienne. France : personnes nées à l’étranger et venues s’installer. Pour 1 000 habitants.",
+        title:
+          "Mesurées par leurs propres instituts, l’Italie et la France suivent des trajectoires comparables mais distinctes",
+        sub:
+          "Italie : étrangers (Istat). France : immigrés (INSEE). Pour 1 000 habitants, 2014-2023. Indicateurs non strictement équivalents.",
       });
       const host = art.append("div").attr("class", "chart-host");
       const frPts = mRows.filter(r => r.FR != null).map(r => ({ year: r.year, value: r.FR }));
@@ -1704,8 +1736,9 @@ function render(data) {
     if (itNat.length && itEur.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Italie en 2020 : pourquoi un graphique dit « baisse » et l’autre « hausse » ?",
-        sub: "L’un compte tout le monde (Italiens compris), l’autre seulement les personnes de nationalité étrangère. Pour 1 000 habitants.",
+        title: "Italie en 2020 : un écart de 3,8 points entre le solde total (Eurostat) et celui des seuls étrangers (Istat)",
+        sub:
+          "Solde migratoire pour 1 000 habitants. Eurostat : nationaux inclus. Istat : étrangers uniquement. L’écart s’explique par les Italiens restés à l’étranger pendant le Covid.",
       });
       const host = art.append("div").attr("class", "chart-host");
 
@@ -1751,8 +1784,10 @@ function render(data) {
     if (mRows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Royaume-Uni : forte hausse après 2020 ; France : courbe plus stable",
-        sub: "R.-U. : personnes sans nationalité britannique. France : immigrés selon l’Insee. Pour 1 000 habitants — à comparer avec prudence.",
+        title:
+          "Le solde migratoire britannique a été multiplié par cinq entre 2019 et 2022, celui de la France est resté stable",
+        sub:
+          "R.-U. : étrangers (ONS). France : immigrés (INSEE). Pour 1 000 habitants, 2014-2023. Indicateurs non strictement comparables.",
       });
       const host = art.append("div").attr("class", "chart-host");
       const frPts = mRows.filter(r => r.FR != null).map(r => ({ year: r.year, value: r.FR }));
@@ -1787,8 +1822,9 @@ function render(data) {
     if (ukOrigin.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Royaume-Uni : arrivées nettes, séparées entre Europe et reste du monde",
-        sub: "En milliers de personnes par an (statistiques officielles britanniques).",
+        title:
+          "Depuis le Brexit, le solde UE est devenu négatif au Royaume-Uni tandis que les arrivées non-UE ont triplé",
+        sub: "Arrivées nettes en milliers, par nationalité UE et non-UE. ONS (LTIM). Données provisoires pour 2024-2025.",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
@@ -1916,8 +1952,9 @@ function render(data) {
     if (rows.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "France et Danemark sur 20 ans : les bandes de couleur sont les mandats présidentiels français",
-        sub: "Arrivées nettes pour 1 000 habitants — même définition pour les deux pays (Eurostat).",
+        title: "De Chirac à Macron, la France n’a jamais rattrapé le Danemark en matière de solde migratoire",
+        sub:
+          "Solde migratoire net pour 1 000 habitants, 2005-2024. Les bandes indiquent les mandats présidentiels français. Eurostat (CNMIGRATRT).",
       });
       const host = art.append("div").attr("class", "chart-host");
       const w = 900;
@@ -2014,10 +2051,21 @@ function render(data) {
   {
     const permits = (data.nationalStats || {}).permitsMotif || [];
     if (permits.length) {
+      const motifs = ["travail", "famille", "etudes", "autres"];
+      const totalPerm = (d) => motifs.reduce((s, m) => s + (d[m] || 0), 0);
+      const frP = permits.find((p) => p.code === "FR");
+      const ukP = permits.find((p) => p.code === "UK");
+      const fmtPerm = (x) => x.toFixed(1).replace(".", ",");
+      const titlePerm =
+        frP && ukP
+          ? `Premiers titres de séjour en 2022 : la France en délivre ${fmtPerm(totalPerm(frP))} pour 1 000 habitants, contre ${fmtPerm(totalPerm(ukP))} au Royaume-Uni`
+          : "Premiers titres de séjour en 2022 : la France et le Royaume-Uni comparés pour 1 000 habitants";
+
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Titres de séjour d’au moins un an : travail, famille, études… en 2022",
-        sub: "Combien en délivrer pour 1 000 habitants, selon le motif (Europe : Eurostat ; Royaume-Uni : chiffres britanniques).",
+        title: titlePerm,
+        sub:
+          "Premiers titres de séjour de longue durée (12 mois ou plus), par motif, pour 1 000 habitants, 2022. Eurostat (migr_resfirst), Home Office (UK).",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 
@@ -2030,7 +2078,6 @@ function render(data) {
       const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const motifs = ["travail", "famille", "etudes", "autres"];
       const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, autres: COL.coral };
       const labels = { travail: "Travail", famille: "Famille", etudes: "Études", autres: "Autres / protection" };
 
@@ -2099,8 +2146,9 @@ function render(data) {
     if (reconn.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, {
-        title: "Demandeurs d’asile : quelle part obtient une protection en 2022 ?",
-        sub: "Part des réponses favorables sur toutes les décisions rendues (statistiques officielles ; Royaume-Uni : chiffres nationaux).",
+        title: "Taux de reconnaissance de l’asile en 2022 : des écarts importants d’un pays à l’autre",
+        sub:
+          "Part des décisions favorables en première instance sur l’ensemble des décisions rendues, 2022. Eurostat (migr_asydcfsta), Home Office (UK).",
       });
       const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
 

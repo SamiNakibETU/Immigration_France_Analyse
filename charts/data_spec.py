@@ -41,61 +41,58 @@ ASYLUM_FOOTER_SHORT = (
 # --- Titres éditoriaux (lead) + sous-titres académiques ---
 TITLES_PAIR: dict[str, tuple[str, str]] = {
     "DK": (
-        "Des pics danois, une courbe française étroite",
+        "En 2024, le solde migratoire danois est près de deux fois supérieur au français",
         (
-            "Solde migratoire net pour 1 000 habitants · Eurostat CNMIGRATRT · "
-            "deux panneaux : France (FR + métropole FX) à son échelle, puis Danemark · "
-            "FX : Eurostat seulement jusqu’en 2012 pour cet indicateur."
+            "Solde net pour 1 000 habitants, 2013-2024 · même indicateur Eurostat (CNMIGRATRT) pour les deux pays · "
+            "deux panneaux : France (FR + métropole FX) puis Danemark · "
+            "FX : Eurostat souvent jusqu’en ~2012 seulement pour cet indicateur."
         ),
     ),
     "IT": (
-        "L’Italie oscille fort ; la France reste dans une bande basse",
+        "Depuis 2021, l’Italie affiche un solde migratoire supérieur à celui de la France",
         (
-            "CNMIGRATRT (demo_gind) · FR = France entière, FX = métropole seule · "
-            "Attention : chez Eurostat, la série FX peut s’arrêter vers 2012 pour cet indicateur ; "
-            "la courbe pointillée bleue ne couvre alors que le début de période · "
-            "Italie harmonisée · France : flags 2014 (b), 2021–24 (p)."
+            "Solde net pour 1 000 habitants, 2013-2024 · CNMIGRATRT (demo_gind) · "
+            "FR = France entière, FX = métropole · Italie harmonisée."
         ),
     ),
     "UK": (
-        "Le Royaume-Uni affiche un solde net nettement plus élevé que la France",
+        "En 2022, le solde migratoire britannique a atteint un pic cinq fois supérieur au français",
         (
-            "France : Eurostat CNMIGRATRT · Royaume-Uni : solde net de long terme (ONS) · "
-            "deux panneaux, échelles Y distinctes · FX métropole : Eurostat jusqu’en 2012."
+            "Solde net pour 1 000 habitants, 2013-2024 · France : Eurostat CNMIGRATRT · "
+            "Royaume-Uni : ONS (séries non strictement comparables) · échelles Y distinctes."
         ),
     ),
 }
 
 TITLE_EU_COMPARE = (
-    "France en bleu, six pays voisins en gris",
+    "En vingt ans, la France est passée sous la trajectoire de ses six principaux voisins européens",
     (
-        "CNMIGRATRT pour 1 000 habitants · haut : France FR + FX (axe Y adapté) · "
-        "bas : France (bleu) avec DE, ES, SE, NL, IT, DK (gris), même échelle Y · Eurostat demo_gind."
+        "Solde migratoire net pour 1 000 habitants, 2005-2024 · Eurostat (CNMIGRATRT) · "
+        "haut : France FR + FX · bas : France (bleu) avec DE, ES, SE, NL, IT, DK (gris), même échelle Y."
     ),
 )
 
 TITLE_ASYLUM_LINES = (
-    "Les chocs d’asile touchent surtout certains pays du nord ; la France reste modérée",
+    "Demandes d’asile : la France se situe dans la moyenne basse (premières demandes / 1 000 hab.)",
     (
-        "Premières demandes pour 1 000 habitants · Eurostat migr_asyappctza (FRST, citizen=TOTAL, sex=T, age=TOTAL) · "
-        "population au 1er janvier (demo_pjan) · séries annuelles (décisions finales non montrées)."
+        "Premières demandes d’asile pour 1 000 habitants, 2008-2024 · "
+        "Eurostat migr_asyappctza (FRST, citizen=TOTAL) · population au 1er janvier (demo_pjan)."
     ),
 )
 
 TITLE_ASYLUM_BARS = (
-    "Dernière année : la France se situe dans le bas du classement relatif",
+    "Premières demandes d’asile en 2024 : la France derrière l’Allemagne, l’Espagne ou l’Italie",
     (
-        "Premières demandes d’asile pour 1 000 habitants · dernière année disponible par pays · "
+        "Premières demandes pour 1 000 habitants, 2024 · "
         f"{ASYLUM_TABLE} + demo_pjan."
     ),
 )
 
 TITLE_KEY_DUAL = (
-    "Solde migratoire net vs asile : la France combine un net modéré et un asile dans la moyenne basse",
+    "En 2024, la France combine un solde migratoire et des demandes d’asile inférieurs à beaucoup de voisins",
     (
-        "Dernière année disponible par pays pour chaque indicateur · "
-        "gauche : demo_gind CNMIGRATRT · droite : migr_asyappctza / demo_pjan · "
-        "les millésimes affichés peuvent coïncider (souvent 2024)."
+        "Solde migratoire net et premières demandes d’asile pour 1 000 habitants · "
+        "dernière année disponible par pays · demo_gind CNMIGRATRT · migr_asyappctza / demo_pjan."
     ),
 )
 
@@ -109,9 +106,9 @@ TITLE_SNAPSHOT_2024 = (
 )
 
 TITLE_EU_RANK_2024 = (
-    "Dans l’Union européenne, la France reste dans le bas du tableau",
+    "Solde migratoire en 2024 : la France dans le bas du classement (UE-27, CNMIGRATRT)",
     (
-        "CNMIGRATRT 2024 · États membres UE-27 avec valeur publiée · "
+        "Solde migratoire net pour 1 000 habitants · 27 États membres, 2024 · "
         "données provisoires possibles (p) · hors Royaume-Uni."
     ),
 )

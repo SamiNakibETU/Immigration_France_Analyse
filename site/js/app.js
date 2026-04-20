@@ -1241,39 +1241,55 @@ function attachFigureExports() {
       bar.appendChild(grp);
     });
 
-    const row2 = article.querySelector(".row-2");
-    const isDualNetAsylum = article.classList.contains("figure-dual-net-asylum");
-    if (isDualNetAsylum && row2) {
-      row2.insertAdjacentElement("beforebegin", bar);
-    } else {
-      const firstHost = article.querySelector(".chart-host");
-      if (firstHost) firstHost.insertAdjacentElement("beforebegin", bar);
-      else article.prepend(bar);
-    }
+    const firstHost = article.querySelector(".chart-host");
+    if (firstHost) firstHost.insertAdjacentElement("beforebegin", bar);
+    else article.prepend(bar);
   });
 }
 
+/** Un seul SVG : solde net puis asile (export unique SVG/PNG). */
 function dualBarRow(container, data, footer) {
   container.classed("figure-dual-net-asylum", true);
   figureHead(container, TITLES.dual);
 
-  const row = container.append("div").attr("class", "row-2");
-  const net = data.dualNetAsylum2024.net || [];
-  const asy = data.dualNetAsylum2024.asylum || [];
+  const net = data.dualNetAsylum2024?.net || [];
+  const asy = data.dualNetAsylum2024?.asylum || [];
+  const wrap = container.append("div").attr("class", "chart-host chart-bar-swiss");
 
-  function mini(host, label, rows) {
-    host.append("p").attr("class", "mini-panel-title").text(label);
-    const h = host.append("div").attr("class", "chart-host chart-bar-swiss");
-    const w = 560;
-    const rowH = 34;
-    const margin = { top: 8, right: 64, bottom: 36, left: 158 };
-    const innerW = w - margin.left - margin.right;
+  const w = 900;
+  const rowH = 34;
+  const margin = { top: 8, right: 72, bottom: 34, left: 168 };
+  const inset = { left: 8, right: 8, top: 6, bottom: 8 };
+  const innerW = w - margin.left - margin.right;
+  const kickerH = 15;
+  const gapPanels = 28;
+
+  function panelBlockHeight(rows) {
     const innerH = Math.max(rows.length * rowH, 40);
-    const height = innerH + margin.top + margin.bottom;
-    const svg = h.append("svg").attr("viewBox", `0 0 ${w} ${height}`).attr("width", "100%").attr("height", height);
-    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    return kickerH + margin.top + innerH + margin.bottom;
+  }
 
-    const inset = { left: 8, right: 8, top: 6, bottom: 8 };
+  const totalH = panelBlockHeight(net) + gapPanels + panelBlockHeight(asy);
+  const svg = wrap
+    .append("svg")
+    .attr("viewBox", `0 0 ${w} ${totalH}`)
+    .attr("width", "100%")
+    .attr("height", totalH);
+
+  function drawPanelAt(yBase, kickerLabel, rows) {
+    const innerH = Math.max(rows.length * rowH, 40);
+    const gBlock = svg.append("g").attr("transform", `translate(0,${yBase})`);
+    gBlock
+      .append("text")
+      .attr("x", 28)
+      .attr("y", 11)
+      .attr("fill", COL.muted)
+      .attr("font-size", 9.25)
+      .attr("font-weight", "600")
+      .attr("letter-spacing", "0.11em")
+      .text(kickerLabel);
+    const g = gBlock.append("g").attr("transform", `translate(${margin.left},${kickerH + margin.top})`);
+
     const vals = rows.map((r) => r.value).filter((v) => Number.isFinite(v));
     const useSigned = vals.some((v) => v < 0);
     const maxV = vals.length ? d3.max(vals) : 0;
@@ -1290,12 +1306,10 @@ function dualBarRow(container, data, footer) {
       .range([inset.top, innerH - inset.bottom])
       .paddingInner(0.35)
       .paddingOuter(0.1);
-
     const x0 = x(0);
 
     appendHorizontalBarGrid(g, x, inset, innerH, 5);
     appendBarTickLabelsX(g, x, innerH, 5, 8.25);
-
     appendBarCategoryLabelsY(g, y, 8.75);
 
     rows.forEach((r) => {
@@ -1324,16 +1338,21 @@ function dualBarRow(container, data, footer) {
 
     g.append("text")
       .attr("x", innerW / 2)
-      .attr("y", innerH + 26)
+      .attr("y", innerH + 24)
       .attr("text-anchor", "middle")
       .attr("fill", COL.muted)
       .attr("font-size", 8.5)
       .attr("font-weight", "500")
       .text("Pour 1 000 habitants");
+
+    return kickerH + margin.top + innerH + margin.bottom;
   }
 
-  mini(row.append("div"), "Solde net", net);
-  mini(row.append("div"), "Asile", asy);
+  let y = 0;
+  y += drawPanelAt(y, "SOLDE NET — CNMIGRATRT", net);
+  y += gapPanels;
+  drawPanelAt(y, "PREMIÈRES DEMANDES D’ASILE", asy);
+
   if (footer) container.append("p").attr("class", "figure-foot").text(footer);
 }
 

@@ -899,15 +899,35 @@ function wrapTextToLines(text, maxChars) {
   return lines;
 }
 
-/** Limites de césure (caractères) calibrées sur la largeur utile du SVG (~900px). */
+/**
+ * Césure export : ~7 px / car. pour titre 16px, ~5,8 pour sous-titre 11px (évite les lignes qui
+ * dépassent la viewBox et sont rognées dans Word / Figma).
+ */
 function exportWrapLimits(chartWidthPx) {
-  const usable = Math.max(360, chartWidthPx - 56);
+  const usable = Math.max(280, chartWidthPx - 56);
   return {
-    title: Math.max(78, Math.floor(usable / 6.8)),
-    sub: Math.max(110, Math.floor(usable / 5.6)),
-    panel: Math.max(95, Math.floor(usable / 6.0)),
-    foot: Math.max(130, Math.floor(usable / 4.9)),
+    title: Math.max(32, Math.floor(usable / 7.1)),
+    sub: Math.max(44, Math.floor(usable / 5.85)),
+    panel: Math.max(40, Math.floor(usable / 6.2)),
+    foot: Math.max(52, Math.floor(usable / 5.15)),
   };
+}
+
+/** Sous-titres d’export par panneau (double solde / asile) : le sous-titre HTML mentionne les deux indicateurs. */
+const DUAL_EXPORT_SUB_BY_PANEL = {
+  "solde net":
+    "Solde migratoire net pour 1 000 habitants, dernière année disponible par pays. Eurostat (CNMIGRATRT).",
+  asile:
+    "Premières demandes d’asile pour 1 000 habitants, dernière année disponible par pays. Eurostat (migr_asyappctza).",
+};
+
+function dualPanelExportSubtitle(miniLabel) {
+  const k = String(miniLabel || "")
+    .trim()
+    .toLowerCase();
+  if (k.includes("solde")) return DUAL_EXPORT_SUB_BY_PANEL["solde net"];
+  if (k.includes("asile")) return DUAL_EXPORT_SUB_BY_PANEL.asile;
+  return null;
 }
 
 /**
@@ -947,25 +967,37 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
  */
 function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
-  const lim = exportWrapLimits(cw);
+  const dualSubOverride = dualPanelExportSubtitle(miniPanelLabel);
+  /* Double panneau : césure comme pour un bandeau ~880 px pour ne pas rogner les titres sur des SVG étroits. */
+  const wrapW = dualSubOverride ? Math.max(cw, 880) : cw;
+  const lim = exportWrapLimits(wrapW);
   const title = articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure";
-  const sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
+  let sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
+  if (dualSubOverride) sub = dualSubOverride;
   const footText = articleEl?.querySelector(".figure-foot")?.textContent?.trim() || "";
   const titleLines = wrapTextToLines(title, lim.title);
   const subLines = wrapTextToLines(sub, lim.sub);
-  const panelLines = miniPanelLabel ? wrapTextToLines(String(miniPanelLabel), lim.panel) : [];
+  /* Pas de 3e ligne « ASILE » en majuscules : le sous-titre exporté identifie déjà le panneau. */
+  const panelLines = [];
   const footLines = footText ? wrapTextToLines(footText, lim.foot) : [];
 
-  const titleH = 18 + titleLines.length * 22;
-  const subH = subLines.length ? 10 + subLines.length * 17 : 0;
-  const panelH = panelLines.length ? 8 + panelLines.length * 15 : 0;
-  const headerH = Math.min(220, Math.max(88, titleH + subH + panelH + 24));
+  const titleH = 18 + titleLines.length * 21;
+  const subH = subLines.length ? 10 + subLines.length * 16 : 0;
+  const panelH = 0;
+  const headerH = Math.min(260, Math.max(88, titleH + subH + panelH + 22));
 
-  /* Footer : zone sous le graphique avec fond blanc et texte source */
-  const footerLineH = 12.5;
-  const footerH = footLines.length ? 10 + footLines.length * footerLineH + 12 : 0;
+  /* Footer : même corps que le sous-titre (lisibilité Word) */
+  const footerLineH = 14;
+  const footerH = footLines.length ? 12 + footLines.length * footerLineH + 10 : 0;
 
-  const totalW = cw;
+  /*
+   * Panneaux étroits (demi-largeur) : le bandeau titre est césuré pour ~880 px mais le SVG
+   * graphique reste à cw — sans élargir le canevas, le texte dépassait. On centre le tracé
+   * dans une toile au moins 880 px de large.
+   */
+  const wideCanvas = Boolean(dualSubOverride);
+  const totalW = wideCanvas ? Math.max(cw, 880) : cw;
+  const padChartX = wideCanvas ? (totalW - cw) / 2 : 0;
   const totalH = ch + headerH + footerH;
 
   const root = document.createElementNS(SVG_NS, "svg");
@@ -1003,12 +1035,12 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", "#141414");
-    t.setAttribute("font-size", "17");
-    t.setAttribute("font-weight", "500");
-    t.setAttribute("letter-spacing", "-0.028em");
+    t.setAttribute("font-size", "16");
+    t.setAttribute("font-weight", "600");
+    t.setAttribute("letter-spacing", "-0.024em");
     t.textContent = line;
     root.appendChild(t);
-    ty += 22;
+    ty += 21;
   });
   ty += 4;
   subLines.forEach((line) => {
@@ -1017,20 +1049,20 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", "#5a5a58");
     t.setAttribute("font-size", "11");
-    t.setAttribute("font-weight", "450");
+    t.setAttribute("font-weight", "500");
     t.setAttribute("letter-spacing", "0.01em");
     t.textContent = line;
     root.appendChild(t);
-    ty += 17;
+    ty += 16;
   });
   panelLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", "#5a5a58");
-    t.setAttribute("font-size", "10");
+    t.setAttribute("font-size", "10.5");
     t.setAttribute("font-weight", "600");
-    t.setAttribute("letter-spacing", "0.08em");
+    t.setAttribute("letter-spacing", "0.06em");
     t.setAttribute("text-transform", "uppercase");
     t.textContent = line;
     root.appendChild(t);
@@ -1044,7 +1076,7 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   if (svgClass) layerClasses.push(svgClass);
   if (host && host.classList.contains("chart-bar-swiss")) layerClasses.push("chart-bar-swiss");
   chartLayer.setAttribute("class", layerClasses.join(" ").trim());
-  chartLayer.setAttribute("transform", `translate(0,${headerH})`);
+  chartLayer.setAttribute("transform", `translate(${padChartX},${headerH})`);
   const innerClone = chartSvg.cloneNode(true);
   /* Retirer les cercles de survol (fill="none" ou anciennement "transparent")
    * qui s'affichent en noir dans Word / Illustrator car SVG standalone
@@ -1075,10 +1107,10 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
       const ft = document.createElementNS(SVG_NS, "text");
       ft.setAttribute("x", "28");
       ft.setAttribute("y", String(fy));
-      ft.setAttribute("fill", "#888884");
-      ft.setAttribute("font-size", "9");
+      ft.setAttribute("fill", "#6a6a66");
+      ft.setAttribute("font-size", "10.5");
       ft.setAttribute("font-style", "italic");
-      ft.setAttribute("font-weight", "400");
+      ft.setAttribute("font-weight", "450");
       ft.setAttribute("letter-spacing", "0.01em");
       ft.textContent = line;
       root.appendChild(ft);
@@ -1209,13 +1241,20 @@ function attachFigureExports() {
       bar.appendChild(grp);
     });
 
-    const firstHost = article.querySelector(".chart-host");
-    if (firstHost) firstHost.insertAdjacentElement("beforebegin", bar);
-    else article.prepend(bar);
+    const row2 = article.querySelector(".row-2");
+    const isDualNetAsylum = article.classList.contains("figure-dual-net-asylum");
+    if (isDualNetAsylum && row2) {
+      row2.insertAdjacentElement("beforebegin", bar);
+    } else {
+      const firstHost = article.querySelector(".chart-host");
+      if (firstHost) firstHost.insertAdjacentElement("beforebegin", bar);
+      else article.prepend(bar);
+    }
   });
 }
 
 function dualBarRow(container, data, footer) {
+  container.classed("figure-dual-net-asylum", true);
   figureHead(container, TITLES.dual);
 
   const row = container.append("div").attr("class", "row-2");
@@ -1225,9 +1264,9 @@ function dualBarRow(container, data, footer) {
   function mini(host, label, rows) {
     host.append("p").attr("class", "mini-panel-title").text(label);
     const h = host.append("div").attr("class", "chart-host chart-bar-swiss");
-    const w = 440;
+    const w = 560;
     const rowH = 34;
-    const margin = { top: 8, right: 56, bottom: 36, left: 150 };
+    const margin = { top: 8, right: 64, bottom: 36, left: 158 };
     const innerW = w - margin.left - margin.right;
     const innerH = Math.max(rows.length * rowH, 40);
     const height = innerH + margin.top + margin.bottom;
@@ -1235,11 +1274,16 @@ function dualBarRow(container, data, footer) {
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
     const inset = { left: 8, right: 8, top: 6, bottom: 8 };
-    const vals = rows.map((r) => r.value);
-    const useSigned = vals.some((v) => Number.isFinite(v) && v < 0);
-    const maxV = d3.max(vals);
-    const xDom = useSigned ? xDomainSignedBars(vals) : [0, Math.max((Number.isFinite(maxV) ? maxV : 0) * 1.12, 1e-6)];
-    const x = d3.scaleLinear().domain(xDom).range([inset.left, innerW - inset.right]);
+    const vals = rows.map((r) => r.value).filter((v) => Number.isFinite(v));
+    const useSigned = vals.some((v) => v < 0);
+    const maxV = vals.length ? d3.max(vals) : 0;
+    const x = d3.scaleLinear().range([inset.left, innerW - inset.right]);
+    if (useSigned) {
+      x.domain(xDomainSignedBars(vals));
+    } else {
+      const hi = Math.max((Number.isFinite(maxV) ? maxV : 0) * 1.22, 0.35);
+      x.domain([0, hi]).nice();
+    }
     const y = d3
       .scaleBand()
       .domain(rows.map((r) => r.label))

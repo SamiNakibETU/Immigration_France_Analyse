@@ -145,7 +145,7 @@ article.figure:last-of-type {
 .figure-sub {
   margin: 0 0 var(--space-sm);
   color: var(--tn-muted);
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   font-weight: var(--fw-book);
   max-width: 900px;
   line-height: 1.48;
@@ -160,6 +160,12 @@ article.figure:last-of-type {
   gap: var(--space-sm) var(--space-md);
   margin: 0 0 var(--space-md);
   padding: var(--space-xs) 0;
+}
+
+/* Double panneau solde / asile : barre d’export au-dessus des deux colonnes (pleine largeur). */
+.figure-dual-net-asylum > .figure-export {
+  width: 100%;
+  max-width: none;
 }
 
 .figure-export-kicker {
@@ -204,7 +210,7 @@ article.figure:last-of-type {
   margin: var(--space-sm) 0 0;
   max-width: 900px;
   color: var(--tn-muted);
-  font-size: 0.76rem;
+  font-size: 0.8125rem;
   font-weight: var(--fw-book);
   line-height: 1.5;
   letter-spacing: 0.01em;

@@ -913,30 +913,15 @@ function exportWrapLimits(chartWidthPx) {
   };
 }
 
-/** Sous-titres d’export par panneau (double solde / asile) : le sous-titre HTML mentionne les deux indicateurs. */
-const DUAL_EXPORT_SUB_BY_PANEL = {
-  "solde net":
-    "Solde migratoire net pour 1 000 habitants, dernière année disponible par pays. Eurostat (CNMIGRATRT).",
-  asile:
-    "Premières demandes d’asile pour 1 000 habitants, dernière année disponible par pays. Eurostat (migr_asyappctza).",
-};
-
-function dualPanelExportSubtitle(miniLabel) {
-  const k = String(miniLabel || "")
-    .trim()
-    .toLowerCase();
-  if (k.includes("solde")) return DUAL_EXPORT_SUB_BY_PANEL["solde net"];
-  if (k.includes("asile")) return DUAL_EXPORT_SUB_BY_PANEL.asile;
-  return null;
-}
-
 /**
  * Styles critiques inlinés dans le SVG exporté (Word n’applique pas main.css).
- * Couleurs alignées sur :root dans main.css.
+ * Couleurs et pile typo alignées sur :root / .figure-* dans main.css.
  */
 const EXPORT_SVG_STYLES = `
 svg { background-color: #ffffff; }
-text, tspan { font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif !important; }
+text, tspan {
+  font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif !important;
+}
 .chart-line-swiss .chart-grid-line {
   stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
@@ -961,43 +946,44 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
 .chart-bar-swiss .bar-fill { vector-effect: non-scaling-stroke; }
 `;
 
+/** Typo export SVG : calée sur .figure-title / .figure-sub / .figure-foot (main.css). */
+const EXPORT_TITLE_LH = 21;
+const EXPORT_SUB_LH = 19;
+const EXPORT_FOOT_LH = 19;
+
 /**
  * SVG autonome : bandeau titre + sous-titre (+ panneau optionnel), styles inline,
  * graphique décalé sous le bandeau (comme sur la page).
+ * Textes toujours lus depuis le DOM (.figure-title, .figure-sub, .figure-foot) — pas de variante export.
  */
-function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
+function buildExportRootSvg(chartSvg, articleEl) {
   const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
-  const dualSubOverride = dualPanelExportSubtitle(miniPanelLabel);
-  /* Double panneau : césure comme pour un bandeau ~880 px pour ne pas rogner les titres sur des SVG étroits. */
-  const wrapW = dualSubOverride ? Math.max(cw, 880) : cw;
-  const lim = exportWrapLimits(wrapW);
+  /* Même largeur utile que max-width: 900px pour sous-titre / sources à l’écran ; évite titres rognés si le tracé est étroit. */
+  const textBandW = Math.max(cw, 900);
+  const lim = exportWrapLimits(textBandW);
   const title = articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure";
-  let sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
-  if (dualSubOverride) sub = dualSubOverride;
+  const sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
   const footText = articleEl?.querySelector(".figure-foot")?.textContent?.trim() || "";
   const titleLines = wrapTextToLines(title, lim.title);
   const subLines = wrapTextToLines(sub, lim.sub);
-  /* Pas de 3e ligne « ASILE » en majuscules : le sous-titre exporté identifie déjà le panneau. */
   const panelLines = [];
   const footLines = footText ? wrapTextToLines(footText, lim.foot) : [];
 
-  const titleH = 18 + titleLines.length * 21;
-  const subH = subLines.length ? 10 + subLines.length * 16 : 0;
-  const panelH = 0;
-  const headerH = Math.min(260, Math.max(88, titleH + subH + panelH + 22));
+  let ty = 26;
+  titleLines.forEach(() => {
+    ty += EXPORT_TITLE_LH;
+  });
+  if (titleLines.length && subLines.length) ty += 8;
+  else if (titleLines.length) ty += 6;
+  subLines.forEach(() => {
+    ty += EXPORT_SUB_LH;
+  });
+  const headerH = Math.min(300, Math.max(70, ty + 18));
 
-  /* Footer : même corps que le sous-titre (lisibilité Word) */
-  const footerLineH = 14;
-  const footerH = footLines.length ? 12 + footLines.length * footerLineH + 10 : 0;
+  const footerH = footLines.length ? 14 + footLines.length * EXPORT_FOOT_LH + 12 : 0;
 
-  /*
-   * Panneaux étroits (demi-largeur) : le bandeau titre est césuré pour ~880 px mais le SVG
-   * graphique reste à cw — sans élargir le canevas, le texte dépassait. On centre le tracé
-   * dans une toile au moins 880 px de large.
-   */
-  const wideCanvas = Boolean(dualSubOverride);
-  const totalW = wideCanvas ? Math.max(cw, 880) : cw;
-  const padChartX = wideCanvas ? (totalW - cw) / 2 : 0;
+  const totalW = textBandW;
+  const padChartX = (totalW - cw) / 2;
   const totalH = ch + headerH + footerH;
 
   const root = document.createElementNS(SVG_NS, "svg");
@@ -1029,31 +1015,32 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
   plotBg.setAttribute("fill", "#ffffff");
   root.appendChild(plotBg);
 
-  let ty = 22;
+  ty = 26;
   titleLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", "#141414");
-    t.setAttribute("font-size", "16");
-    t.setAttribute("font-weight", "600");
-    t.setAttribute("letter-spacing", "-0.024em");
+    t.setAttribute("font-size", "17");
+    t.setAttribute("font-weight", "500");
+    t.setAttribute("letter-spacing", "-0.028em");
     t.textContent = line;
     root.appendChild(t);
-    ty += 21;
+    ty += EXPORT_TITLE_LH;
   });
-  ty += 4;
+  if (titleLines.length && subLines.length) ty += 8;
+  else if (titleLines.length) ty += 6;
   subLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", "#5a5a58");
-    t.setAttribute("font-size", "11");
-    t.setAttribute("font-weight", "500");
+    t.setAttribute("font-size", "13");
+    t.setAttribute("font-weight", "450");
     t.setAttribute("letter-spacing", "0.01em");
     t.textContent = line;
     root.appendChild(t);
-    ty += 16;
+    ty += EXPORT_SUB_LH;
   });
   panelLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
@@ -1068,6 +1055,15 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
     root.appendChild(t);
     ty += 15;
   });
+
+  const headRule = document.createElementNS(SVG_NS, "line");
+  headRule.setAttribute("x1", "28");
+  headRule.setAttribute("x2", String(totalW - 28));
+  headRule.setAttribute("y1", String(headerH - 0.5));
+  headRule.setAttribute("y2", String(headerH - 0.5));
+  headRule.setAttribute("stroke", "#dededc");
+  headRule.setAttribute("stroke-width", "1");
+  root.appendChild(headRule);
 
   const chartLayer = document.createElementNS(SVG_NS, "g");
   const host = chartSvg.closest(".chart-host");
@@ -1102,19 +1098,18 @@ function buildExportRootSvg(chartSvg, articleEl, miniPanelLabel) {
     footBg.setAttribute("fill", "#ffffff");
     root.appendChild(footBg);
 
-    let fy = headerH + ch + 12;
+    let fy = headerH + ch + 14;
     footLines.forEach((line) => {
       const ft = document.createElementNS(SVG_NS, "text");
       ft.setAttribute("x", "28");
       ft.setAttribute("y", String(fy));
-      ft.setAttribute("fill", "#6a6a66");
-      ft.setAttribute("font-size", "10.5");
-      ft.setAttribute("font-style", "italic");
+      ft.setAttribute("fill", "#5a5a58");
+      ft.setAttribute("font-size", "13");
       ft.setAttribute("font-weight", "450");
       ft.setAttribute("letter-spacing", "0.01em");
       ft.textContent = line;
       root.appendChild(ft);
-      fy += footerLineH;
+      fy += EXPORT_FOOT_LH;
     });
   }
 
@@ -1132,15 +1127,15 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2500);
 }
 
-function exportFigureSvg(svgEl, filenameBase, articleEl, miniPanelLabel) {
-  const root = buildExportRootSvg(svgEl, articleEl, miniPanelLabel);
+function exportFigureSvg(svgEl, filenameBase, articleEl) {
+  const root = buildExportRootSvg(svgEl, articleEl);
   const xml = new XMLSerializer().serializeToString(root);
   const out = `<?xml version="1.0" encoding="UTF-8"?>\n${xml}`;
   downloadBlob(new Blob([out], { type: "image/svg+xml;charset=utf-8" }), `${filenameBase}.svg`);
 }
 
-function exportFigurePng(svgEl, filenameBase, scale, articleEl, miniPanelLabel) {
-  const root = buildExportRootSvg(svgEl, articleEl, miniPanelLabel);
+function exportFigurePng(svgEl, filenameBase, scale, articleEl) {
+  const root = buildExportRootSvg(svgEl, articleEl);
   const { w, h } = parseSvgPixelSize(root);
   root.setAttribute("width", String(w));
   root.setAttribute("height", String(h));
@@ -1172,7 +1167,7 @@ function exportFigurePng(svgEl, filenameBase, scale, articleEl, miniPanelLabel) 
 
 /**
  * Ajoute les boutons d'export sur chaque article.figure (après rendu D3).
- * Plusieurs SVG (ex. duo solde / asile) : un groupe de boutons par panneau.
+ * Plusieurs SVG dans un même article : un groupe d’export par tracé (même titres / notes que l’article).
  */
 function attachFigureExports() {
   const root = document.getElementById("main-figures");
@@ -1185,9 +1180,6 @@ function attachFigureExports() {
     if (!svgs.length) return;
     const miniTitles = [...article.querySelectorAll(".mini-panel-title")].map((el) =>
       slugifyTitle(el.textContent || "")
-    );
-    const miniLabelsRaw = [...article.querySelectorAll(".mini-panel-title")].map((el) =>
-      (el.textContent || "").trim()
     );
 
     const bar = document.createElement("div");
@@ -1226,16 +1218,14 @@ function attachFigureExports() {
         return b;
       };
 
-      const miniLabel = svgs.length > 1 ? miniLabelsRaw[i] || "" : "";
-
       grp.appendChild(
         mkBtn("SVG", "Fichier vectoriel avec titre et styles (Word)", () =>
-          exportFigureSvg(svgEl, base, article, miniLabel)
+          exportFigureSvg(svgEl, base, article)
         )
       );
       grp.appendChild(
         mkBtn("PNG 2×", "Image matricielle haute définition (fond papier)", () =>
-          exportFigurePng(svgEl, base, 2, article, miniLabel)
+          exportFigurePng(svgEl, base, 2, article)
         )
       );
       bar.appendChild(grp);

@@ -343,10 +343,10 @@ function pickEventIconIndex(text, seqIndex) {
 
 /**
  * Annotations éditoriales : style callout épuré (NYT/WSJ).
- * – Tige verticale depuis le point de la courbe
- * – Petit disque plein sur le point
- * – Label texte small-caps sans icône, sans rect flou
- * – Placement alterné haut/bas selon la position verticale du point
+ * - Tige verticale depuis le point de la courbe
+ * - Petit disque plein sur le point
+ * - Label texte small-caps sans icône, sans rect flou
+ * - Placement alterné haut/bas selon la position verticale du point
  */
 function closestPointByYear(points, year) {
   const withVal = points.filter((p) => p.value != null && Number.isFinite(p.value));
@@ -568,7 +568,7 @@ function lineChartFigure(container, opts) {
       .attr("d", line);
     if (s.dash) path.attr("stroke-dasharray", s.dash);
 
-    /* Points visibles sur la courbe — minimalistes, sans halo */
+    /* Points visibles sur la courbe - minimalistes, sans halo */
     linesG.selectAll(`.vis-dot-${s.key}`)
       .data(s.points.filter((d) => d.value != null))
       .join("circle")
@@ -975,19 +975,31 @@ const EXPORT_TITLE_LH = 21;
 const EXPORT_SUB_LH = 19;
 const EXPORT_FOOT_LH = 19;
 
+/** Tiret ASCII seul (pas d’en dash ni d’em dash) pour export et cohérence. */
+function normalizeTypographyHyphens(s) {
+  return String(s || "")
+    .replace(/\u2011/g, "-")
+    .replace(/\u2013/g, "-")
+    .replace(/\u2014/g, "-");
+}
+
 /**
  * SVG autonome : bandeau titre + sous-titre (+ panneau optionnel), styles inline,
  * graphique décalé sous le bandeau (comme sur la page).
- * Textes toujours lus depuis le DOM (.figure-title, .figure-sub, .figure-foot) — pas de variante export.
+ * Textes toujours lus depuis le DOM (.figure-title, .figure-sub, .figure-foot) - pas de variante export.
  */
 function buildExportRootSvg(chartSvg, articleEl) {
   const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
   /* Même largeur utile que max-width: 900px pour sous-titre / sources à l’écran ; évite titres rognés si le tracé est étroit. */
   const textBandW = Math.max(cw, 900);
   const lim = exportWrapLimits(textBandW);
-  const title = articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure";
-  const sub = articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "";
-  const footText = articleEl?.querySelector(".figure-foot")?.textContent?.trim() || "";
+  const title = normalizeTypographyHyphens(
+    articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure",
+  );
+  const sub = normalizeTypographyHyphens(articleEl?.querySelector(".figure-sub")?.textContent?.trim() || "");
+  const footText = normalizeTypographyHyphens(
+    articleEl?.querySelector(".figure-foot")?.textContent?.trim() || "",
+  );
   const titleLines = wrapTextToLines(title, lim.title);
   const subLines = wrapTextToLines(sub, lim.sub);
   const panelLines = [];
@@ -1044,7 +1056,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
-    t.setAttribute("fill", "#0a0a0a");
+    t.setAttribute("fill", "#000000");
     t.setAttribute("font-size", "17");
     t.setAttribute("font-weight", "500");
     t.setAttribute("letter-spacing", "-0.028em");
@@ -1080,15 +1092,6 @@ function buildExportRootSvg(chartSvg, articleEl) {
     ty += 15;
   });
 
-  const headRule = document.createElementNS(SVG_NS, "line");
-  headRule.setAttribute("x1", "28");
-  headRule.setAttribute("x2", String(totalW - 28));
-  headRule.setAttribute("y1", String(headerH - 0.5));
-  headRule.setAttribute("y2", String(headerH - 0.5));
-  headRule.setAttribute("stroke", "#dededc");
-  headRule.setAttribute("stroke-width", "1");
-  root.appendChild(headRule);
-
   const chartLayer = document.createElementNS(SVG_NS, "g");
   const host = chartSvg.closest(".chart-host");
   const layerClasses = ["export-chart-shift"];
@@ -1111,7 +1114,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
   while (innerClone.firstChild) chartLayer.appendChild(innerClone.firstChild);
   root.appendChild(chartLayer);
 
-  /* ── Footer : texte source/méthodo sous le graphique ──────────────────── */
+  /* Footer : texte source/méthodo sous le graphique */
   if (footLines.length) {
     /* Fond blanc de la zone footer */
     const footBg = document.createElementNS(SVG_NS, "rect");
@@ -1362,7 +1365,7 @@ function dualBarRow(container, data, footer) {
   }
 
   let y = 0;
-  y += drawPanelAt(y, "SOLDE NET — CNMIGRATRT", net);
+  y += drawPanelAt(y, "SOLDE NET - CNMIGRATRT", net);
   y += gapPanels;
   drawPanelAt(y, "PREMIÈRES DEMANDES D’ASILE", asy);
 
@@ -1408,7 +1411,7 @@ function render(data) {
     if (of) art.append("p").attr("class", "figure-foot").text(of);
   }
 
-  /* 1a–c Duos France / Danemark, Italie, Royaume-Uni */
+  /* 1a-c Duos France / Danemark, Italie, Royaume-Uni */
   for (const d of DYADS) {
     const art = main.append("article").attr("class", "figure");
     dyadLineFigure(art, data, tooltip, d);
@@ -1420,7 +1423,7 @@ function render(data) {
     if (vol.length) {
       const art = main.append("article").attr("class", "figure");
       figureHead(art, TITLES.volatility);
-      /* Volatilité : exception à la règle « France rouge / autres gris » — une couleur par pays. */
+      /* Volatilité : exception à la règle « France rouge / autres gris » - une couleur par pays. */
       const barColor = (d) => {
         if (d.code === "FR") return COL.blue;
         if (d.code === "DK") return COL.red;
@@ -1628,7 +1631,7 @@ function render(data) {
       const art = main.append("article").attr("class", "figure");
       const rA = rankRows[0];
       const rZ = rankRows[rankRows.length - 1];
-      const title6 = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}–${rZ.year})`;
+      const title6 = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}-${rZ.year})`;
       figureHead(art, { title: title6, sub: TITLES[6].sub });
       const host = art.append("div").attr("class", "chart-host");
       lineChartFigure(host, {
@@ -1721,10 +1724,10 @@ function render(data) {
     }
   }
 
-  /* ── GRAPHIQUES STATISTIQUES NATIONALES (INSEE / Statistics DK / Istat / ONS) ── */
+  /* GRAPHIQUES STATISTIQUES NATIONALES (INSEE / Statistics DK / Istat / ONS) */
   const NS = data.nationalStats || {};
 
-  /* N1 — Danemark (étrangers, Stat DK) vs France (immigrés, INSEE) */
+  /* N1 - Danemark (étrangers, Stat DK) vs France (immigrés, INSEE) */
   {
     const dkRows = (NS.dkEtrangers || []).map(r => ({ year: r.year, DK: r.value }));
     const frRows = (NS.frImmigres || []).map(r => ({ year: r.year, FR: r.value, estimated: r.estimated }));
@@ -1766,7 +1769,7 @@ function render(data) {
     }
   }
 
-  /* N2 — Italie (étrangers, Istat) vs France (immigrés, INSEE) */
+  /* N2 - Italie (étrangers, Istat) vs France (immigrés, INSEE) */
   {
     const itRows = (NS.itEtrangers || []).map(r => ({ year: r.year, IT: r.value }));
     const frRows = (NS.frImmigres || []).map(r => ({ year: r.year, FR: r.value }));
@@ -1808,7 +1811,7 @@ function render(data) {
     }
   }
 
-  /* N2b — Italie : écart Eurostat (total) vs Istat (étrangers seulement) — explication 2020 */
+  /* N2b - Italie : écart Eurostat (total) vs Istat (étrangers seulement) - explication 2020 */
   {
     const itNat = (NS.itEtrangers || []);
     const itEur = (NS.itEurostatNet || []);
@@ -1833,8 +1836,8 @@ function render(data) {
       lineChartFigure(host, {
         rows,
         seriesDefs: [
-          { key: "ISTAT",    label: "Istat — étrangers uniquement",  color: COL.coral, width: 2.6 },
-          { key: "EUROSTAT", label: "Eurostat — solde total (nationaux inclus)", color: COL.muted, width: 1.8, dash: "5 3" },
+          { key: "ISTAT",    label: "Istat - étrangers uniquement",  color: COL.coral, width: 2.6 },
+          { key: "EUROSTAT", label: "Eurostat - solde total (nationaux inclus)", color: COL.muted, width: 1.8, dash: "5 3" },
         ],
         annotations: [
           { year: 2020, text: "Italiens restés à l'étranger (Covid)", target: "EUROSTAT" },
@@ -1852,7 +1855,7 @@ function render(data) {
     }
   }
 
-  /* N3 — Royaume-Uni (étrangers, ONS) vs France (immigrés, INSEE) */
+  /* N3 - Royaume-Uni (étrangers, ONS) vs France (immigrés, INSEE) */
   {
     const ukRows = (NS.ukEtrangers || []).map(r => ({ year: r.year, UK: r.value }));
     const frRows = (NS.frImmigres || []).map(r => ({ year: r.year, FR: r.value }));
@@ -2027,7 +2030,7 @@ function render(data) {
     }
   }
 
-  /* ── Angle 1 : Tendance longue 2005-2024 avec mandats présidentiels ── */
+  /* Angle 1 : Tendance longue 2005-2024 avec mandats présidentiels */
   {
     const rows = data.migrationSelection || [];
     if (rows.length) {
@@ -2121,7 +2124,7 @@ function render(data) {
     }
   }
 
-  /* ── Angle 2 : Premiers titres de séjour par motif (2022, pour 1 000 hab.) ── */
+  /* Angle 2 : Premiers titres de séjour par motif (2022, pour 1 000 hab.) */
   {
     const permits = (data.nationalStats || {}).permitsMotif || [];
     if (permits.length) {
@@ -2216,7 +2219,7 @@ function render(data) {
     }
   }
 
-  /* ── Angle 3 : Taux de reconnaissance asile (2022) ── */
+  /* Angle 3 : Taux de reconnaissance asile (2022) */
   {
     const reconn = (data.nationalStats || {}).asileRecognition || [];
     if (reconn.length) {

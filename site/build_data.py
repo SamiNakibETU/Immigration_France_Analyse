@@ -477,16 +477,16 @@ NATIONAL_STATS = {
     # Généré dynamiquement dans main() depuis charts/output/fr_immigres_solde_insee_IP2050.csv
     # Ne pas modifier ici : modifier la fonction _load_fr_immigres() ci-dessous.
     "frImmigres": [],  # rempli dans main()
-    # ── Solde étrangers Danemark — chargé depuis CSV (scripts/fetch_dk.py) ─────
+    # Solde étrangers Danemark - chargé depuis CSV (scripts/fetch_dk.py)
     # Source : Statistics Denmark, tables INDVAN/UDVAN (STATSB=UDLAND) + BEFOLK1
     "dkEtrangers": [],   # rempli dans main()
-    # ── Solde étrangers Italie — chargé depuis CSV (scripts/fetch_it.py) ───────
+    # Solde étrangers Italie - chargé depuis CSV (scripts/fetch_it.py)
     # Source : Eurostat migr_imm1ctz/emi1ctz (citizen=TOTAL minus citizen=IT)
     "itEtrangers": [],   # rempli dans main()
-    # ── Solde étrangers Royaume-Uni — chargé depuis CSV (scripts/fetch_uk.py) ──
+    # Solde étrangers Royaume-Uni - chargé depuis CSV (scripts/fetch_uk.py)
     # Source : ONS LTIM YE December 2024 (provisional, Feb 2025)
     "ukEtrangers": [],   # rempli dans main()
-    # ── Solde total Italie Eurostat (nationaux inclus) — pour comparaison méthodologique ──
+    # Solde total Italie Eurostat (nationaux inclus) - pour comparaison méthodologique
     # Eurostat CNMIGRATRT = total (nationaux + étrangers). Istat = étrangers seulement.
     # L'écart en 2020 (-1.2 Eurostat vs +2.6 Istat) s'explique par la migration des Italiens eux-mêmes.
     "itEurostatNet": [
@@ -501,7 +501,7 @@ NATIONAL_STATS = {
         {"year": 2022, "value": 4.9},
         {"year": 2023, "value": 4.5},
     ],
-    # ── Décomposition UK par origine — chargé depuis CSV (scripts/fetch_uk.py) ──
+    # Décomposition UK par origine - chargé depuis CSV (scripts/fetch_uk.py)
     # Source : ONS LTIM YE December 2024, net migration EU vs non-EU, milliers.
     "ukByOrigin": [],    # rempli dans main()
     # Premiers titres de séjour par motif (Eurostat migr_resfirst, duration=M_GE12, 2022, pour 1 000 hab.)
@@ -650,7 +650,7 @@ def main() -> None:
         "analyseRatioAsileSolde": load_analyse_ratio_asile_solde(CHARTS_OUT / "analyse_ratio_asile_solde_net.csv"),
         "volatilitySoldeCore": load_volatility_core(CHARTS_OUT / "analyse_volatility_solde_fr_dk_it_uk.csv"),
         "foreignEntries": read_foreign_entries(CHARTS_OUT / "entrees_etrangers_pour_1000.csv"),
-        # Statistiques nationales (hors Eurostat) — sources officielles, granularité supérieure
+        # Statistiques nationales (hors Eurostat) - sources officielles, granularité supérieure
         "nationalStats": {
             **NATIONAL_STATS,
             # Chargé depuis CSV officiel INSEE IP2050

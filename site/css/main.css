@@ -51,7 +51,7 @@
   --tn-paper: #fafaf9;
   --tn-ink: #141414;
   /* Titres de figures / en-tête : un cran plus dense que le corps et les notes */
-  --tn-ink-strong: #0a0a0a;
+  --tn-ink-strong: #000000;
   --tn-red: #b83838;
   --tn-blue: #256070;
   --tn-plum: #6b3050;
@@ -261,7 +261,7 @@ article.figure:last-of-type {
   stroke-dasharray: 2 2;
 }
 
-/* Valeur Y sur la courbe (rang, etc.) — pas de petites capitales */
+/* Valeur Y sur la courbe (rang, etc.) - pas de petites capitales */
 .annotation-point-values .ann-point-value {
   font-family: var(--font-sans);
 }

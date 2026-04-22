@@ -50,7 +50,8 @@ const TITLES = {
       "Solde migratoire net pour 1 000 habitants, France, Allemagne, Italie, Espagne et médiane UE-27, 2005-2024. Eurostat.",
   },
   6: {
-    title: "Classement au sein de l’UE : la France est passée du 11e au 21e rang en vingt ans",
+    title:
+      "Classement au sein de l’UE : la France est passée du 11e au 21e rang (2005–2024)",
     sub:
       "Place de la France parmi les 27 selon le solde migratoire net par habitant, 2005-2024. 1er = solde le plus élevé. Eurostat.",
   },
@@ -400,6 +401,71 @@ function drawMarkerLabels(svg, items, innerH) {
   });
 }
 
+/**
+ * Encadré discret en haut à droite du tracé (note de maquette / atlas).
+ * @param {{ kicker?: string, lines: string[], accent?: string }} note
+ */
+function drawEditorialNoteInChart(g, innerW, note) {
+  if (!note?.lines?.length) return;
+  const kicker = (note.kicker || "").trim();
+  const lines = note.lines.map((s) => String(s).trim()).filter(Boolean);
+  if (!lines.length) return;
+  const accent = note.accent || COL.muted;
+  const padX = 11;
+  const padY = 9;
+  const kickerSize = 7.85;
+  const bodySize = 10.15;
+  const bodyLH = 14;
+  const kickerLH = 11;
+  const gapK = kicker ? 5 : 0;
+  const textW = Math.min(272, Math.max(180, innerW * 0.38));
+  const kickerH = kicker ? kickerLH : 0;
+  const boxH = padY * 2 + kickerH + gapK + lines.length * bodyLH + 4;
+  const boxW = textW + padX * 2;
+  const x0 = Math.max(4, innerW - boxW - 8);
+  const y0 = 6;
+
+  const layer = g.append("g").attr("class", "chart-editorial-note");
+
+  layer
+    .append("rect")
+    .attr("x", x0)
+    .attr("y", y0)
+    .attr("width", boxW)
+    .attr("height", boxH)
+    .attr("rx", 3)
+    .attr("ry", 3)
+    .attr("fill", "#fafaf9")
+    .attr("stroke", "#e8e7e4")
+    .attr("stroke-width", 0.85);
+
+  let ty = y0 + padY + kickerSize * 0.72;
+  if (kicker) {
+    layer
+      .append("text")
+      .attr("x", x0 + padX)
+      .attr("y", ty)
+      .attr("fill", accent)
+      .attr("font-size", kickerSize)
+      .attr("font-weight", "600")
+      .attr("letter-spacing", "0.1em")
+      .attr("text-transform", "uppercase")
+      .text(kicker);
+    ty += kickerLH + gapK;
+  }
+  lines.forEach((line, i) => {
+    layer
+      .append("text")
+      .attr("x", x0 + padX)
+      .attr("y", ty + i * bodyLH)
+      .attr("fill", COL.ink)
+      .attr("font-size", bodySize)
+      .attr("font-weight", "450")
+      .attr("letter-spacing", "0.01em")
+      .text(line);
+  });
+}
+
 function makeTooltip(el) {
   return {
     show(html, x, y) {
@@ -427,6 +493,7 @@ function lineChartFigure(container, opts) {
     margin: marginOverride,
     labelGap = 17,
     curve = d3.curveLinear,
+    editorialNote = null,
   } = opts;
 
   const margin = { top: 18, right: 142, bottom: 52, left: 62, ...marginOverride };
@@ -590,6 +657,8 @@ function lineChartFigure(container, opts) {
     .attr("font-size", 9)
     .attr("font-weight", "500")
     .text("Année");
+
+  if (editorialNote) drawEditorialNoteInChart(g, innerW, editorialNote);
 
   const calloutItems = [];
   if (annotations && annotations.length) {
@@ -1615,7 +1684,16 @@ function render(data) {
         tooltip,
         yLabel: "Place au classement (1er = solde net le plus élevé)",
         yDomain: [27, 1],
+        xDomain: [2005, 2024],
         height: 400,
+        editorialNote: {
+          kicker: "Classement au sein de l’UE",
+          accent: COL.red,
+          lines: [
+            `la France est passée du ${rA.rang}e au ${rZ.rang}e rang`,
+            `(${rA.year}–${rZ.year})`,
+          ],
+        },
       });
       const rf = data.copy?.analyseRangFooter;
       if (rf) art.append("p").attr("class", "figure-foot").text(rf);

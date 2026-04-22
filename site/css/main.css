@@ -283,6 +283,11 @@ article.figure:last-of-type {
   stroke-dasharray: 2 2;
 }
 
+/* Phrase éditoriale reliée à la courbe (ex. rang France dans l’UE) */
+.annotation-ribbon .ribbon-ann-text {
+  font-family: var(--font-sans);
+}
+
 .row-2 {
   display: grid;
   grid-template-columns: 1fr;

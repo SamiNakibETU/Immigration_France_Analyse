@@ -50,8 +50,7 @@ const TITLES = {
       "Solde migratoire net pour 1 000 habitants, France, Allemagne, Italie, Espagne et médiane UE-27, 2005-2024. Eurostat.",
   },
   6: {
-    title:
-      "Classement au sein de l’UE : la France est passée du 11e au 21e rang (2005–2024)",
+    title: "Classement au sein de l’UE : la France est passée du 11e au 21e rang en vingt ans",
     sub:
       "Place de la France parmi les 27 selon le solde migratoire net par habitant, 2005-2024. 1er = solde le plus élevé. Eurostat.",
   },
@@ -251,8 +250,8 @@ function overviewAnnotations(data, rows) {
 function annotationsForPeer(data, peerKey) {
   const list = data.annotations?.[peerKey] ?? [];
   return list.map((a) => ({
-    year: a.year,
-    text: a.text,
+        year: a.year,
+        text: a.text,
     target: a.target === "peer" ? peerKey : a.target,
   }));
 }
@@ -349,6 +348,124 @@ function pickEventIconIndex(text, seqIndex) {
  * – Label texte small-caps sans icône, sans rect flou
  * – Placement alterné haut/bas selon la position verticale du point
  */
+function wrapAnnotationLines(text, maxChars) {
+  if (!text) return [];
+  const words = String(text).trim().split(/\s+/);
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    const trial = cur ? `${cur} ${w}` : w;
+    if (trial.length > maxChars && cur) {
+      lines.push(cur);
+      cur = w;
+    } else cur = trial;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+function closestPointByYear(points, year) {
+  const withVal = points.filter((p) => p.value != null && Number.isFinite(p.value));
+  if (!withVal.length) return null;
+  let best = withVal[0];
+  let bestD = Math.abs(best.year - year);
+  for (const p of withVal) {
+    const d = Math.abs(p.year - year);
+    if (d < bestD) {
+      bestD = d;
+      best = p;
+    }
+  }
+  return best;
+}
+
+/**
+ * Annotation longue (phrase) : encadré léger relié à la courbe (hors small-caps des jalons événementiels).
+ */
+function drawRibbonCallout(svg, items, plotBox) {
+  if (!items.length) return;
+  const layer = svg.append("g").attr("class", "annotation-ribbon").attr("pointer-events", "none");
+  const { left, top, right, bottom } = plotBox;
+  const plotW = right - left;
+  const plotH = bottom - top;
+
+  items.forEach((item) => {
+    const { sx, sy, text, color } = item;
+    const lines = wrapAnnotationLines(text, 44);
+    if (!lines.length) return;
+
+    const fs = 9.25;
+    const lh = 12;
+    const padX = 10;
+    const padY = 9;
+    const charW = fs * 0.52;
+    const boxW = Math.min(
+      Math.max(...lines.map((l) => l.length)) * charW + padX * 2,
+      plotW - 16,
+    );
+    const boxH = lines.length * lh + padY * 2 - 2;
+
+    const placeRight = sx < left + plotW * 0.48;
+    const gap = 26;
+    let bx = placeRight ? sx + gap : sx - gap - boxW;
+    let by = sy - boxH * 0.52;
+
+    bx = Math.max(left + 6, Math.min(bx, right - boxW - 6));
+    by = Math.max(top + 8, Math.min(by, bottom - boxH - 8));
+
+    const stemX2 = placeRight ? bx : bx + boxW;
+    const stemY2 = by + boxH * 0.5;
+
+    layer
+      .append("line")
+      .attr("x1", sx)
+      .attr("y1", sy)
+      .attr("x2", stemX2)
+      .attr("y2", stemY2)
+      .attr("stroke", color)
+      .attr("stroke-width", 0.75)
+      .attr("opacity", 0.55);
+
+    layer
+      .append("circle")
+      .attr("cx", sx)
+      .attr("cy", sy)
+      .attr("r", 3)
+      .attr("fill", color)
+      .attr("opacity", 0.88);
+
+    layer
+      .append("rect")
+      .attr("x", bx)
+      .attr("y", by)
+      .attr("width", boxW)
+      .attr("height", boxH)
+      .attr("rx", 3)
+      .attr("ry", 3)
+      .attr("fill", "#ffffff")
+      .attr("fill-opacity", 0.96)
+      .attr("stroke", "#e8e8e4")
+      .attr("stroke-width", 0.85);
+
+    const tx0 = bx + padX;
+    let lineY = by + padY + fs * 0.78;
+    lines.forEach((line) => {
+      layer
+        .append("text")
+        .attr("class", "ribbon-ann-text")
+        .attr("x", tx0)
+        .attr("y", lineY)
+        .attr("text-anchor", "start")
+        .attr("fill", COL.ink)
+        .attr("font-size", fs)
+        .attr("font-weight", "450")
+        .attr("letter-spacing", "0.012em")
+        .text(line);
+      lineY += lh;
+    });
+  });
+}
+
 function drawMarkerLabels(svg, items, innerH) {
   if (!items.length) return;
   const layer = svg.append("g").attr("class", "annotation-markers");
@@ -392,77 +509,12 @@ function drawMarkerLabels(svg, items, innerH) {
     lines.forEach((line, li) => {
       layer.append("text")
         .attr("class", "ann-label")
-        .attr("x", sx)
+      .attr("x", sx)
         .attr("y", yStart + li * lineH)
         .attr("text-anchor", anchor)
-        .attr("fill", color)
+      .attr("fill", color)
         .text(line);
     });
-  });
-}
-
-/**
- * Encadré discret en haut à droite du tracé (note de maquette / atlas).
- * @param {{ kicker?: string, lines: string[], accent?: string }} note
- */
-function drawEditorialNoteInChart(g, innerW, note) {
-  if (!note?.lines?.length) return;
-  const kicker = (note.kicker || "").trim();
-  const lines = note.lines.map((s) => String(s).trim()).filter(Boolean);
-  if (!lines.length) return;
-  const accent = note.accent || COL.muted;
-  const padX = 11;
-  const padY = 9;
-  const kickerSize = 7.85;
-  const bodySize = 10.15;
-  const bodyLH = 14;
-  const kickerLH = 11;
-  const gapK = kicker ? 5 : 0;
-  const textW = Math.min(272, Math.max(180, innerW * 0.38));
-  const kickerH = kicker ? kickerLH : 0;
-  const boxH = padY * 2 + kickerH + gapK + lines.length * bodyLH + 4;
-  const boxW = textW + padX * 2;
-  const x0 = Math.max(4, innerW - boxW - 8);
-  const y0 = 6;
-
-  const layer = g.append("g").attr("class", "chart-editorial-note");
-
-  layer
-    .append("rect")
-    .attr("x", x0)
-    .attr("y", y0)
-    .attr("width", boxW)
-    .attr("height", boxH)
-    .attr("rx", 3)
-    .attr("ry", 3)
-    .attr("fill", "#fafaf9")
-    .attr("stroke", "#e8e7e4")
-    .attr("stroke-width", 0.85);
-
-  let ty = y0 + padY + kickerSize * 0.72;
-  if (kicker) {
-    layer
-      .append("text")
-      .attr("x", x0 + padX)
-      .attr("y", ty)
-      .attr("fill", accent)
-      .attr("font-size", kickerSize)
-      .attr("font-weight", "600")
-      .attr("letter-spacing", "0.1em")
-      .attr("text-transform", "uppercase")
-      .text(kicker);
-    ty += kickerLH + gapK;
-  }
-  lines.forEach((line, i) => {
-    layer
-      .append("text")
-      .attr("x", x0 + padX)
-      .attr("y", ty + i * bodyLH)
-      .attr("fill", COL.ink)
-      .attr("font-size", bodySize)
-      .attr("font-weight", "450")
-      .attr("letter-spacing", "0.01em")
-      .text(line);
   });
 }
 
@@ -493,7 +545,6 @@ function lineChartFigure(container, opts) {
     margin: marginOverride,
     labelGap = 17,
     curve = d3.curveLinear,
-    editorialNote = null,
   } = opts;
 
   const margin = { top: 18, right: 142, bottom: 52, left: 62, ...marginOverride };
@@ -658,24 +709,35 @@ function lineChartFigure(container, opts) {
     .attr("font-weight", "500")
     .text("Année");
 
-  if (editorialNote) drawEditorialNoteInChart(g, innerW, editorialNote);
-
   const calloutItems = [];
+  const ribbonItems = [];
   if (annotations && annotations.length) {
     annotations.forEach((ann) => {
       const tgtKey = ann.target === "peer" ? peerKey : ann.target;
       const s = targetMap[tgtKey];
       if (!s) return;
-      const pt = s.points.find((p) => p.year === ann.year);
-      if (!pt) return;
-      calloutItems.push({
+      const pt =
+        s.points.find((p) => p.year === ann.year) || closestPointByYear(s.points, ann.year);
+      if (!pt || pt.value == null) return;
+      const payload = {
         sx: margin.left + x(pt.year),
         sy: margin.top + y(pt.value),
         text: ann.text,
         color: s.color,
-      });
+      };
+      if (ann.calloutStyle === "ribbon") {
+        ribbonItems.push({ ...payload, color: ann.color || s.color });
+      } else {
+        calloutItems.push(payload);
+      }
     });
     drawMarkerLabels(svg, calloutItems, margin.top + innerH);
+    drawRibbonCallout(svg, ribbonItems, {
+      left: margin.left,
+      top: margin.top,
+      right: margin.left + innerW,
+      bottom: margin.top + innerH,
+    });
   }
 
   const labelColW = series.length >= 4 ? 64 : 0;
@@ -1008,6 +1070,10 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
 .annotation-markers .ann-label {
   font-size: 9px; font-weight: 600; letter-spacing: 0.045em; text-transform: uppercase;
 }
+.annotation-ribbon .ribbon-ann-text {
+  font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif;
+}
+.annotation-ribbon line { stroke-dasharray: none; }
 .chart-bar-swiss .bar-plot-grid .bar-grid-line {
   stroke: #ecebe8; stroke-width: 0.5px; opacity: 0.42;
   vector-effect: non-scaling-stroke;
@@ -1316,10 +1382,10 @@ function dualBarRow(container, data, footer) {
   const wrap = container.append("div").attr("class", "chart-host chart-bar-swiss");
 
   const w = 900;
-  const rowH = 34;
+    const rowH = 34;
   const margin = { top: 8, right: 72, bottom: 34, left: 168 };
   const inset = { left: 8, right: 8, top: 6, bottom: 8 };
-  const innerW = w - margin.left - margin.right;
+    const innerW = w - margin.left - margin.right;
   const kickerH = 15;
   const gapPanels = 28;
 
@@ -1549,7 +1615,7 @@ function render(data) {
   {
     const bars = data.asylumBars2024 || [];
     if (bars.length) {
-      const art = main.append("article").attr("class", "figure");
+    const art = main.append("article").attr("class", "figure");
       figureHead(art, TITLES.asylumBars);
       barHFigure(art, {
         rows: bars.map((d) => ({
@@ -1676,24 +1742,26 @@ function render(data) {
       const rA = rankRows[0];
       const rZ = rankRows[rankRows.length - 1];
       const title6 = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}–${rZ.year})`;
+      const ribbonText = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}–${rZ.year})`;
+      const ribbonYear = Math.round((rA.year + rZ.year) / 2);
       figureHead(art, { title: title6, sub: TITLES[6].sub });
       const host = art.append("div").attr("class", "chart-host");
       lineChartFigure(host, {
         rows: rankRows,
         seriesDefs: [{ key: "rang", label: "Rang France", color: COL.red, width: 2.75 }],
+        annotations: [
+          {
+            year: ribbonYear,
+            text: ribbonText,
+            target: "rang",
+            calloutStyle: "ribbon",
+            color: COL.red,
+          },
+        ],
         tooltip,
         yLabel: "Place au classement (1er = solde net le plus élevé)",
         yDomain: [27, 1],
-        xDomain: [2005, 2024],
         height: 400,
-        editorialNote: {
-          kicker: "Classement au sein de l’UE",
-          accent: COL.red,
-          lines: [
-            `la France est passée du ${rA.rang}e au ${rZ.rang}e rang`,
-            `(${rA.year}–${rZ.year})`,
-          ],
-        },
       });
       const rf = data.copy?.analyseRangFooter;
       if (rf) art.append("p").attr("class", "figure-foot").text(rf);
@@ -2357,15 +2425,15 @@ fetch("data.json")
         bits.push(`Données consolidées (libellé projet) : ${data.meta.datePublicationFr}.`);
       }
       if (data.meta.generated) {
-        const d = new Date(data.meta.generated);
+      const d = new Date(data.meta.generated);
         bits.push(
           `Horodatage technique (UTC) : ${d.toLocaleString("fr-FR", {
-            timeZone: "UTC",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
+        timeZone: "UTC",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
           })}.`,
         );
       }

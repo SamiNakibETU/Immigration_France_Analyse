@@ -283,8 +283,8 @@ article.figure:last-of-type {
   stroke-dasharray: 2 2;
 }
 
-/* Phrase éditoriale reliée à la courbe (ex. rang France dans l’UE) */
-.annotation-ribbon .ribbon-ann-text {
+/* Valeur Y sur la courbe (rang, etc.) — pas de petites capitales */
+.annotation-point-values .ann-point-value {
   font-family: var(--font-sans);
 }
 

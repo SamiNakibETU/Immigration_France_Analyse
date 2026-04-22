@@ -348,22 +348,6 @@ function pickEventIconIndex(text, seqIndex) {
  * – Label texte small-caps sans icône, sans rect flou
  * – Placement alterné haut/bas selon la position verticale du point
  */
-function wrapAnnotationLines(text, maxChars) {
-  if (!text) return [];
-  const words = String(text).trim().split(/\s+/);
-  const lines = [];
-  let cur = "";
-  for (const w of words) {
-    const trial = cur ? `${cur} ${w}` : w;
-    if (trial.length > maxChars && cur) {
-      lines.push(cur);
-      cur = w;
-    } else cur = trial;
-  }
-  if (cur) lines.push(cur);
-  return lines;
-}
-
 function closestPointByYear(points, year) {
   const withVal = points.filter((p) => p.value != null && Number.isFinite(p.value));
   if (!withVal.length) return null;
@@ -380,89 +364,52 @@ function closestPointByYear(points, year) {
 }
 
 /**
- * Annotation longue (phrase) : encadré léger relié à la courbe (hors small-caps des jalons événementiels).
+ * Valeur Y sur la courbe : tige + disque + libellé chiffré (sans petites capitales).
+ * Troisième argument : même convention que drawMarkerLabels (ex. margin.top + innerH).
  */
-function drawRibbonCallout(svg, items, plotBox) {
+function drawPointValueLabels(svg, items, innerHParam) {
   if (!items.length) return;
-  const layer = svg.append("g").attr("class", "annotation-ribbon").attr("pointer-events", "none");
-  const { left, top, right, bottom } = plotBox;
-  const plotW = right - left;
-  const plotH = bottom - top;
+  const layer = svg.append("g").attr("class", "annotation-point-values").attr("pointer-events", "none");
+  const MID = innerHParam != null ? innerHParam / 2 : 200;
 
   items.forEach((item) => {
     const { sx, sy, text, color } = item;
-    const lines = wrapAnnotationLines(text, 44);
-    if (!lines.length) return;
-
-    const fs = 9.25;
-    const lh = 12;
-    const padX = 10;
-    const padY = 9;
-    const charW = fs * 0.52;
-    const boxW = Math.min(
-      Math.max(...lines.map((l) => l.length)) * charW + padX * 2,
-      plotW - 16,
-    );
-    const boxH = lines.length * lh + padY * 2 - 2;
-
-    const placeRight = sx < left + plotW * 0.48;
-    const gap = 26;
-    let bx = placeRight ? sx + gap : sx - gap - boxW;
-    let by = sy - boxH * 0.52;
-
-    bx = Math.max(left + 6, Math.min(bx, right - boxW - 6));
-    by = Math.max(top + 8, Math.min(by, bottom - boxH - 8));
-
-    const stemX2 = placeRight ? bx : bx + boxW;
-    const stemY2 = by + boxH * 0.5;
+    const goUp = sy > MID * 0.55;
+    const STEM = 38;
+    const ty = goUp ? sy - STEM : sy + STEM;
 
     layer
       .append("line")
       .attr("x1", sx)
-      .attr("y1", sy)
-      .attr("x2", stemX2)
-      .attr("y2", stemY2)
+      .attr("y1", goUp ? sy - 5 : sy + 5)
+      .attr("x2", sx)
+      .attr("y2", ty + (goUp ? 9 : -9))
       .attr("stroke", color)
       .attr("stroke-width", 0.75)
-      .attr("opacity", 0.55);
+      .attr("opacity", 0.6);
 
     layer
       .append("circle")
       .attr("cx", sx)
       .attr("cy", sy)
-      .attr("r", 3)
+      .attr("r", 3.2)
       .attr("fill", color)
-      .attr("opacity", 0.88);
+      .attr("opacity", 0.9);
+
+    const lineH = 11;
+    const yStart = goUp ? ty - lineH + 3 : ty + lineH - 2;
 
     layer
-      .append("rect")
-      .attr("x", bx)
-      .attr("y", by)
-      .attr("width", boxW)
-      .attr("height", boxH)
-      .attr("rx", 3)
-      .attr("ry", 3)
-      .attr("fill", "#ffffff")
-      .attr("fill-opacity", 0.96)
-      .attr("stroke", "#e8e8e4")
-      .attr("stroke-width", 0.85);
-
-    const tx0 = bx + padX;
-    let lineY = by + padY + fs * 0.78;
-    lines.forEach((line) => {
-      layer
-        .append("text")
-        .attr("class", "ribbon-ann-text")
-        .attr("x", tx0)
-        .attr("y", lineY)
-        .attr("text-anchor", "start")
-        .attr("fill", COL.ink)
-        .attr("font-size", fs)
-        .attr("font-weight", "450")
-        .attr("letter-spacing", "0.012em")
-        .text(line);
-      lineY += lh;
-    });
+      .append("text")
+      .attr("class", "ann-point-value")
+      .attr("x", sx)
+      .attr("y", yStart)
+      .attr("text-anchor", "middle")
+      .attr("fill", color)
+      .attr("font-size", 10.75)
+      .attr("font-weight", "600")
+      .attr("letter-spacing", "0.02em")
+      .text(text);
   });
 }
 
@@ -710,7 +657,7 @@ function lineChartFigure(container, opts) {
     .text("Année");
 
   const calloutItems = [];
-  const ribbonItems = [];
+  const pointValueItems = [];
   if (annotations && annotations.length) {
     annotations.forEach((ann) => {
       const tgtKey = ann.target === "peer" ? peerKey : ann.target;
@@ -719,25 +666,23 @@ function lineChartFigure(container, opts) {
       const pt =
         s.points.find((p) => p.year === ann.year) || closestPointByYear(s.points, ann.year);
       if (!pt || pt.value == null) return;
-      const payload = {
-        sx: margin.left + x(pt.year),
-        sy: margin.top + y(pt.value),
-        text: ann.text,
-        color: s.color,
-      };
-      if (ann.calloutStyle === "ribbon") {
-        ribbonItems.push({ ...payload, color: ann.color || s.color });
+      const sx = margin.left + x(pt.year);
+      const sy = margin.top + y(pt.value);
+      const color = ann.color || s.color;
+      if (ann.calloutStyle === "pointValue") {
+        const v = pt.value;
+        const text =
+          ann.text != null && String(ann.text).trim() !== ""
+            ? ann.text
+            : String(Number.isInteger(v) ? v : Math.round(Number(v)));
+        pointValueItems.push({ sx, sy, text, color });
       } else {
-        calloutItems.push(payload);
+        if (ann.text == null || String(ann.text).trim() === "") return;
+        calloutItems.push({ sx, sy, text: ann.text, color });
       }
     });
     drawMarkerLabels(svg, calloutItems, margin.top + innerH);
-    drawRibbonCallout(svg, ribbonItems, {
-      left: margin.left,
-      top: margin.top,
-      right: margin.left + innerW,
-      bottom: margin.top + innerH,
-    });
+    drawPointValueLabels(svg, pointValueItems, margin.top + innerH);
   }
 
   const labelColW = series.length >= 4 ? 64 : 0;
@@ -1070,10 +1015,10 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
 .annotation-markers .ann-label {
   font-size: 9px; font-weight: 600; letter-spacing: 0.045em; text-transform: uppercase;
 }
-.annotation-ribbon .ribbon-ann-text {
+.annotation-point-values .ann-point-value {
   font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif;
+  text-transform: none;
 }
-.annotation-ribbon line { stroke-dasharray: none; }
 .chart-bar-swiss .bar-plot-grid .bar-grid-line {
   stroke: #ecebe8; stroke-width: 0.5px; opacity: 0.42;
   vector-effect: non-scaling-stroke;
@@ -1742,21 +1687,14 @@ function render(data) {
       const rA = rankRows[0];
       const rZ = rankRows[rankRows.length - 1];
       const title6 = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}–${rZ.year})`;
-      const ribbonText = `Classement au sein de l’UE : la France est passée du ${rA.rang}e au ${rZ.rang}e rang (${rA.year}–${rZ.year})`;
-      const ribbonYear = Math.round((rA.year + rZ.year) / 2);
       figureHead(art, { title: title6, sub: TITLES[6].sub });
       const host = art.append("div").attr("class", "chart-host");
       lineChartFigure(host, {
         rows: rankRows,
         seriesDefs: [{ key: "rang", label: "Rang France", color: COL.red, width: 2.75 }],
         annotations: [
-          {
-            year: ribbonYear,
-            text: ribbonText,
-            target: "rang",
-            calloutStyle: "ribbon",
-            color: COL.red,
-          },
+          { year: rA.year, text: `${rA.rang}e`, target: "rang", calloutStyle: "pointValue", color: COL.red },
+          { year: rZ.year, text: `${rZ.rang}e`, target: "rang", calloutStyle: "pointValue", color: COL.red },
         ],
         tooltip,
         yLabel: "Place au classement (1er = solde net le plus élevé)",

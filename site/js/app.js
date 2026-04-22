@@ -541,6 +541,32 @@ function lineChartFigure(container, opts) {
 
   const x = d3.scaleLinear().domain(xDom).range([0, innerW]);
   const y = d3.scaleLinear().domain(yDom).range([innerH, 0]);
+  const yMax = yDom[1];
+
+  /* Grille verticale puis horizontale (repères de lecture, pas le filet export titre/graphique). */
+  const xGridTicks = Math.min(12, Math.max(6, Math.floor((xDom[1] - xDom[0]) / 2)));
+  g.append("g")
+    .attr("class", "chart-grid-v")
+    .selectAll("line")
+    .data(x.ticks(xGridTicks))
+    .join("line")
+    .attr("class", "chart-grid-line-v")
+    .attr("x1", (d) => x(d))
+    .attr("x2", (d) => x(d))
+    .attr("y1", 0)
+    .attr("y2", innerH);
+
+  const yTicks = y.ticks(6).filter((d) => d < yMax - 1e-9);
+  g.append("g")
+    .attr("class", "chart-grid-h")
+    .selectAll("line")
+    .data(yTicks)
+    .join("line")
+    .attr("class", "chart-grid-line")
+    .attr("x1", 0)
+    .attr("x2", innerW)
+    .attr("y1", (d) => y(d))
+    .attr("y2", (d) => y(d));
 
   const yAxisG = g.append("g").call(
     d3.axisLeft(y).ticks(6).tickFormat(d3.format(".1f")).tickSize(0).tickPadding(9),
@@ -724,6 +750,21 @@ function layoutSignedHBar(value, xScale, x0) {
   };
 }
 
+/** Grille verticale discrète sur barres horizontales (repères, sans trait d’axe). */
+function appendHorizontalBarGrid(g, x, inset, innerH, tickCount) {
+  const ticks = x.ticks(tickCount);
+  g.append("g")
+    .attr("class", "bar-plot-grid")
+    .selectAll("line")
+    .data(ticks)
+    .join("line")
+    .attr("class", "bar-grid-line")
+    .attr("x1", (d) => x(d))
+    .attr("x2", (d) => x(d))
+    .attr("y1", inset.top)
+    .attr("y2", innerH - inset.bottom);
+}
+
 /** Graduations en chiffres sous le graphique (sans composant axe D3). */
 function appendBarTickLabelsX(g, x, innerH, tickCount, fontSize = 8.75) {
   const ticks = x.ticks(tickCount);
@@ -847,6 +888,7 @@ function barHFigure(container, opts) {
 
   const x0 = x(0);
 
+  appendHorizontalBarGrid(g, x, inset, innerH, 7);
   appendBarTickLabelsX(g, x, innerH, 7);
 
   g.append("text")
@@ -954,6 +996,14 @@ svg { background-color: #ffffff; }
 text, tspan {
   font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif !important;
 }
+.chart-line-swiss .chart-grid-line {
+  stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
+  vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
+}
+.chart-line-swiss .chart-grid-line-v {
+  stroke: #dddbd7; stroke-width: 0.5px; opacity: 0.7;
+  vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
+}
 .chart-line-swiss .end-labels path { stroke-width: 0.55px; opacity: 0.75; }
 .chart-line-swiss .y-axis-label text { fill: #5a5a58; }
 g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
@@ -966,6 +1016,10 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
 .annotation-point-values .ann-point-value {
   font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif;
   text-transform: none;
+}
+.chart-bar-swiss .bar-plot-grid .bar-grid-line {
+  stroke: #ecebe8; stroke-width: 0.5px; opacity: 0.42;
+  vector-effect: non-scaling-stroke;
 }
 .chart-bar-swiss .bar-fill { vector-effect: non-scaling-stroke; }
 `;
@@ -1325,6 +1379,7 @@ function dualBarRow(container, data, footer) {
       .paddingOuter(0.1);
     const x0 = x(0);
 
+    appendHorizontalBarGrid(g, x, inset, innerH, 5);
     appendBarTickLabelsX(g, x, innerH, 5, 8.25);
     appendBarCategoryLabelsY(g, y, 8.75);
 
@@ -1562,6 +1617,7 @@ function render(data) {
 
     const x0 = x(0);
 
+    appendHorizontalBarGrid(g, x, inset, innerH, 7);
     appendBarTickLabelsX(g, x, innerH, 7);
 
     g.append("text")
@@ -1948,6 +2004,13 @@ function render(data) {
       const x0 = x(0);
 
       x.ticks(6).forEach((t) => {
+        g.append("line")
+          .attr("x1", x(t))
+          .attr("x2", x(t))
+          .attr("y1", 0)
+          .attr("y2", innerH)
+          .attr("stroke", "#e0deda")
+          .attr("stroke-width", 0.5);
         g.append("text")
           .attr("x", x(t))
           .attr("y", innerH + 16)
@@ -2075,6 +2138,17 @@ function render(data) {
           .attr("font-size", 8).attr("font-weight", "500").text(label);
       });
 
+      y.ticks(5)
+        .filter((t) => t < yHi - 1e-9)
+        .forEach((t) => {
+          g.append("line")
+            .attr("x1", 0)
+            .attr("x2", innerW)
+            .attr("y1", y(t))
+            .attr("y2", y(t))
+            .attr("stroke", COL.grid)
+            .attr("stroke-width", 0.6);
+        });
       y.ticks(5).forEach((t) => {
         g.append("text").attr("x", -8).attr("y", y(t)).attr("dy", "0.35em")
           .attr("text-anchor", "end").attr("fill", COL.muted).attr("font-size", 8.5).text(t);
@@ -2163,6 +2237,13 @@ function render(data) {
       const y = d3.scaleBand().domain(permits.map((d) => d.pays)).range([0, innerH]).paddingInner(0.25).paddingOuter(0.1);
 
       x.ticks(6).forEach((t) => {
+        g.append("line")
+          .attr("x1", x(t))
+          .attr("x2", x(t))
+          .attr("y1", 0)
+          .attr("y2", innerH)
+          .attr("stroke", COL.grid)
+          .attr("stroke-width", 0.5);
         g.append("text")
           .attr("x", x(t))
           .attr("y", innerH + 14)
@@ -2244,6 +2325,13 @@ function render(data) {
       const y = d3.scaleBand().domain(reconn.map((d) => d.pays)).range([0, innerH]).paddingInner(0.3).paddingOuter(0.1);
 
       [0, 25, 50, 75, 100].forEach((t) => {
+        g.append("line")
+          .attr("x1", x(t))
+          .attr("x2", x(t))
+          .attr("y1", 0)
+          .attr("y2", innerH)
+          .attr("stroke", COL.grid)
+          .attr("stroke-width", 0.5);
         g.append("text")
           .attr("x", x(t))
           .attr("y", innerH + 14)

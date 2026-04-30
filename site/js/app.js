@@ -1897,81 +1897,86 @@ function render(data) {
 
   /* 4 Classement UE */
   {
-    const art = main.append("article").attr("class", "figure").attr("data-export-slug", "solde-net-classement-ue27-en-2024");
-    const frIdx = eu.findIndex((d) => d.code === "FR");
-    const nEu = eu.length;
-    const frRank = frIdx >= 0 && nEu > 0 ? nEu - frIdx : null;
-    const title4 =
-      frRank != null
-        ? `Solde migratoire en 2024 : la France se classe ${frRank}e sur ${nEu} dans l'Union européenne`
-        : TITLES[4].title;
-    figureHead(art, { title: title4, sub: TITLES[4].sub });
-    const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
-    const w = 900;
-    const rowH = 26;
-    const margin = { top: 16, right: 52, bottom: 44, left: 200 };
-    const innerW = w - margin.left - margin.right;
-    const innerH = Math.max(eu.length * rowH, 200);
-    const height = innerH + margin.top + margin.bottom;
+    const eu = data.euRanking2024 || [];
+    if (!eu.length) {
+      /* Données absentes du JSON : ne pas rendre la figure. */
+    } else {
+      const art = main.append("article").attr("class", "figure").attr("data-export-slug", "solde-net-classement-ue27-en-2024");
+      const frIdx = eu.findIndex((d) => d.code === "FR");
+      const nEu = eu.length;
+      const frRank = frIdx >= 0 && nEu > 0 ? nEu - frIdx : null;
+      const title4 =
+        frRank != null
+          ? `Solde migratoire en 2024 : la France se classe ${frRank}e sur ${nEu} dans l'Union européenne`
+          : TITLES[4].title;
+      figureHead(art, { title: title4, sub: TITLES[4].sub });
+      const wrap = art.append("div").attr("class", "chart-host chart-bar-swiss");
+      const w = 900;
+      const rowH = 26;
+      const margin = { top: 16, right: 52, bottom: 44, left: 200 };
+      const innerW = w - margin.left - margin.right;
+      const innerH = Math.max(eu.length * rowH, 200);
+      const height = innerH + margin.top + margin.bottom;
 
-    const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${height}`).attr("width", "100%").attr("height", height);
-    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+      const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${height}`).attr("width", "100%").attr("height", height);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const inset = { left: 10, right: 10, top: 8, bottom: 10 };
-    const euVals = eu.map((d) => d.value);
-    const xDom = xDomainSignedBars(euVals);
-    const x = d3.scaleLinear().domain(xDom).range([inset.left, innerW - inset.right]);
-    const y = d3
-      .scaleBand()
-      .domain(eu.map((d) => d.label))
-      .range([inset.top, innerH - inset.bottom])
-      .paddingInner(0.28)
-      .paddingOuter(0.08);
+      const inset = { left: 10, right: 10, top: 8, bottom: 10 };
+      const euVals = eu.map((d) => d.value);
+      const xDom = xDomainSignedBars(euVals);
+      const x = d3.scaleLinear().domain(xDom).range([inset.left, innerW - inset.right]);
+      const y = d3
+        .scaleBand()
+        .domain(eu.map((d) => d.label))
+        .range([inset.top, innerH - inset.bottom])
+        .paddingInner(0.28)
+        .paddingOuter(0.08);
 
-    const x0 = x(0);
+      const x0 = x(0);
 
-    appendHorizontalBarGrid(g, x, inset, innerH, 7);
-    appendBarTickLabelsX(g, x, innerH, 7);
+      appendHorizontalBarGrid(g, x, inset, innerH, 7);
+      appendBarTickLabelsX(g, x, innerH, 7);
 
-    g.append("text")
-      .attr("x", innerW / 2)
-      .attr("y", innerH + 34)
-      .attr("text-anchor", "middle")
-      .attr("fill", COL.muted)
-      .attr("font-size", 8.75)
-      .attr("font-weight", "500")
-      .text("Solde net pour 1 000 habitants (2024)");
-
-    appendBarCategoryLabelsY(g, y, 9.25, (lab) => {
-      const d = eu.find((x) => x.label === lab);
-      return d?.code === "FR" ? COL.red : COL.ink;
-    });
-
-    eu.forEach((d) => {
-      const yy = y(d.label);
-      const lay = layoutSignedHBar(d.value, x, x0);
-      const isFr = d.code === "FR";
-      g.append("rect")
-        .attr("class", "bar-fill")
-        .attr("x", lay.rectX)
-        .attr("y", yy)
-        .attr("width", lay.rectW)
-        .attr("height", y.bandwidth())
-        .attr("fill", isFr ? COL.red : COL.barMuted)
-        .attr("rx", 2)
-        .attr("ry", 2);
       g.append("text")
-        .attr("x", lay.labelX)
-        .attr("y", yy + y.bandwidth() / 2)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", lay.anchor)
-        .attr("fill", COL.ink)
-        .attr("font-weight", "600")
-        .attr("font-size", 9.25)
-        .text(d.value.toFixed(2));
-    });
-    const ef = data.copy?.euFooter;
-    if (ef) art.append("p").attr("class", "figure-foot").text(ef);
+        .attr("x", innerW / 2)
+        .attr("y", innerH + 34)
+        .attr("text-anchor", "middle")
+        .attr("fill", COL.muted)
+        .attr("font-size", 8.75)
+        .attr("font-weight", "500")
+        .text("Solde net pour 1 000 habitants (2024)");
+
+      appendBarCategoryLabelsY(g, y, 9.25, (lab) => {
+        const row = eu.find((e) => e.label === lab);
+        return row?.code === "FR" ? COL.red : COL.ink;
+      });
+
+      eu.forEach((d) => {
+        const yy = y(d.label);
+        const lay = layoutSignedHBar(d.value, x, x0);
+        const isFr = d.code === "FR";
+        g.append("rect")
+          .attr("class", "bar-fill")
+          .attr("x", lay.rectX)
+          .attr("y", yy)
+          .attr("width", lay.rectW)
+          .attr("height", y.bandwidth())
+          .attr("fill", isFr ? COL.red : COL.barMuted)
+          .attr("rx", 2)
+          .attr("ry", 2);
+        g.append("text")
+          .attr("x", lay.labelX)
+          .attr("y", yy + y.bandwidth() / 2)
+          .attr("dy", "0.35em")
+          .attr("text-anchor", lay.anchor)
+          .attr("fill", COL.ink)
+          .attr("font-weight", "600")
+          .attr("font-size", 9.25)
+          .text(d.value.toFixed(2));
+      });
+      const ef = data.copy?.euFooter;
+      if (ef) art.append("p").attr("class", "figure-foot").text(ef);
+    }
   }
 
 

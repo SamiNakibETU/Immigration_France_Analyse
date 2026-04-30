@@ -245,15 +245,27 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
- * Bras de raccord dernier point → colonne libellés : orthogonal (pas de diagonale
- * traversant les autres courbes) ; retourne d pour un path SVG.
+ * Décalage à gauche du point d’ancrage du texte (lx) où le trait horizontal doit s’arrêter,
+ * pour les libellés longs (« Danemark (étrangers, Stat DK) »).
  */
-function endLabelLeadPath(px, py, lx, ly) {
-  const minRight = px + 16;
-  const target = px + 30;
-  const maxBendBeforeLabel = lx - 14;
-  const bx = Math.max(minRight, Math.min(target, maxBendBeforeLabel));
-  return `M${px},${py} H${bx} V${ly} H${lx - 8}`;
+function endLabelLeadGapPx(labelStr) {
+  const n = String(labelStr || "").length;
+  return Math.min(168, Math.max(26, 6.2 * Math.min(n, 48)));
+}
+
+/**
+ * Bras de raccord orthogonal : dernier segment horizontal **s’arrête bien avant** lx
+ * (plus de ligne qui traverse les glyphes).
+ */
+function endLabelLeadPath(px, py, lx, ly, labelStr) {
+  const gap = endLabelLeadGapPx(labelStr);
+  const xt = lx - gap;
+  /** Coude horizontal : au moins 28 px du point, sans dépasser l’entrée colonne labels. */
+  let bx = Math.max(px + 22, Math.min(px + 52, xt - 32));
+  if (bx <= px + 4) bx = px + 16;
+  if (bx >= xt - 10) bx = Math.max(px + 14, xt - 28);
+  if (xt <= bx + 12) return `M${px},${py} H${xt} V${ly}`;
+  return `M${px},${py} H${bx} V${ly} H${xt}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -470,56 +482,104 @@ function drawPointValueLabels(svg, items, plotMidY) {
   });
 }
 
-function drawMarkerLabels(svg, items, plotMidY, plotTop) {
+/**
+ * Ordonnées Y en SVG (comme sy des callouts) pour les autres séries au millésime —
+ * évite les libellés posés dans la zone d’une autre courbe (ex. note DK sous la ligne FR).
+ */
+function collisionOtherYsForYear(series, yr, attachKey, marginTop, yScale) {
+  if (attachKey == null || yr == null) return [];
+  const ys = [];
+  for (const s of series) {
+    if (s.key === attachKey) continue;
+    const pt = s.points.find((p) => p.year === yr) || closestPointByYear(s.points, yr);
+    if (!pt || pt.value == null || !Number.isFinite(pt.value)) continue;
+    ys.push(marginTop + yScale(pt.value));
+  }
+  return ys;
+}
+
+function drawMarkerLabels(svg, items, plotMidY, plotTop, collisionOtherYs) {
   if (!items.length) return;
   const layer = svg.append("g").attr("class", "annotation-markers");
   /* Bande haute (~22 % depuis le haut du tracé) : évite les étiquettes rognées en tête du SVG */
   const topBand =
     plotTop != null && plotMidY != null ? plotTop + (plotMidY - plotTop) * 0.22 : null;
+  const CLEAR_Y = 13;
 
   items.forEach((item) => {
-    const { sx, sy, text, color } = item;
+    const { sx, sy, text, color, year, attachKey } = item;
     const tLower = String(text || "").toLowerCase();
     const forceBelow =
       /\bukraine\b/.test(tLower) || (topBand != null && sy <= topBand);
-    const goUp = !forceBelow && sy > plotMidY;
-    const STEM = forceBelow ? 58 : 42;
-    const ty = goUp ? sy - STEM : sy + STEM;
-    const anchor = "middle";
 
-    // Tige
-    layer.append("line")
-      .attr("x1", sx).attr("y1", goUp ? sy - 5 : sy + 5)
-      .attr("x2", sx).attr("y2", ty + (goUp ? 10 : -10))
-      .attr("stroke", color)
-      .attr("stroke-width", 0.75)
-      .attr("opacity", 0.6);
-
-    // Disque sur la courbe
-    layer.append("circle")
-      .attr("cx", sx).attr("cy", sy)
-      .attr("r", 3)
-      .attr("fill", color)
-      .attr("opacity", 0.85);
-
-    // Texte (déjà en small-caps via CSS)
-    const words = text.split(" ");
-    // groupes de max 2 mots par ligne
+    const words = String(text || "").split(/\s/).filter(Boolean);
     const lines = [];
     for (let i = 0; i < words.length; i += 2) {
       lines.push(words.slice(i, i + 2).join(" "));
     }
+    if (!lines.length) lines.push(String(text || "").trim());
+    const nLines = Math.max(lines.length, 1);
     const lineH = 10;
-    const totalH = lines.length * lineH;
-    const yStart = goUp ? ty - totalH + lineH * 0.8 : ty + lineH * 0.8;
+
+    const otherYs =
+      typeof collisionOtherYs === "function" && year != null && attachKey != null
+        ? collisionOtherYs(year, attachKey)
+        : [];
+
+    function bandFor(goFlag, stemVal) {
+      const ty = goFlag ? sy - stemVal : sy + stemVal;
+      const totalH = nLines * lineH;
+      const yStart = goFlag ? ty - totalH + lineH * 0.8 : ty + lineH * 0.8;
+      const top = yStart - 11;
+      const bot = yStart + (nLines - 1) * lineH + 5;
+      return { ty, top, bot, yStart };
+    }
+
+    function clashes(goFlag, stemVal) {
+      if (!otherYs.length) return false;
+      const { top, bot } = bandFor(goFlag, stemVal);
+      return otherYs.some((oy) => oy + CLEAR_Y >= top && oy - CLEAR_Y <= bot);
+    }
+
+    let goUp = !forceBelow && sy > plotMidY;
+    let stem = forceBelow ? 72 : 44;
+    if (tLower.includes("pic") && tLower.includes("asile")) stem += 14;
+    if (tLower.includes("frederiksen")) stem += 20;
+
+    for (let tries = 0; tries < 10 && clashes(goUp, stem); tries++) {
+      if (!forceBelow && tries === 0) goUp = !goUp;
+      else stem += 18;
+    }
+
+    const { ty, yStart } = bandFor(goUp, stem);
+    const anchor = "middle";
+
+    layer
+      .append("line")
+      .attr("x1", sx)
+      .attr("y1", goUp ? sy - 5 : sy + 5)
+      .attr("x2", sx)
+      .attr("y2", ty + (goUp ? 10 : -10))
+      .attr("stroke", color)
+      .attr("stroke-width", 0.75)
+      .attr("opacity", 0.6);
+
+    layer
+      .append("circle")
+      .attr("cx", sx)
+      .attr("cy", sy)
+      .attr("r", 3)
+      .attr("fill", color)
+      .attr("opacity", 0.85);
 
     lines.forEach((line, li) => {
-      layer.append("text")
+      layer
+        .append("text")
         .attr("class", "ann-label")
-      .attr("x", sx)
+        .attr("x", sx)
         .attr("y", yStart + li * lineH)
         .attr("text-anchor", anchor)
-      .attr("fill", color)
+        .attr("fill", color)
         .text(line);
     });
   });
@@ -735,7 +795,7 @@ function lineChartFigure(container, opts) {
   layouts.forEach((d) => {
     const lx = labelXBase + (d.col || 0) * labelColW;
     lgLines.append("path")
-      .attr("d", endLabelLeadPath(d.px, d.py, lx, d.ly))
+      .attr("d", endLabelLeadPath(d.px, d.py, lx, d.ly, d.series.label))
       .attr("fill", "none")
       .attr("stroke", d.series.color)
       .attr("stroke-width", 0.65)
@@ -765,11 +825,13 @@ function lineChartFigure(container, opts) {
         pointValueItems.push({ sx, sy, text, color });
       } else {
         if (ann.text == null || String(ann.text).trim() === "") return;
-        calloutItems.push({ sx, sy, text: ann.text, color });
+        calloutItems.push({ sx, sy, text: ann.text, color, attachKey: tgtKey, year: pt.year });
       }
     });
     const plotMidY = margin.top + innerH / 2;
-    drawMarkerLabels(svg, calloutItems, plotMidY, margin.top);
+    drawMarkerLabels(svg, calloutItems, plotMidY, margin.top, (yr, ak) =>
+      collisionOtherYsForYear(series, yr, ak, margin.top, y),
+    );
     drawPointValueLabels(svg, pointValueItems, plotMidY);
   }
 

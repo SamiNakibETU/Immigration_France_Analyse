@@ -47,6 +47,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Poynter OS Display";
+  src: url("../../font/peak-font-family/POYNTEROSDISP-ROMAN.TTF") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --tn-paper: #F3ECE6;
   --tn-ink: #262626;
@@ -58,6 +66,7 @@
   --tn-hairline: #dbd3cc;
   --tn-grid: #e0d6ce;
   --tn-coral: #F99592;
+  --tn-accent: #FF6437;
   --tn-bar-muted: #b8aea8;
   --tn-bar-others: #6a959f;
   --tn-grid-line-h: #d9cfc5;
@@ -163,6 +172,31 @@ article.figure:last-of-type {
   line-height: 1.22;
   color: var(--tn-ink-strong);
   text-wrap: balance;
+}
+
+/* Comparatif typo titres — 1 vue 4 pays, 2–4 premiers duos FR / pair */
+#main-figures > article.figure:nth-of-type(1) .figure-title {
+  font-family: "Poynter OS Display", "Times New Roman", Times, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+#main-figures > article.figure:nth-of-type(2) .figure-title {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+#main-figures > article.figure:nth-of-type(3) .figure-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+
+#main-figures > article.figure:nth-of-type(4) .figure-title {
+  font-family: "Lora", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.018em;
 }
 
 .figure-sub {

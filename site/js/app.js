@@ -10,6 +10,8 @@ const COL = {
   red: "#FF3F3F",
   blue: "#2E879A",
   plum: "#9D1453",
+  /** Orange signature article (couleur mise en avant hors palette pastel). */
+  accent: "#FF6437",
   coral: "#F99592",
   /* 5ᵉ série ligne : tonalité du teal marque, plus soutenue pour se distinguer du bleu France */
   teal: "#1f6f82",
@@ -29,7 +31,7 @@ function fillForBarInterior(fillHex) {
   return COL.paper;
 }
 
-const PEER_COLORS = [COL.red, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
+const PEER_COLORS = [COL.red, COL.accent, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
 
 /**
  * Titres / sous-titres : alignés sur la note v4 (ton factuel, thèse sur le positionnement relatif de la France).
@@ -39,7 +41,7 @@ const TITLES = {
     title:
       "Solde migratoire : la France accueille 1,9 fois moins que le Danemark et 1,5 fois moins que l’Italie",
     sub:
-      "Solde migratoire net pour 1 000 habitants, série annuelle (2005-2024). Sources et précisions méthodologiques sous le graphique.",
+      "Solde migratoire net pour 1 000 habitants, série annuelle (2005-2024).",
   },
   2: {
     title: "En vingt ans, la France est passée sous la trajectoire de ses six principaux voisins européens",
@@ -109,7 +111,7 @@ const DYADS = [
     peerLabel: "Italie",
     title: "Depuis 2021, l’Italie affiche un solde migratoire supérieur à celui de la France",
     sub: "Solde net pour 1 000 habitants (2013-2024). Les sources sont précisées sous le graphique.",
-    colorPeer: COL.coral,
+    colorPeer: COL.accent,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
   {
@@ -840,7 +842,7 @@ function neighborsLineFigure(container, data, tooltip) {
     ...others.map((code) => ({
       key: code,
       label: DISPLAY_MULTI[code] || code,
-      color: COL.peerGray,
+      color: code === "IT" ? COL.accent : COL.peerGray,
       width: 1.75,
     })),
     {
@@ -863,7 +865,7 @@ function neighborsLineFigure(container, data, tooltip) {
     labelGap: 16,
   });
   container.append("p").attr("class", "figure-foot").text(
-    "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Série annuelle pour les pays de l'UE-27 + Royaume-Uni disponibles dans la base Eurostat demo_gind. La France est mise en valeur en bleu : elle s'inscrit systématiquement dans la partie basse du spectre européen."
+    "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Série annuelle pour les pays de l'UE-27 + Royaume-Uni disponibles dans la base Eurostat demo_gind. La France est mise en valeur en bleu, l’Italie en orange, les autres pays voisins en gris : la France s’inscrit systématiquement dans la partie basse du spectre européen."
   );
 }
 
@@ -1499,7 +1501,7 @@ function render(data) {
       seriesDefs: [
         { key: "FR", label: "France", color: COL.blue, width: 2.85 },
         { key: "DK", label: "Danemark", color: COL.plum, width: 2.15 },
-        { key: "IT", label: "Italie", color: COL.coral, width: 2.15 },
+        { key: "IT", label: "Italie", color: COL.accent, width: 2.15 },
         { key: "UK", label: "Royaume-Uni", color: COL.ink, width: 2.15 },
       ],
       annotations: overviewAnnotations(data, rows),
@@ -1530,7 +1532,7 @@ function render(data) {
       const barColor = (d) => {
         if (d.code === "FR") return COL.blue;
         if (d.code === "DK") return COL.red;
-        if (d.code === "IT") return COL.coral;
+        if (d.code === "IT") return COL.accent;
         if (d.code === "UK") return COL.plum;
         return COL.peerGray;
       };
@@ -1812,7 +1814,7 @@ function render(data) {
         seriesDefs: [
           { key: "FR", label: "France", color: COL.blue, width: 2.75 },
           { key: "DK", label: "Danemark", color: COL.red, width: 2.2 },
-          { key: "IT", label: "Italie", color: COL.coral, width: 2.2 },
+          { key: "IT", label: "Italie", color: COL.accent, width: 2.2 },
           { key: "UK", label: "Royaume-Uni", color: COL.plum, width: 2.2, dash: "4 2" },
         ],
         annotations: [
@@ -1900,7 +1902,7 @@ function render(data) {
         rows: mRows,
         seriesDefs: [
           { key: "FR", label: "France (immigrés, INSEE)", color: COL.blue, width: 2.6 },
-          { key: "IT", label: "Italie (étrangers, Istat)", color: COL.coral, width: 2.1 },
+          { key: "IT", label: "Italie (étrangers, Istat)", color: COL.accent, width: 2.1 },
         ],
         annotations: [
           { year: 2018, text: "Salvini ministre", target: "IT" },
@@ -1943,7 +1945,7 @@ function render(data) {
       lineChartFigure(host, {
         rows,
         seriesDefs: [
-          { key: "ISTAT",    label: "Istat - étrangers uniquement",  color: COL.coral, width: 2.6 },
+          { key: "ISTAT",    label: "Istat - étrangers uniquement",  color: COL.accent, width: 2.6 },
           { key: "EUROSTAT", label: "Eurostat - solde total (nationaux inclus)", color: COL.muted, width: 1.8, dash: "5 3" },
         ],
         annotations: [
@@ -2093,7 +2095,7 @@ function render(data) {
         const xEu = r.eu >= 0 ? x0 : x(r.eu);
         const wEu = Math.abs(x(r.eu) - x0);
         barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
-          .attr("fill", COL.coral).attr("rx", 2);
+          .attr("fill", COL.accent).attr("rx", 2);
 
         /* Libellés : centré blanc dans la barre si ≥ 45 px, sinon à droite (positif) ou à gauche (négatif) en encre foncée */
         const yNeuCenter = ys + (half - 1) / 2;
@@ -2119,7 +2121,7 @@ function render(data) {
         }
 
         barLabel(g, xNeu, yNeuCenter, wNeu, false, `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`, COL.plum);
-        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`, COL.coral);
+        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`, COL.accent);
 
         /* Année : bien à gauche du tracé */
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
@@ -2131,7 +2133,7 @@ function render(data) {
       const legY = margin.top + innerH + 46;
       const legItems = [
         [COL.plum, "Non-UE"],
-        [COL.coral, "UE"],
+        [COL.accent, "UE"],
       ];
       legItems.forEach(([col, lbl], i) => {
         svg.append("rect").attr("x", margin.left + i * 120).attr("y", legY).attr("width", 10).attr("height", 10).attr("fill", col).attr("rx", 1);
@@ -2280,7 +2282,7 @@ function render(data) {
       const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, autres: COL.coral };
+      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, autres: COL.accent };
       const labels = { travail: "Travail", famille: "Famille", etudes: "Études", autres: "Autres / protection" };
 
       const xMax = d3.max(permits, (d) => motifs.reduce((s, m) => s + d[m], 0));

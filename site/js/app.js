@@ -152,6 +152,7 @@ const DISPLAY_MULTI = {
 };
 
 function pointsFromRows(rows, key) {
+  if (!Array.isArray(rows) || rows.length === 0) return [];
   return rows
     .map((r) => ({ year: r.year, value: r[key] }))
     .filter((p) => p.value != null && Number.isFinite(p.value));
@@ -2758,7 +2759,13 @@ fetch("data.json")
     return r.json();
   })
   .then((data) => {
-    render(data);
+    try {
+      render(data);
+    } catch (err) {
+      console.error("[render]", err);
+      document.getElementById("main-figures").innerHTML =
+        `<p class="figure-sub" role="alert">Erreur d’affichage du graphique. Rechargez la page ou vérifiez la console développeur. (${String(err?.message ?? err)})</p>`;
+    }
     const metaEl = document.getElementById("metho-meta");
     if (metaEl && data.meta) {
       const bits = [];

@@ -806,7 +806,7 @@ function appendBarTickLabelsX(g, x, innerH, tickCount, fontSize = 8.75) {
   });
 }
 
-/** Libellés catégories à gauche (sans composant axe D3). fillForLabel(lab) peut surcharger la couleur (ex. France en rouge). */
+/** Libellés catégories à gauche (sans composant axe D3). fillForLabel(lab) peut surcharger la couleur. */
 function appendBarCategoryLabelsY(g, y, fontSize = 9.25, fillForLabel = null) {
   y.domain().forEach((lab) => {
     const fill =
@@ -821,7 +821,7 @@ function appendBarCategoryLabelsY(g, y, fontSize = 9.25, fillForLabel = null) {
       .attr("text-anchor", "end")
       .attr("fill", fill)
       .attr("font-size", fontSize)
-      .attr("font-weight", fill === COL.red ? "600" : "450")
+      .attr("font-weight", fill !== COL.ink ? "600" : "450")
       .text(lab);
   });
 }
@@ -880,6 +880,8 @@ function barHFigure(container, opts) {
     labelColor,
     rowH = 38,
     bandPadding = 0.32,
+    /** Couleur du libellé Y : (lab) => couleur. Défaut : France en rouge si barre « classique », sinon encre. */
+    categoryLabelFill = null,
   } = opts;
 
   if (title) container.append("h2").attr("class", "figure-title").text(title);
@@ -928,10 +930,16 @@ function barHFigure(container, opts) {
     .attr("font-weight", "500")
     .text(xLabel);
 
-  appendBarCategoryLabelsY(g, y, 9.25, (lab) => {
-    const row = rows.find((d) => (d.yLabel || d.label) === lab);
-    return row?.code === "FR" ? COL.red : COL.ink;
-  });
+  appendBarCategoryLabelsY(
+    g,
+    y,
+    9.25,
+    categoryLabelFill ??
+      ((lab) => {
+        const row = rows.find((d) => (d.yLabel || d.label) === lab);
+        return row?.code === "FR" ? COL.red : COL.ink;
+      })
+  );
 
   rows.forEach((d) => {
     const yy = y(d.yLabel || d.label);
@@ -1536,18 +1544,24 @@ function render(data) {
         if (d.code === "UK") return COL.plum;
         return COL.peerGray;
       };
+      /* Libellés Y = même couleur que les barres (France bleue, DK rouge, etc.). */
+      const volRows = vol.map((d) => ({
+        code: d.code,
+        label: d.label,
+        yLabel: d.label,
+        value: d.stdev,
+      }));
       barHFigure(art, {
-        rows: vol.map((d) => ({
-          code: d.code,
-          label: d.label,
-          yLabel: d.label,
-          value: d.stdev,
-        })),
+        rows: volRows,
         xLabel: "Écart-type (pour 1 000 hab.)",
         valueFormat: (v) => v.toFixed(3),
         barColor,
         labelColor: COL.ink,
         rowH: 42,
+        categoryLabelFill(lab) {
+          const row = volRows.find((d) => (d.yLabel || d.label) === lab);
+          return row ? barColor(row) : COL.ink;
+        },
       });
       const foot = (data.copy && data.copy.volatilityFooter) || "";
       if (foot) art.append("p").attr("class", "figure-foot").text(foot);

@@ -804,18 +804,22 @@ function appendBarTickLabelsX(g, x, innerH, tickCount, fontSize = 8.75) {
   });
 }
 
-/** Libellés catégories à gauche (sans composant axe D3). */
-function appendBarCategoryLabelsY(g, y, fontSize = 9.25) {
+/** Libellés catégories à gauche (sans composant axe D3). fillForLabel(lab) peut surcharger la couleur (ex. France en rouge). */
+function appendBarCategoryLabelsY(g, y, fontSize = 9.25, fillForLabel = null) {
   y.domain().forEach((lab) => {
+    const fill =
+      typeof fillForLabel === "function"
+        ? fillForLabel(lab) || COL.ink
+        : COL.ink;
     g.append("text")
       .attr("class", "bar-y-label")
       .attr("x", -6)
       .attr("y", y(lab) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("text-anchor", "end")
-      .attr("fill", COL.ink)
+      .attr("fill", fill)
       .attr("font-size", fontSize)
-      .attr("font-weight", "450")
+      .attr("font-weight", fill === COL.red ? "600" : "450")
       .text(lab);
   });
 }
@@ -922,7 +926,10 @@ function barHFigure(container, opts) {
     .attr("font-weight", "500")
     .text(xLabel);
 
-  appendBarCategoryLabelsY(g, y);
+  appendBarCategoryLabelsY(g, y, 9.25, (lab) => {
+    const row = rows.find((d) => (d.yLabel || d.label) === lab);
+    return row?.code === "FR" ? COL.red : COL.ink;
+  });
 
   rows.forEach((d) => {
     const yy = y(d.yLabel || d.label);
@@ -1419,7 +1426,10 @@ function dualBarRow(container, data, footer) {
 
     appendHorizontalBarGrid(g, x, inset, innerH, 5);
     appendBarTickLabelsX(g, x, innerH, 5, 8.25);
-    appendBarCategoryLabelsY(g, y, 8.75);
+    appendBarCategoryLabelsY(g, y, 8.75, (lab) => {
+      const r = rows.find((x) => x.label === lab);
+      return r?.code === "FR" ? COL.red : COL.ink;
+    });
 
     rows.forEach((r) => {
       const yy = y(r.label);
@@ -1667,7 +1677,10 @@ function render(data) {
       .attr("font-weight", "500")
       .text("Solde net pour 1 000 habitants (2024)");
 
-    appendBarCategoryLabelsY(g, y);
+    appendBarCategoryLabelsY(g, y, 9.25, (lab) => {
+      const d = eu.find((x) => x.label === lab);
+      return d?.code === "FR" ? COL.red : COL.ink;
+    });
 
     eu.forEach((d) => {
       const yy = y(d.label);

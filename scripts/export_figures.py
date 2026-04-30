@@ -21,14 +21,14 @@ d = json.loads(DATA.read_text(encoding="utf-8"))
 
 # ── Palette ──────────────────────────────────────────────────────────────────
 C = dict(
-    blue   = "#256070",
-    red    = "#b83838",
-    coral  = "#c47872",
-    plum   = "#6b3050",
-    muted  = "#5a5a58",
-    grid   = "#e0deda",
-    paper  = "#fafaf9",
-    ink    = "#141414",
+    blue   = "#2E879A",
+    red    = "#FF3F3F",
+    coral  = "#F99592",
+    plum   = "#9D1453",
+    muted  = "#595550",
+    grid   = "#e0d6ce",
+    paper  = "#F3ECE6",
+    ink    = "#262626",
 )
 
 # ── Style de base ─────────────────────────────────────────────────────────────

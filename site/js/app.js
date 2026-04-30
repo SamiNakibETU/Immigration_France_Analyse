@@ -3,19 +3,31 @@
  */
 /* global d3 */
 
+/** Palette publication « La Grande Conversation » (+ dérivés grille / barres). */
 const COL = {
-  ink: "#141414",
-  red: "#b83838",
-  blue: "#256070",
-  plum: "#6b3050",
-  coral: "#c47872",
-  teal: "#1a4d5c",
-  grid: "#ecebe8",
-  muted: "#5a5a58",
-  barMuted: "#a8b4b8",
-  barOthers: "#4a7a86",
-  peerGray: "#b8b8b6",
+  paper: "#F3ECE6",
+  ink: "#262626",
+  red: "#FF3F3F",
+  blue: "#2E879A",
+  plum: "#9D1453",
+  coral: "#F99592",
+  /* 5ᵉ série ligne : tonalité du teal marque, plus soutenue pour se distinguer du bleu France */
+  teal: "#1f6f82",
+  grid: "#e0d6ce",
+  gridLineH: "#d9cfc5",
+  gridLineV: "#e4dbd3",
+  muted: "#595550",
+  barMuted: "#b8aea8",
+  barOthers: "#6a959f",
+  peerGray: "#a89f99",
 };
+
+/** Libellés à l'intérieur d'une barre : encre si le fond est clair ; papier sinon. */
+function fillForBarInterior(fillHex) {
+  const u = String(fillHex || "").toUpperCase();
+  if ([COL.coral.toUpperCase(), COL.barMuted.toUpperCase()].includes(u)) return COL.ink;
+  return COL.paper;
+}
 
 const PEER_COLORS = [COL.red, COL.blue, COL.plum, COL.coral, COL.teal, COL.ink];
 
@@ -303,7 +315,7 @@ const EVENT_MARKER_ICONS = [
       g.append("path")
         .attr("d", "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z")
         .attr("fill", color)
-        .attr("stroke", "#fafaf9")
+        .attr("stroke", COL.paper)
         .attr("stroke-width", 0.65)
         .attr("stroke-linejoin", "round");
     },
@@ -313,7 +325,7 @@ const EVENT_MARKER_ICONS = [
     draw(g, color) {
       const w = 1.35;
       const cap = "round";
-      g.append("circle").attr("cx", 12).attr("cy", 12).attr("r", 4).attr("fill", color).attr("stroke", "#fafaf9").attr("stroke-width", 0.5);
+      g.append("circle").attr("cx", 12).attr("cy", 12).attr("r", 4).attr("fill", color).attr("stroke", COL.paper).attr("stroke-width", 0.5);
       const rays =
         "M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8";
       g.append("path").attr("d", rays).attr("fill", "none").attr("stroke", color).attr("stroke-width", w).attr("stroke-linecap", cap);
@@ -509,7 +521,8 @@ function lineChartFigure(container, opts) {
   const xDom = xDomIn || extentYears(allPts);
   const yDom = yDomIn || extentValues(allPts);
 
-  const w = Math.max(900, container.node().getBoundingClientRect().width || 900);
+  /* Largeur nominale fixe (900) : alignée sur .figure-sub / export ; le rendu suit le conteneur via CSS (width 100%). */
+  const w = 900;
   const innerW = w - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
 
@@ -517,8 +530,8 @@ function lineChartFigure(container, opts) {
     .append("svg")
     .attr("class", "chart-line-swiss")
     .attr("viewBox", `0 0 ${w} ${height}`)
-    .attr("width", w)
-    .attr("height", height);
+    .attr("width", "100%")
+    .attr("preserveAspectRatio", "xMinYMin meet");
 
   const lx = margin.left * 0.36;
   const ly = margin.top + innerH / 2;
@@ -992,21 +1005,21 @@ function exportWrapLimits(chartWidthPx) {
  * Couleurs et pile typo alignées sur :root / .figure-* dans main.css.
  */
 const EXPORT_SVG_STYLES = `
-svg { background-color: #ffffff; }
+svg { background-color: ${COL.paper}; }
 text, tspan {
   font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif !important;
 }
 .chart-line-swiss .chart-grid-line {
-  stroke: #d4d2cd; stroke-width: 0.85px; opacity: 0.95;
+  stroke: ${COL.gridLineH}; stroke-width: 0.85px; opacity: 0.95;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
 }
 .chart-line-swiss .chart-grid-line-v {
-  stroke: #dddbd7; stroke-width: 0.5px; opacity: 0.7;
+  stroke: ${COL.gridLineV}; stroke-width: 0.5px; opacity: 0.7;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
 }
 .chart-line-swiss .end-labels path { stroke-width: 0.55px; opacity: 0.75; }
-.chart-line-swiss .y-axis-label text { fill: #5a5a58; }
-g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
+.chart-line-swiss .y-axis-label text { fill: ${COL.muted}; }
+g.tick text { fill: ${COL.ink}; font-size: 9.5px; font-weight: 450; }
 .annotation-markers line {
   stroke: currentColor; stroke-width: 0.75px; stroke-dasharray: 2.5 2; opacity: 0.6;
 }
@@ -1018,7 +1031,7 @@ g.tick text { fill: #141414; font-size: 9.5px; font-weight: 450; }
   text-transform: none;
 }
 .chart-bar-swiss .bar-plot-grid .bar-grid-line {
-  stroke: #ecebe8; stroke-width: 0.5px; opacity: 0.42;
+  stroke: ${COL.grid}; stroke-width: 0.5px; opacity: 0.42;
   vector-effect: non-scaling-stroke;
 }
 .chart-bar-swiss .bar-fill { vector-effect: non-scaling-stroke; }
@@ -1093,16 +1106,16 @@ function buildExportRootSvg(chartSvg, articleEl) {
   headBg.setAttribute("y", "0");
   headBg.setAttribute("width", String(totalW));
   headBg.setAttribute("height", String(headerH));
-  headBg.setAttribute("fill", "#ffffff");
+  headBg.setAttribute("fill", COL.paper);
   root.appendChild(headBg);
 
-  /* Fond blanc explicite sous le tracé (Word ne peint pas toujours le fond du svg) */
+  /* Fond papier explicite sous le tracé (Word ne peint pas toujours le fond du svg) */
   const plotBg = document.createElementNS(SVG_NS, "rect");
   plotBg.setAttribute("x", "0");
   plotBg.setAttribute("y", String(headerH));
   plotBg.setAttribute("width", String(totalW));
   plotBg.setAttribute("height", String(totalH - headerH));
-  plotBg.setAttribute("fill", "#ffffff");
+  plotBg.setAttribute("fill", COL.paper);
   root.appendChild(plotBg);
 
   ty = 26;
@@ -1110,9 +1123,9 @@ function buildExportRootSvg(chartSvg, articleEl) {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
-    t.setAttribute("fill", "#000000");
+    t.setAttribute("fill", COL.ink);
     t.setAttribute("font-size", "17");
-    t.setAttribute("font-weight", "500");
+    t.setAttribute("font-weight", "600");
     t.setAttribute("letter-spacing", "-0.028em");
     t.textContent = line;
     root.appendChild(t);
@@ -1124,7 +1137,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
-    t.setAttribute("fill", "#5a5a58");
+    t.setAttribute("fill", COL.muted);
     t.setAttribute("font-size", "13");
     t.setAttribute("font-weight", "450");
     t.setAttribute("letter-spacing", "0.01em");
@@ -1136,7 +1149,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
     const t = document.createElementNS(SVG_NS, "text");
     t.setAttribute("x", "28");
     t.setAttribute("y", String(ty));
-    t.setAttribute("fill", "#5a5a58");
+    t.setAttribute("fill", COL.muted);
     t.setAttribute("font-size", "10.5");
     t.setAttribute("font-weight", "600");
     t.setAttribute("letter-spacing", "0.06em");
@@ -1170,13 +1183,13 @@ function buildExportRootSvg(chartSvg, articleEl) {
 
   /* Footer : texte source/méthodo sous le graphique */
   if (footLines.length) {
-    /* Fond blanc de la zone footer */
+    /* Fond papier de la zone footer */
     const footBg = document.createElementNS(SVG_NS, "rect");
     footBg.setAttribute("x", "0");
     footBg.setAttribute("y", String(headerH + ch));
     footBg.setAttribute("width", String(totalW));
     footBg.setAttribute("height", String(footerH));
-    footBg.setAttribute("fill", "#ffffff");
+    footBg.setAttribute("fill", COL.paper);
     root.appendChild(footBg);
 
     let fy = headerH + ch + 14;
@@ -1184,7 +1197,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
       const ft = document.createElementNS(SVG_NS, "text");
       ft.setAttribute("x", "28");
       ft.setAttribute("y", String(fy));
-      ft.setAttribute("fill", "#5a5a58");
+      ft.setAttribute("fill", COL.muted);
       ft.setAttribute("font-size", "13");
       ft.setAttribute("font-weight", "450");
       ft.setAttribute("letter-spacing", "0.01em");
@@ -1218,8 +1231,11 @@ function exportFigureSvg(svgEl, filenameBase, articleEl) {
 function exportFigurePng(svgEl, filenameBase, scale, articleEl) {
   const root = buildExportRootSvg(svgEl, articleEl);
   const { w, h } = parseSvgPixelSize(root);
-  root.setAttribute("width", String(w));
-  root.setAttribute("height", String(h));
+  const outW = Math.round(w * scale);
+  const outH = Math.round(h * scale);
+  /* Largeur/hauteur en pixels pilotent la résolution raster du SVG (évite un flou d’agrandissement). */
+  root.setAttribute("width", String(outW));
+  root.setAttribute("height", String(outH));
   const str = new XMLSerializer().serializeToString(root);
   const blob = new Blob([str], { type: "image/svg+xml;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -1228,13 +1244,15 @@ function exportFigurePng(svgEl, filenameBase, scale, articleEl) {
   img.onload = () => {
     try {
       const canvas = document.createElement("canvas");
-      canvas.width = Math.round(w * scale);
-      canvas.height = Math.round(h * scale);
+      canvas.width = outW;
+      canvas.height = outH;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.fillStyle = "#ffffff";
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.fillStyle = COL.paper;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, outW, outH);
       canvas.toBlob((pngBlob) => {
         if (pngBlob) downloadBlob(pngBlob, `${filenameBase}-${scale}x.png`);
       }, "image/png");
@@ -1305,9 +1323,12 @@ function attachFigureExports() {
         )
       );
       grp.appendChild(
-        mkBtn("PNG 2×", "Image matricielle haute définition (fond papier)", () =>
-          exportFigurePng(svgEl, base, 2, article)
+        mkBtn("PNG 4× HD", "Image publication (largeur nominale ×4, raster net, fond LGC)", () =>
+          exportFigurePng(svgEl, base, 4, article)
         )
+      );
+      grp.appendChild(
+        mkBtn("PNG 2×", "Version plus légère (×2)", () => exportFigurePng(svgEl, base, 2, article))
       );
       bar.appendChild(grp);
     });
@@ -1450,9 +1471,9 @@ function render(data) {
       rows,
       seriesDefs: [
         { key: "FR", label: "France", color: COL.blue, width: 2.85 },
-        { key: "DK", label: "Danemark", color: COL.red, width: 2.15 },
+        { key: "DK", label: "Danemark", color: COL.plum, width: 2.15 },
         { key: "IT", label: "Italie", color: COL.coral, width: 2.15 },
-        { key: "UK", label: "Royaume-Uni", color: COL.plum, width: 2.15 },
+        { key: "UK", label: "Royaume-Uni", color: COL.ink, width: 2.15 },
       ],
       annotations: overviewAnnotations(data, rows),
       tooltip,
@@ -2009,7 +2030,7 @@ function render(data) {
           .attr("x2", x(t))
           .attr("y1", 0)
           .attr("y2", innerH)
-          .attr("stroke", "#e0deda")
+          .attr("stroke", COL.grid)
           .attr("stroke-width", 0.5);
         g.append("text")
           .attr("x", x(t))
@@ -2050,7 +2071,7 @@ function render(data) {
         const MIN_INSIDE = 45;
         const FS = 8;
 
-        function barLabel(grp, xPx, yPx, w, isNeg, txt) {
+        function barLabel(grp, xPx, yPx, w, isNeg, txt, segmentFill) {
           const inside = w >= MIN_INSIDE;
           const xPos = inside
             ? xPx + w / 2
@@ -2060,15 +2081,15 @@ function render(data) {
             .attr("y", yPx)
             .attr("dy", "0.35em")
             .attr("text-anchor", inside ? "middle" : isNeg ? "end" : "start")
-            .attr("fill", inside ? "#fafaf9" : COL.ink)
+            .attr("fill", inside ? fillForBarInterior(segmentFill) : COL.ink)
             .attr("font-size", FS)
             .attr("font-weight", "700")
             .attr("font-variant-numeric", "tabular-nums")
             .text(txt);
         }
 
-        barLabel(g, xNeu, yNeuCenter, wNeu, false, `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`);
-        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`);
+        barLabel(g, xNeu, yNeuCenter, wNeu, false, `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`, COL.plum);
+        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`, COL.coral);
 
         /* Année : bien à gauche du tracé */
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
@@ -2123,10 +2144,10 @@ function render(data) {
 
       /* Bandes mandats présidentiels / PM français */
       const mandatsFR = [
-        { lo: 2005, hi: 2007, label: "Chirac",   color: "#e8e4df" },
-        { lo: 2007, hi: 2012, label: "Sarkozy",  color: "#f0ebe5" },
-        { lo: 2012, hi: 2017, label: "Hollande", color: "#e8e4df" },
-        { lo: 2017, hi: 2024, label: "Macron",   color: "#f0ebe5" },
+        { lo: 2005, hi: 2007, label: "Chirac",   color: "#e5ddd4" },
+        { lo: 2007, hi: 2012, label: "Sarkozy",  color: "#efe8e0" },
+        { lo: 2012, hi: 2017, label: "Hollande", color: "#e5ddd4" },
+        { lo: 2017, hi: 2024, label: "Macron",   color: "#efe8e0" },
       ];
       mandatsFR.forEach(({ lo, hi, label, color }) => {
         const x1 = x(lo);
@@ -2265,7 +2286,7 @@ function render(data) {
             .attr("fill", colors[m]).attr("rx", 2);
           if (bw > 26) {
             g.append("text").attr("x", xCursor + bw / 2).attr("y", ys + bh / 2).attr("dy", "0.35em")
-              .attr("text-anchor", "middle").attr("fill", "#fafaf9")
+              .attr("text-anchor", "middle").attr("fill", fillForBarInterior(colors[m]))
               .attr("font-size", 7.5).attr("font-weight", "700")
               .text(d[m].toFixed(1));
           }
@@ -2362,7 +2383,7 @@ function render(data) {
           .attr("x", inside ? bw - 6 : bw + 6)
           .attr("y", ys + bh / 2).attr("dy", "0.35em")
           .attr("text-anchor", inside ? "end" : "start")
-          .attr("fill", inside ? "#fafaf9" : COL.ink)
+          .attr("fill", inside ? fillForBarInterior(isFR ? COL.blue : COL.barMuted) : COL.ink)
           .attr("font-size", 9).attr("font-weight", "700")
           .text(`${d.taux}\u202f%`);
         /* Pays */

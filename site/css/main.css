@@ -282,12 +282,19 @@ article.figure:last-of-type {
   shape-rendering: crispEdges;
 }
 
-.chart-line-swiss .end-labels path {
-  stroke-width: 0.55px;
-  opacity: 0.75;
+.chart-line-swiss .end-label-lines path {
+  opacity: 0.82;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
-/* Barres horizontales : repères verticaux discrets */
+.chart-line-swiss .end-label-texts text {
+  stroke: none;
+  paint-order: normal;
+  shape-rendering: optimizeLegibility;
+}
+
 .chart-bar-swiss .bar-plot-grid .bar-grid-line {
   stroke: var(--tn-grid);
   stroke-width: 0.5px;
@@ -316,6 +323,9 @@ article.figure:last-of-type {
   letter-spacing: 0.045em;
   text-transform: uppercase;
   font-family: var(--font-sans);
+  stroke: none;
+  paint-order: normal;
+  shape-rendering: optimizeLegibility;
 }
 
 .annotation-markers line {
@@ -325,6 +335,9 @@ article.figure:last-of-type {
 /* Valeur Y sur la courbe (rang, etc.) - pas de petites capitales */
 .annotation-point-values .ann-point-value {
   font-family: var(--font-sans);
+  stroke: none;
+  paint-order: normal;
+  shape-rendering: optimizeLegibility;
 }
 
 .row-2 {

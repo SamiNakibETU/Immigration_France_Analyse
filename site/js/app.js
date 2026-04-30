@@ -208,18 +208,20 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
     });
   }
   items.sort((a, b) => a.py - b.py);
+  const effGap =
+    gap + Math.max(0, items.length - 2) * 2 + (items.length >= 6 ? 4 : items.length >= 4 ? 2 : 0);
 
   function spreadVertical(group) {
     let ly = group.map((d) => d.py);
-    for (let p = 0; p < 14; p++) {
+    for (let p = 0; p < 22; p++) {
       for (let i = 1; i < ly.length; i++) {
-        if (ly[i] - ly[i - 1] < gap) ly[i] = ly[i - 1] + gap;
+        if (ly[i] - ly[i - 1] < effGap) ly[i] = ly[i - 1] + effGap;
       }
       for (let i = ly.length - 2; i >= 0; i--) {
-        if (ly[i + 1] - ly[i] < gap) ly[i] = ly[i + 1] - gap;
+        if (ly[i + 1] - ly[i] < effGap) ly[i] = ly[i + 1] - effGap;
       }
     }
-    ly = ly.map((y) => Math.min(Math.max(y, 8), innerH - 8));
+    ly = ly.map((yy) => Math.min(Math.max(yy, 10), innerH - 10));
     group.forEach((d, i) => {
       d.ly = ly[i];
     });
@@ -240,6 +242,18 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
     });
   }
   return items;
+}
+
+/**
+ * Bras de raccord dernier point → colonne libellés : orthogonal (pas de diagonale
+ * traversant les autres courbes) ; retourne d pour un path SVG.
+ */
+function endLabelLeadPath(px, py, lx, ly) {
+  const minRight = px + 16;
+  const target = px + 30;
+  const maxBendBeforeLabel = lx - 14;
+  const bx = Math.max(minRight, Math.min(target, maxBendBeforeLabel));
+  return `M${px},${py} H${bx} V${ly} H${lx - 8}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -562,6 +576,10 @@ function lineChartFigure(container, opts) {
   xDom = padLinearXDomain(xDom);
   const yDom = yDomIn || extentValues(allPts);
 
+  const nSer = series.length;
+  if (nSer >= 7) margin.right += 28;
+  else if (nSer >= 5) margin.right += 16;
+
   /* Largeur nominale fixe (900) : alignée sur .figure-sub / export ; le rendu suit le conteneur via CSS (width 100%). */
   const w = 900;
   const innerW = w - margin.left - margin.right;
@@ -708,6 +726,23 @@ function lineChartFigure(container, opts) {
     .attr("font-weight", "500")
     .text("Année");
 
+  const labelColW = series.length >= 4 ? 70 : 0;
+  const labelXBase = innerW + 14;
+  const labelGapUse = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
+  const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGapUse);
+  const lg = g.append("g").attr("class", "end-labels").attr("pointer-events", "none");
+  const lgLines = lg.append("g").attr("class", "end-label-lines").attr("pointer-events", "none");
+  layouts.forEach((d) => {
+    const lx = labelXBase + (d.col || 0) * labelColW;
+    lgLines.append("path")
+      .attr("d", endLabelLeadPath(d.px, d.py, lx, d.ly))
+      .attr("fill", "none")
+      .attr("stroke", d.series.color)
+      .attr("stroke-width", 0.65)
+      .attr("stroke-linejoin", "round")
+      .attr("opacity", 0.82);
+  });
+
   const calloutItems = [];
   const pointValueItems = [];
   if (annotations && annotations.length) {
@@ -738,25 +773,19 @@ function lineChartFigure(container, opts) {
     drawPointValueLabels(svg, pointValueItems, plotMidY);
   }
 
-  const labelColW = series.length >= 4 ? 64 : 0;
-  const labelXBase = innerW + 10;
-  const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGap);
-  const lg = g.append("g").attr("class", "end-labels");
+  const lgTexts = lg.append("g").attr("class", "end-label-texts").attr("pointer-events", "none");
   layouts.forEach((d) => {
     const lx = labelXBase + (d.col || 0) * labelColW;
-    lg.append("path")
-      .attr("d", `M${d.px},${d.py} L${lx - 6},${d.ly} L${lx - 2},${d.ly}`)
-      .attr("fill", "none")
-      .attr("stroke", d.series.color)
-      .attr("stroke-width", 0.55)
-      .attr("opacity", 0.8);
-    lg.append("text")
+    lgTexts
+      .append("text")
       .attr("x", lx)
       .attr("y", d.ly)
       .attr("dy", "0.35em")
       .attr("fill", d.series.color)
-      .attr("font-size", 10.5)
-      .attr("font-weight", "500")
+      .attr("font-size", 10.25)
+      .attr("font-weight", "600")
+      .attr("paint-order", "normal")
+      .attr("stroke", "none")
       .text(d.series.label);
   });
 }
@@ -1075,6 +1104,13 @@ svg { background-color: ${COL.paper}; }
 text, tspan {
   font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif !important;
 }
+.chart-line-swiss .end-label-lines path {
+  stroke-linejoin: round; stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.chart-line-swiss .end-label-texts text {
+  stroke: none; paint-order: normal; shape-rendering: optimizeLegibility;
+}
 .chart-line-swiss .chart-grid-line {
   stroke: ${COL.gridLineH}; stroke-width: 0.85px; opacity: 0.95;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
@@ -1083,7 +1119,7 @@ text, tspan {
   stroke: ${COL.gridLineV}; stroke-width: 0.5px; opacity: 0.7;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
 }
-.chart-line-swiss .end-labels path { stroke-width: 0.55px; opacity: 0.75; }
+.chart-line-swiss .end-label-lines path { stroke-width: 0.65px; opacity: 0.82; }
 .chart-line-swiss .y-axis-label text { fill: ${COL.muted}; }
 g.tick text { fill: ${COL.ink}; font-size: 9.5px; font-weight: 450; }
 .annotation-markers line {
@@ -1091,10 +1127,12 @@ g.tick text { fill: ${COL.ink}; font-size: 9.5px; font-weight: 450; }
 }
 .annotation-markers .ann-label {
   font-size: 9px; font-weight: 600; letter-spacing: 0.045em; text-transform: uppercase;
+  stroke: none; paint-order: normal;
 }
 .annotation-point-values .ann-point-value {
   font-family: "Overused Grotesk", "Helvetica Neue", Helvetica, system-ui, sans-serif;
   text-transform: none;
+  stroke: none; paint-order: normal;
 }
 .chart-bar-swiss .bar-plot-grid .bar-grid-line {
   stroke: ${COL.grid}; stroke-width: 0.5px; opacity: 0.42;

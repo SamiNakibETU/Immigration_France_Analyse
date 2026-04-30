@@ -1064,7 +1064,7 @@ g.tick text { fill: ${COL.ink}; font-size: 9.5px; font-weight: 450; }
 /** Typo export SVG : calée sur .figure-title / .figure-sub / .figure-foot (main.css). */
 const EXPORT_TITLE_LH = 21;
 const EXPORT_SUB_LH = 19;
-const EXPORT_FOOT_LH = 19;
+const EXPORT_FOOT_LH = 15;
 
 /** Tiret ASCII seul (pas d’en dash ni d’em dash) pour export et cohérence. */
 function normalizeTypographyHyphens(s) {
@@ -1109,7 +1109,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
   });
   const headerH = Math.min(300, Math.max(70, ty + 18));
 
-  const footerH = footLines.length ? 14 + footLines.length * EXPORT_FOOT_LH + 12 : 0;
+  const footerH = footLines.length ? 10 + footLines.length * EXPORT_FOOT_LH + 10 : 0;
 
   const totalH = ch + headerH + footerH;
 
@@ -1216,13 +1216,13 @@ function buildExportRootSvg(chartSvg, articleEl) {
     footBg.setAttribute("fill", COL.paper);
     root.appendChild(footBg);
 
-    let fy = headerH + ch + 14;
+    let fy = headerH + ch + 10;
     footLines.forEach((line) => {
       const ft = document.createElementNS(SVG_NS, "text");
       ft.setAttribute("x", String(textX));
       ft.setAttribute("y", String(fy));
       ft.setAttribute("fill", COL.muted);
-      ft.setAttribute("font-size", "13");
+      ft.setAttribute("font-size", "11");
       ft.setAttribute("font-weight", "450");
       ft.setAttribute("letter-spacing", "0.01em");
       ft.textContent = line;

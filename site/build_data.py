@@ -625,11 +625,10 @@ def main() -> None:
                 f"Données téléchargées et traitées le {date_pub}."
             ),
             "overviewFooter": (
-                f"Sources : Eurostat (soldes migratoires nets harmonisés, pour mille habitants) pour la France, "
-                f"le Danemark et l’Italie ; Office for National Statistics pour le Royaume-Uni (migrations internationales "
-                f"de longue durée, autre définition). Les courbes ne sont donc pas strictement comparables point à point "
-                f"entre la France et le Royaume-Uni. Agrégation pour cette visualisation : {date_pub}. "
-                f"Liens utiles : ec.europa.eu/eurostat et ons.gov.uk."
+                f"Note : France, Danemark et Italie, solde net harmonisé Eurostat (CNMIGRATRT, pour mille habitants) ; "
+                f"Royaume-Uni, migration de longue durée ONS (définition distincte, comparaisons avec l'UE à interpréter avec prudence). "
+                f"Le segment britannique 2008-2009 est quasi plat avec les valeurs affichées (écart inférieur à 0,1 pour mille). "
+                f"Sources : Eurostat ; Office for National Statistics ; compilation au {date_pub}."
             ),
         },
         "annotations": {

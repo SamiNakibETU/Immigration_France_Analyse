@@ -133,7 +133,7 @@ main.figures {
 article.figure {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   margin-bottom: calc(var(--space-xl) * 1.45);
   padding-bottom: var(--space-md);
@@ -230,16 +230,17 @@ article.figure:last-of-type {
 }
 
 .figure-foot {
-  margin: var(--space-md) 0 0;
+  margin: var(--space-sm) 0 0;
   max-width: none;
-  padding-top: var(--space-md);
+  padding-top: var(--space-sm);
   border-top: 1px solid var(--tn-hairline);
-  white-space: pre-wrap;
+  white-space: normal;
   color: var(--tn-muted);
-  font-size: 0.8125rem;
+  font-size: 0.6875rem;
   font-weight: var(--fw-book);
-  line-height: 1.52;
-  letter-spacing: 0.008em;
+  line-height: 1.38;
+  letter-spacing: 0.01em;
+  opacity: 0.95;
 }
 
 .chart-host {

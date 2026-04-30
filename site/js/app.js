@@ -14,7 +14,7 @@ const COL = {
   plum: "#9D1453",
   accent: "#FF6437",
   coral: "#F99592",
-  /* 5ᵉ série ligne : tonalité du teal marque, plus soutenue pour se distinguer du bleu France */
+  /* Teal soutenu pour se distinguer du bleu DK et de l’orange France */
   teal: "#1f6f82",
   grid: "#e0d6ce",
   gridLineH: "#d9cfc5",
@@ -33,7 +33,19 @@ function fillForBarInterior(fillHex) {
   return COL.paper;
 }
 
-const PEER_COLORS = [COL.primary, COL.plum, COL.blue, COL.coral, COL.teal, COL.ink];
+/**
+ * Une teinte stable par pays sur tous les graphiques (France = couleur marque).
+ * DK / IT / UK ne réutilisent pas l’orange réservée à la France.
+ */
+const SERIE_PAYS = {
+  FR: COL.primary,
+  DK: COL.blue,
+  IT: COL.plum,
+  UK: COL.teal,
+};
+
+/** Couleurs pour séries « voisins » hors France — jamais COL.primary (réservé à FR). */
+const PEER_COLORS = [COL.plum, COL.teal, COL.blue, COL.coral, COL.peerGray, COL.ink];
 
 /**
  * Titres / sous-titres : alignés sur la note v4 (ton factuel, thèse sur le positionnement relatif de la France).
@@ -105,7 +117,7 @@ const DYADS = [
     peerLabel: "Danemark",
     title: "En 2024, le solde migratoire danois est près de deux fois supérieur au français",
     sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
-    colorPeer: COL.primary,
+    colorPeer: SERIE_PAYS.DK,
     exportSlug: "solde-france-danemark-eurostat",
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
@@ -114,7 +126,7 @@ const DYADS = [
     peerLabel: "Italie",
     title: "Depuis 2021, l’Italie affiche un solde migratoire supérieur à celui de la France",
     sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
-    colorPeer: COL.plum,
+    colorPeer: SERIE_PAYS.IT,
     exportSlug: "solde-france-italie-eurostat",
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
@@ -123,7 +135,7 @@ const DYADS = [
     peerLabel: "Royaume-Uni",
     title: "En 2022, le solde migratoire britannique a atteint un pic cinq fois supérieur au français",
     sub: "Solde net pour 1 000 habitants, 2013-2024. France : Eurostat. Royaume-Uni : ONS (séries non strictement comparables).",
-    colorPeer: COL.teal,
+    colorPeer: SERIE_PAYS.UK,
     exportSlug: "solde-france-royaume-uni-eurostat",
     footer: "Sources : Eurostat, CNMIGRATRT (France, 2013-2024, données harmonisées) ; Office for National Statistics, Long-Term International Migration (Royaume-Uni, 2013-2024). Les deux séries mesurent le solde de longue durée mais avec des méthodes non strictement identiques : la comparaison reste indicative.",
   },
@@ -167,6 +179,18 @@ function extentValuesFrom(pts2d, frac = 0.06, minPad = 0.28) {
   const lo = d3.min(vals);
   const hi = d3.max(vals);
   const pad = Math.max((hi - lo) * frac, minPad);
+  return [lo - pad, hi + pad];
+}
+
+/** Marge en « années » sur l’axe X : évite que points et grille rognent contre le bord du clip. */
+function padLinearXDomain(dom) {
+  if (!Array.isArray(dom) || dom.length < 2) return [2010, 2024];
+  const lo = Number(dom[0]);
+  const hi = Number(dom[1]);
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return [2010, 2024];
+  if (hi <= lo) return [lo - 0.5, hi + 0.5];
+  const span = hi - lo;
+  const pad = Math.min(0.95, Math.max(span * 0.042, 0.28));
   return [lo - pad, hi + pad];
 }
 
@@ -298,7 +322,7 @@ function dyadLineFigure(container, data, tooltip, spec) {
   lineChartFigure(host, {
     rows,
     seriesDefs: [
-      { key: "FR", label: "France", color: COL.blue, width: 2.9 },
+      { key: "FR", label: "France", color: SERIE_PAYS.FR, width: 2.9 },
       { key: peerKey, label: peerLabel, color: colorPeer, width: 2.35 },
     ],
     annotations: annotationsForDyad(data, peerKey),
@@ -534,7 +558,8 @@ function lineChartFigure(container, opts) {
   }));
 
   const allPts = series.map((s) => s.points);
-  const xDom = xDomIn || extentYears(allPts);
+  let xDom = xDomIn ? [Number(xDomIn[0]), Number(xDomIn[1])] : extentYears(allPts);
+  xDom = padLinearXDomain(xDom);
   const yDom = yDomIn || extentValues(allPts);
 
   /* Largeur nominale fixe (900) : alignée sur .figure-sub / export ; le rendu suit le conteneur via CSS (width 100%). */
@@ -736,7 +761,7 @@ function lineChartFigure(container, opts) {
   });
 }
 
-/** Un seul panneau : France (bleu) + pays voisins (gris), sans FX. */
+/** Un seul panneau : France (couleur marque) + pays voisins, sans FX. */
 /** Domaine X avec valeurs négatives possibles (0 toujours visible si min &lt; 0 &lt; max). */
 function xDomainSignedBars(values) {
   const nums = values.map(Number).filter((v) => Number.isFinite(v));
@@ -849,13 +874,13 @@ function neighborsLineFigure(container, data, tooltip) {
     ...others.map((code) => ({
       key: code,
       label: DISPLAY_MULTI[code] || code,
-      color: code === "IT" ? COL.coral : COL.peerGray,
+      color: code === "IT" ? SERIE_PAYS.IT : COL.peerGray,
       width: 1.75,
     })),
     {
       key: "FR",
       label: "France",
-      color: COL.blue,
+      color: SERIE_PAYS.FR,
       width: 3,
     },
   ];
@@ -872,7 +897,7 @@ function neighborsLineFigure(container, data, tooltip) {
     labelGap: 16,
   });
   container.append("p").attr("class", "figure-foot").text(
-    "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Série annuelle pour les pays de l'UE-27 + Royaume-Uni disponibles dans la base Eurostat demo_gind. La France est mise en valeur en bleu, l’Italie en corail, les autres pays voisins en gris : la France s’inscrit systématiquement dans la partie basse du spectre européen."
+    "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Série annuelle pour les pays de l'UE-27 + Royaume-Uni disponibles dans la base Eurostat demo_gind. La France est mise en valeur en orange, l’Italie en bordeaux, les autres pays voisins en gris : la France s’inscrit systématiquement dans la partie basse du spectre européen."
   );
 }
 
@@ -1540,8 +1565,8 @@ function render(data) {
       lineChartFigure(host, {
         rows: mRows,
         seriesDefs: [
-          { key: "FR", label: "France (immigrés, INSEE)", color: COL.blue, width: 2.6 },
-          { key: "DK", label: "Danemark (étrangers, Stat DK)", color: COL.primary, width: 2.1 },
+          { key: "FR", label: "France (immigrés, INSEE)", color: SERIE_PAYS.FR, width: 2.6 },
+          { key: "DK", label: "Danemark (étrangers, Stat DK)", color: SERIE_PAYS.DK, width: 2.1 },
         ],
         annotations: [
           { year: 2015, text: "Pic de l'asile", target: "DK" },
@@ -1583,8 +1608,8 @@ function render(data) {
       lineChartFigure(host, {
         rows: mRows,
         seriesDefs: [
-          { key: "FR", label: "France (immigrés, INSEE)", color: COL.blue, width: 2.6 },
-          { key: "IT", label: "Italie (étrangers, Istat)", color: COL.plum, width: 2.1 },
+          { key: "FR", label: "France (immigrés, INSEE)", color: SERIE_PAYS.FR, width: 2.6 },
+          { key: "IT", label: "Italie (étrangers, Istat)", color: SERIE_PAYS.IT, width: 2.1 },
         ],
         annotations: [
           { year: 2018, text: "Salvini ministre", target: "IT" },
@@ -1669,8 +1694,8 @@ function render(data) {
       lineChartFigure(host, {
         rows: mRows,
         seriesDefs: [
-          { key: "FR", label: "France (immigrés, INSEE)", color: COL.blue, width: 2.6 },
-          { key: "UK", label: "Royaume-Uni (étrangers, ONS)", color: COL.plum, width: 2.1 },
+          { key: "FR", label: "France (immigrés, INSEE)", color: SERIE_PAYS.FR, width: 2.6 },
+          { key: "UK", label: "Royaume-Uni (étrangers, ONS)", color: SERIE_PAYS.UK, width: 2.1 },
         ],
         annotations: [
           { year: 2016, text: "Brexit", target: "UK" },
@@ -1777,7 +1802,7 @@ function render(data) {
         const xEu = r.eu >= 0 ? x0 : x(r.eu);
         const wEu = Math.abs(x(r.eu) - x0);
         barsG.append("rect").attr("x", xEu).attr("y", ys + half + 1).attr("width", wEu).attr("height", half - 1)
-          .attr("fill", COL.accent).attr("rx", 2);
+          .attr("fill", COL.teal).attr("rx", 2);
 
         /* Libellés : centré blanc dans la barre si ≥ 45 px, sinon à droite (positif) ou à gauche (négatif) en encre foncée */
         const yNeuCenter = ys + (half - 1) / 2;
@@ -1803,7 +1828,7 @@ function render(data) {
         }
 
         barLabel(g, xNeu, yNeuCenter, wNeu, false, `${r.nonEu > 0 ? "+" : ""}${r.nonEu}k`, COL.plum);
-        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`, COL.accent);
+        barLabel(g, xEu,  yUeCenter,  wEu,  r.eu < 0, `${r.eu > 0 ? "+" : ""}${r.eu}k`, COL.teal);
 
         /* Année : bien à gauche du tracé */
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
@@ -1815,7 +1840,7 @@ function render(data) {
       const legY = margin.top + innerH + 46;
       const legItems = [
         [COL.plum, "Non-UE"],
-        [COL.accent, "UE"],
+        [COL.teal, "UE"],
       ];
       legItems.forEach(([col, lbl], i) => {
         svg.append("rect").attr("x", margin.left + i * 120).attr("y", legY).attr("width", 10).attr("height", 10).attr("fill", col).attr("rx", 1);
@@ -1843,10 +1868,10 @@ function render(data) {
       lineChartFigure(host, {
         rows: fe,
         seriesDefs: [
-          { key: "FR", label: "France", color: COL.blue, width: 2.75 },
-          { key: "DK", label: "Danemark", color: COL.primary, width: 2.2 },
-          { key: "IT", label: "Italie", color: COL.coral, width: 2.2 },
-          { key: "UK", label: "Royaume-Uni", color: COL.plum, width: 2.2, dash: "4 2" },
+          { key: "FR", label: "France", color: SERIE_PAYS.FR, width: 2.75 },
+          { key: "DK", label: "Danemark", color: SERIE_PAYS.DK, width: 2.2 },
+          { key: "IT", label: "Italie", color: SERIE_PAYS.IT, width: 2.2 },
+          { key: "UK", label: "Royaume-Uni", color: SERIE_PAYS.UK, width: 2.2, dash: "4 2" },
         ],
         annotations: [
           { year: 2021, text: "Fin libre circ. RU", target: "UK" },
@@ -1985,15 +2010,15 @@ function render(data) {
     const vol = data.volatilitySoldeCore || [];
     if (vol.length) {
       const art = main.append("article").attr("class", "figure").attr("data-export-slug", "volatilite-solde-quatre-pays");
-      /* Volatilité : exception à la règle « France rouge / autres gris » - une couleur par pays. */
+      /* Volatilité : une couleur par pays, alignée sur SERIE_PAYS. */
       const barColor = (d) => {
-        if (d.code === "FR") return COL.blue;
-        if (d.code === "DK") return COL.primary;
-        if (d.code === "IT") return COL.coral;
-        if (d.code === "UK") return COL.plum;
+        if (d.code === "FR") return SERIE_PAYS.FR;
+        if (d.code === "DK") return SERIE_PAYS.DK;
+        if (d.code === "IT") return SERIE_PAYS.IT;
+        if (d.code === "UK") return SERIE_PAYS.UK;
         return COL.peerGray;
       };
-      /* Libellés Y = même couleur que les barres (France bleue, DK rouge, etc.). */
+      /* Libellés Y = même couleur que les barres. */
       const volRows = vol.map((d) => ({
         code: d.code,
         label: d.label,
@@ -2030,10 +2055,10 @@ function render(data) {
     lineChartFigure(host, {
       rows,
       seriesDefs: [
-        { key: "FR", label: "France", color: COL.blue, width: 2.85 },
-        { key: "DK", label: "Danemark", color: COL.primary, width: 2.15 },
-        { key: "IT", label: "Italie", color: COL.plum, width: 2.15 },
-        { key: "UK", label: "Royaume-Uni", color: COL.ink, width: 2.15 },
+        { key: "FR", label: "France", color: SERIE_PAYS.FR, width: 2.85 },
+        { key: "DK", label: "Danemark", color: SERIE_PAYS.DK, width: 2.15 },
+        { key: "IT", label: "Italie", color: SERIE_PAYS.IT, width: 2.15 },
+        { key: "UK", label: "Royaume-Uni", color: SERIE_PAYS.UK, width: 2.15 },
       ],
       annotations: overviewAnnotations(data, rows),
       tooltip,
@@ -2075,7 +2100,8 @@ function render(data) {
     let peerIdx = 0;
     const defs = codes.map((code) => {
       const isFr = code === "FR";
-      const col = isFr ? COL.ink : PEER_COLORS[peerIdx++ % PEER_COLORS.length];
+      const fixed = !isFr && Object.prototype.hasOwnProperty.call(SERIE_PAYS, code) ? SERIE_PAYS[code] : null;
+      const col = isFr ? SERIE_PAYS.FR : fixed ?? PEER_COLORS[peerIdx++ % PEER_COLORS.length];
       return {
         key: code,
         label: isFr ? "France" : DISPLAY_MULTI[code] || code,
@@ -2152,9 +2178,9 @@ function render(data) {
       lineChartFigure(host, {
         rows: ratioRows,
         seriesDefs: [
-          { key: "FR", label: "France", color: COL.red, width: 2.55 },
+          { key: "FR", label: "France", color: SERIE_PAYS.FR, width: 2.55 },
           { key: "DE", label: "Allemagne", color: COL.peerGray, width: 2.05 },
-          { key: "IT", label: "Italie", color: COL.plum, width: 2.05 },
+          { key: "IT", label: "Italie", color: SERIE_PAYS.IT, width: 2.05 },
           { key: "ES", label: "Espagne", color: COL.teal, width: 2.05 },
         ],
         tooltip,
@@ -2175,9 +2201,9 @@ function render(data) {
     lineChartFigure(host, {
       rows: data.migrationMulti || [],
       seriesDefs: [
-        { key: "FR", label: "France", color: COL.blue, width: 2.85 },
+        { key: "FR", label: "France", color: SERIE_PAYS.FR, width: 2.85 },
         { key: "DE", label: "Allemagne", color: COL.peerGray, width: 2.05 },
-        { key: "IT", label: "Italie", color: COL.plum, width: 2.05 },
+        { key: "IT", label: "Italie", color: SERIE_PAYS.IT, width: 2.05 },
         { key: "ES", label: "Espagne", color: COL.coral, width: 2.05 },
       ],
       tooltip,
@@ -2214,7 +2240,8 @@ function render(data) {
       const allY = pts.flat().map((p) => p.value);
       const yLo = d3.min(allY) - 0.5;
       const yHi = d3.max(allY) + 0.5;
-      const x = d3.scaleLinear().domain([2005, 2024]).range([0, innerW]);
+      const xDomM = padLinearXDomain([2005, 2024]);
+      const x = d3.scaleLinear().domain(xDomM).range([0, innerW]);
       const y = d3.scaleLinear().domain([yLo, yHi]).range([innerH, 0]);
 
       /* Bandes mandats présidentiels / PM français */
@@ -2265,8 +2292,8 @@ function render(data) {
 
       /* Courbes */
       const serDefs = [
-        { key: "FR", label: "France",   color: COL.blue, w: 2.8 },
-        { key: "DK", label: "Danemark", color: COL.primary,  w: 2.2 },
+        { key: "FR", label: "France", color: SERIE_PAYS.FR, w: 2.8 },
+        { key: "DK", label: "Danemark", color: SERIE_PAYS.DK, w: 2.2 },
       ];
       const clipIdLT = "clip-lt";
       svg.append("defs").append("clipPath").attr("id", clipIdLT)
@@ -2326,7 +2353,7 @@ function render(data) {
       const svg = wrap.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, autres: COL.accent };
+      const colors = { travail: COL.plum, famille: COL.teal, etudes: COL.blue, autres: COL.coral };
       const labels = { travail: "Travail", famille: "Famille", etudes: "Études", autres: "Autres / protection" };
 
       const xMax = d3.max(permits, (d) => motifs.reduce((s, m) => s + d[m], 0));
@@ -2377,7 +2404,7 @@ function render(data) {
         /* Pays label */
         const isFR = d.code === "FR";
         g.append("text").attr("x", -8).attr("y", ys + bh / 2).attr("dy", "0.35em")
-          .attr("text-anchor", "end").attr("fill", isFR ? COL.blue : COL.ink)
+          .attr("text-anchor", "end").attr("fill", isFR ? SERIE_PAYS.FR : COL.ink)
           .attr("font-size", 9.5).attr("font-weight", isFR ? "700" : "450")
           .text(d.pays);
       });

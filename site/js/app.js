@@ -245,30 +245,33 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
+ * Largeur approximative réservée **à gauche** de l’ancre lx avant le premier glyphe :
+ * libellés fin de série en ~10.25px semibold (la marge précédente 4 px/car. coupait encore dans le texte).
+ */
+function endLabelTextClearancePx(labelStr) {
+  const n = Math.min(String(labelStr ?? "").trim().length, 72);
+  return Math.min(390, Math.max(46, Math.ceil(n * 6.92 + 44)));
+}
+
+/**
  * Bras de fin de série (repère léger NYT/Times).
- * M px py → H rail → V ly → H xEnd : dernier segment **va toujours vers la droite** (xEnd ≥ rail),
- * ce qui évite un trait parasite au milieu du graphique puisque xEnd suit la colonne des libellés.
+ * M px py → H rail → V ly → H xEnd ; xEnd placé hors zone texte avec endLabelTextClearancePx.
  */
 function endLabelLeadPath(px, py, lx, ly, innerW, labelStr) {
-  const n = Math.min(String(labelStr ?? "").length, 56);
-  const pad = Math.min(84, Math.max(18, Math.round(n * 4)));
-  /** Extrémité du trait hors texte ; ancres SVG des libellés = lx (anchored start) */
-  let xEnd = lx - pad;
-  xEnd = Math.min(Math.max(xEnd, px + 12), lx - 5);
+  const clear = endLabelTextClearancePx(labelStr);
+  let xEnd = lx - clear;
+  const minFwd = px + 8;
+  xEnd = Math.min(Math.max(xEnd, minFwd), lx - 6);
 
-  /** Colonne verticale alignée sous la colonne titres (~ bord gauche marges lisibles). */
   const gutter = innerW + 14;
+  let xRail = Math.min(gutter, xEnd - 16);
+  xRail = Math.max(xRail, px + Math.min(20, lx - px - clear));
+  xRail = Math.min(xRail, px + 72);
+  xRail = Math.max(xRail, px + 12);
 
-  /** Coude après un court trajet hors année puis montée jusqu’à la ligne du libellé */
-  let xRail = Math.min(gutter, xEnd - 12);
-  xRail = Math.max(xRail, px + Math.min(20, lx - px - pad));
-  xRail = Math.min(xRail, px + 74);
-  xRail = Math.max(xRail, px + 14);
-
-  const okOrtho = xRail > px + 6 && xEnd >= xRail + 8 && xRail <= lx - 28;
+  const okOrtho = xRail > px + 6 && xEnd >= xRail + 8 && xRail <= lx - 32;
   if (okOrtho) return `M${px},${py}H${xRail}V${ly}H${xEnd}`;
 
-  /** Espace très serré : vertical sur l’axe année puis petit bras vers lx */
   return `M${px},${py}V${ly}H${xEnd}`;
 }
 
@@ -357,12 +360,24 @@ function dedupeDyadAnnotations(annotations, rows, peerKey) {
     }
     return a;
   }
+  const targetsByKey = new Map();
+  for (const ann of annotations) {
+    const k = dyadAnnotationDedupeKey(ann.year, ann.text);
+    if (!targetsByKey.has(k)) targetsByKey.set(k, new Set());
+    targetsByKey.get(k).add(ann.target);
+  }
   const byKey = new Map();
   for (const ann of annotations) {
     const k = dyadAnnotationDedupeKey(ann.year, ann.text);
     byKey.set(k, byKey.has(k) ? pickBetter(byKey.get(k), ann) : ann);
   }
-  const out = [...byKey.values()];
+  const out = [...byKey.values()].map((ann) => {
+    const k = dyadAnnotationDedupeKey(ann.year, ann.text);
+    const tg = targetsByKey.get(k);
+    const dyadSharedEvent =
+      !!(peerKey && peerKey !== "FR" && tg?.has?.("FR") && tg?.has?.(peerKey));
+    return { ...ann, dyadSharedEvent };
+  });
   out.sort((a, b) => a.year - b.year || String(a.text ?? "").localeCompare(String(b.text ?? "")));
   return out;
 }
@@ -547,10 +562,10 @@ function drawMarkerLabels(svg, items, plotMidY, plotTop, collisionOtherYs) {
   /* Bande haute (~22 % depuis le haut du tracé) : évite les étiquettes rognées en tête du SVG */
   const topBand =
     plotTop != null && plotMidY != null ? plotTop + (plotMidY - plotTop) * 0.22 : null;
-  const CLEAR_Y = 13;
+  const CLEAR_Y = 18;
 
   items.forEach((item) => {
-    const { sx, sy, text, color, year, attachKey } = item;
+    const { sx, sy, text, color, year, attachKey, dyadSharedEvent } = item;
     const tLower = String(text || "").toLowerCase();
     const forceBelow =
       /\bukraine\b/.test(tLower) || (topBand != null && sy <= topBand);
@@ -587,7 +602,7 @@ function drawMarkerLabels(svg, items, plotMidY, plotTop, collisionOtherYs) {
     let goUp = !forceBelow && sy > plotMidY;
     let stem = forceBelow ? 72 : 44;
     if (tLower.includes("pic") && tLower.includes("asile")) stem += 14;
-    if (tLower.includes("frederiksen")) stem += 20;
+    if (tLower.includes("frederiksen")) stem += 32;
 
     for (let tries = 0; tries < 10 && clashes(goUp, stem); tries++) {
       if (!forceBelow && tries === 0) goUp = !goUp;
@@ -599,13 +614,14 @@ function drawMarkerLabels(svg, items, plotMidY, plotTop, collisionOtherYs) {
 
     layer
       .append("line")
+      .attr("class", dyadSharedEvent ? "ann-callout-line ann-callout-line--shared" : "ann-callout-line")
       .attr("x1", sx)
       .attr("y1", goUp ? sy - 5 : sy + 5)
       .attr("x2", sx)
       .attr("y2", ty + (goUp ? 10 : -10))
-      .attr("stroke", color)
+      .attr("stroke", dyadSharedEvent ? COL.peerGray : color)
       .attr("stroke-width", 0.75)
-      .attr("opacity", 0.6);
+      .attr("opacity", dyadSharedEvent ? 0.55 : 0.62);
 
     layer
       .append("circle")
@@ -709,8 +725,15 @@ function lineChartFigure(container, opts) {
     .text(yLabel);
 
   const clipId = `clip-${Math.random().toString(36).slice(2, 8)}`;
-  svg.append("defs").append("clipPath").attr("id", clipId)
-    .append("rect").attr("x", 0).attr("y", -8).attr("width", innerW + 2).attr("height", innerH + 16);
+  const defsEl = svg.append("defs");
+  defsEl
+    .append("clipPath")
+    .attr("id", clipId)
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", -8)
+    .attr("width", innerW + 2)
+    .attr("height", innerH + 16);
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -754,6 +777,110 @@ function lineChartFigure(container, opts) {
 
   const targetMap = Object.fromEntries(series.map((s) => [s.key, s]));
   const peerKey = resolvePeerKey(seriesDefs);
+
+  const calloutItems = [];
+  const pointValueItems = [];
+  /** Repères verticaux duo FR + X (événements listés sur les deux séries avant dédup). Coordonnées mixtes traitées localement */
+  const sharedGuideKeys = new Set();
+
+  const sFrDyadGuide = series.find((ss) => ss.key === "FR");
+  const nonFrGuide = series.filter((ss) => ss.key !== "FR");
+  const sPeerDyadGuide = nonFrGuide.length === 1 ? nonFrGuide[0] : null;
+  const dyadEligible =
+    !!(sFrDyadGuide && sPeerDyadGuide && String(sPeerDyadGuide.key || "") !== "FR");
+
+  const dyadSharedGuidesLayer = g
+    .append("g")
+    .attr("class", "annotation-v-guides")
+    .attr("pointer-events", "none");
+
+  const duoEventKeys = new Set();
+  /** Une seule pastille pour un événement présent sur FR et le pays pair (ex. Covid annotations inline). */
+  const duoCalloutDrawnOnce = new Set();
+  if (annotations?.length && dyadEligible && sPeerDyadGuide) {
+    const pk = sPeerDyadGuide.key;
+    const tgtByNorm = new Map();
+    for (const a of annotations) {
+      const tk = a.target === "peer" ? peerKey : a.target;
+      const norm = dyadAnnotationDedupeKey(a.year, a.text);
+      if (!tgtByNorm.has(norm)) tgtByNorm.set(norm, new Set());
+      tgtByNorm.get(norm).add(tk);
+    }
+    for (const [norm, ts] of tgtByNorm) {
+      if (ts.has("FR") && ts.has(pk)) duoEventKeys.add(norm);
+    }
+  }
+
+  if (annotations?.length) {
+    annotations.forEach((ann) => {
+      const tgtKey = ann.target === "peer" ? peerKey : ann.target;
+      const sAnn = targetMap[tgtKey];
+      if (!sAnn) return;
+      const pt =
+        sAnn.points.find((p) => p.year === ann.year) || closestPointByYear(sAnn.points, ann.year);
+      if (!pt || pt.value == null) return;
+      const sx = margin.left + x(pt.year);
+      const sy = margin.top + y(pt.value);
+      const color = ann.color || sAnn.color;
+      if (ann.calloutStyle === "pointValue") {
+        const v = pt.value;
+        const txt =
+          ann.text != null && String(ann.text).trim() !== ""
+            ? ann.text
+            : String(Number.isInteger(v) ? v : Math.round(Number(v)));
+        pointValueItems.push({ sx, sy, text: txt, color });
+      } else {
+        if (ann.text == null || String(ann.text).trim() === "") return;
+        const evKey = dyadAnnotationDedupeKey(pt.year, ann.text);
+        if (duoEventKeys.has(evKey) && duoCalloutDrawnOnce.has(evKey)) return;
+        const sharedEv =
+          !!(dyadEligible && (ann.dyadSharedEvent === true || duoEventKeys.has(evKey)));
+        if (sharedEv) duoCalloutDrawnOnce.add(evKey);
+        const item = {
+          sx,
+          sy,
+          text: ann.text,
+          color,
+          attachKey: tgtKey,
+          year: pt.year,
+          dyadSharedEvent: sharedEv,
+        };
+        calloutItems.push(item);
+        if (item.dyadSharedEvent && dyadEligible) {
+          const gYearKey = dyadAnnotationDedupeKey(pt.year, ann.text);
+          if (!sharedGuideKeys.has(gYearKey)) {
+            sharedGuideKeys.add(gYearKey);
+            const gid = `${clipId}-evg-${sharedGuideKeys.size}`;
+            const xAbs = sx;
+            const yTopSvg = margin.top + 10;
+            const yBotSvg = margin.top + innerH - 10;
+            const lg = defsEl
+              .append("linearGradient")
+              .attr("id", gid)
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", xAbs)
+              .attr("y1", yTopSvg)
+              .attr("x2", xAbs)
+              .attr("y2", yBotSvg);
+            lg.append("stop").attr("offset", "0%").attr("stop-color", sFrDyadGuide.color);
+            lg.append("stop").attr("offset", "100%").attr("stop-color", sPeerDyadGuide.color);
+            dyadSharedGuidesLayer
+              .append("line")
+              .attr("class", "annotation-v-guide-shared")
+              .attr("x1", x(pt.year))
+              .attr("x2", x(pt.year))
+              .attr("y1", 10)
+              .attr("y2", innerH - 10)
+              .attr("stroke", `url(#${gid})`)
+              .attr("stroke-width", 1.2)
+              .attr("stroke-dasharray", "3.35 3.35")
+              .attr("stroke-linecap", "round")
+              .attr("opacity", 0.55);
+          }
+        }
+      }
+    });
+  }
 
   const linesG = g.append("g").attr("clip-path", `url(#${clipId})`);
   series.forEach((s) => {
@@ -846,36 +973,16 @@ function lineChartFigure(container, opts) {
       .attr("opacity", 0.82);
   });
 
-  const calloutItems = [];
-  const pointValueItems = [];
-  if (annotations && annotations.length) {
-    annotations.forEach((ann) => {
-      const tgtKey = ann.target === "peer" ? peerKey : ann.target;
-      const s = targetMap[tgtKey];
-      if (!s) return;
-      const pt =
-        s.points.find((p) => p.year === ann.year) || closestPointByYear(s.points, ann.year);
-      if (!pt || pt.value == null) return;
-      const sx = margin.left + x(pt.year);
-      const sy = margin.top + y(pt.value);
-      const color = ann.color || s.color;
-      if (ann.calloutStyle === "pointValue") {
-        const v = pt.value;
-        const text =
-          ann.text != null && String(ann.text).trim() !== ""
-            ? ann.text
-            : String(Number.isInteger(v) ? v : Math.round(Number(v)));
-        pointValueItems.push({ sx, sy, text, color });
-      } else {
-        if (ann.text == null || String(ann.text).trim() === "") return;
-        calloutItems.push({ sx, sy, text: ann.text, color, attachKey: tgtKey, year: pt.year });
-      }
-    });
+  if (calloutItems.length || pointValueItems.length) {
     const plotMidY = margin.top + innerH / 2;
-    drawMarkerLabels(svg, calloutItems, plotMidY, margin.top, (yr, ak) =>
-      collisionOtherYsForYear(series, yr, ak, margin.top, y),
-    );
-    drawPointValueLabels(svg, pointValueItems, plotMidY);
+    if (calloutItems.length) {
+      drawMarkerLabels(svg, calloutItems, plotMidY, margin.top, (yr, ak) =>
+        collisionOtherYsForYear(series, yr, ak, margin.top, y),
+      );
+    }
+    if (pointValueItems.length) {
+      drawPointValueLabels(svg, pointValueItems, plotMidY);
+    }
   }
 
   const lgTexts = lg.append("g").attr("class", "end-label-texts").attr("pointer-events", "none");
@@ -1227,8 +1334,15 @@ text, tspan {
 .chart-line-swiss .end-label-lines path { stroke-width: 0.65px; opacity: 0.82; }
 .chart-line-swiss .y-axis-label text { fill: ${COL.muted}; }
 g.tick text { fill: ${COL.ink}; font-size: 9.5px; font-weight: 450; }
-.annotation-markers line {
-  stroke: currentColor; stroke-width: 0.75px; stroke-dasharray: 2.5 2; opacity: 0.6;
+.annotation-markers line.ann-callout-line {
+  stroke-dasharray: 2.65 2.65; stroke-width: 0.78px;
+  opacity: 0.64; vector-effect: non-scaling-stroke;
+}
+.annotation-markers line.ann-callout-line--shared {
+  stroke-dasharray: 3.1 3.1; opacity: 0.55; stroke-width: 0.75px;
+}
+.chart-line-swiss .annotation-v-guide-shared {
+  vector-effect: non-scaling-stroke; stroke-linecap: round;
 }
 .annotation-markers .ann-label {
   font-size: 9px; font-weight: 600; letter-spacing: 0.045em; text-transform: uppercase;
@@ -1713,6 +1827,8 @@ function render(data) {
         ],
         annotations: [
           { year: 2015, text: "Pic de l'asile", target: "DK" },
+          { year: 2020, text: "Covid-19", target: "FR" },
+          { year: 2020, text: "Covid-19", target: "DK" },
           { year: 2019, text: "Frederiksen PM", target: "DK" },
           { year: 2022, text: "Ukraine", target: "DK" },
         ],

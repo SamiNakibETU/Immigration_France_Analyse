@@ -60,12 +60,14 @@ ANNOTATIONS_FR = [
 ANNOTATIONS = {
     "DK": [
         {"year": 2015, "text": "Pic de l'asile", "target": "peer"},
+        {"year": 2020, "text": "Covid-19", "target": "peer"},
         {"year": 2019, "text": "Frederiksen PM", "target": "peer"},
         {"year": 2022, "text": "Ukraine", "target": "peer"},
     ],
     "UK": [
         {"year": 2015, "text": "Pic de l'asile", "target": "peer"},
         {"year": 2016, "text": "Brexit", "target": "peer"},
+        {"year": 2020, "text": "Covid-19", "target": "peer"},
         {"year": 2021, "text": "Fin libre circ.", "target": "peer"},
         {"year": 2022, "text": "Ukraine", "target": "peer"},
     ],

@@ -329,7 +329,21 @@ article.figure:last-of-type {
 }
 
 .annotation-markers line {
-  stroke-dasharray: 2 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.annotation-markers line.ann-callout-line {
+  stroke-dasharray: 2.65 2.65;
+  stroke-width: 0.78px;
+}
+
+.annotation-markers line.ann-callout-line--shared {
+  stroke-dasharray: 3.1 3.1;
+}
+
+.chart-line-swiss .annotation-v-guides line.annotation-v-guide-shared {
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 /* Valeur Y sur la courbe (rang, etc.) - pas de petites capitales */

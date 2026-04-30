@@ -48,6 +48,11 @@
         "target": "peer"
       },
       {
+        "year": 2020,
+        "text": "Covid-19",
+        "target": "peer"
+      },
+      {
         "year": 2019,
         "text": "Frederiksen PM",
         "target": "peer"
@@ -67,6 +72,11 @@
       {
         "year": 2016,
         "text": "Brexit",
+        "target": "peer"
+      },
+      {
+        "year": 2020,
+        "text": "Covid-19",
         "target": "peer"
       },
       {

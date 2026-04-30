@@ -51,7 +51,7 @@
   --tn-paper: #F3ECE6;
   --tn-ink: #262626;
   --tn-ink-strong: #262626;
-  --tn-red: #FF3F3F;
+  --tn-red: #FF6437;
   --tn-blue: #2E879A;
   --tn-plum: #9D1453;
   --tn-muted: #595550;
@@ -164,15 +164,6 @@ article.figure:last-of-type {
   line-height: 1.22;
   color: var(--tn-ink-strong);
   text-wrap: balance;
-}
-
-/* Premier graphique : titre Instrument Serif (article), plus grand. */
-#main-figures > article.figure:nth-of-type(1) .figure-title {
-  font-family: "Instrument Serif", Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  font-size: clamp(1.12rem, 1.95vw, 1.42rem);
-  line-height: 1.18;
 }
 
 .figure-sub {

@@ -246,28 +246,24 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
- * Largeur approximative réservée **à gauche** de l’ancre lx avant le premier glyphe :
- * libellés fin de série ~10.25px semibold.
+ * Bras de fin de serie : le trait sort du graphe vers la droite,
+ * monte/descend vers ly, puis rejoint le libelle.
+ * Le bras ne revient JAMAIS vers la gauche du dernier point.
+ *
+ * col=0 (lx = innerW+14) : M px,py  H innerW+5  V ly
+ * col=1 (lx = innerW+82) : M px,py  H innerW+5  V ly  H lx-8
  */
-function endLabelTextClearancePx(labelStr) {
-  const n = Math.min(String(labelStr ?? "").trim().length, 72);
-  return Math.min(390, Math.max(52, Math.ceil(n * 6.92 + 46)));
-}
+function endLabelLeadPath(px, py, lx, ly, innerW, _labelStr) {
+  const xExit = innerW + 5;
+  const xEnd  = lx - 8;
 
-/**
- * Bras de fin de série : orthogonal court dans la zone tracé puis segment horizontal vers lx.
- * xEnd = lx - clearance **sans** être repoussé vers px (cause des traits dans le texte si le clamp ancien).
- */
-function endLabelLeadPath(px, py, lx, ly, innerW, labelStr) {
-  const clear = endLabelTextClearancePx(labelStr);
-  const xEnd = Math.min(lx - clear, lx - 12);
-  const xGutter = innerW + 12;
-  const hStub = Math.min(Math.max(px + 16, px + (xGutter - px) * 0.42), xGutter + 10);
-  let xTurn = Math.min(Math.max(hStub, px + 14), xEnd - 16);
-  xTurn = Math.max(xTurn, px + 12);
-  xTurn = Math.min(xTurn, xEnd - 8);
-  if (xTurn > px + 8 && xEnd >= xTurn + 10) return `M${px},${py}H${xTurn}V${ly}H${xEnd}`;
-  return `M${px},${py}V${ly}H${xEnd}`;
+  if (Math.abs(py - ly) < 2) {
+    return `M${px},${py}H${xEnd}`;
+  }
+  if (xEnd <= xExit + 4) {
+    return `M${px},${py}H${xEnd}V${ly}`;
+  }
+  return `M${px},${py}H${xExit}V${ly}H${xEnd}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -553,16 +549,16 @@ function collisionOtherYsForYear(series, yr, attachKey, yScale) {
 
 /** Décale légèrement la tige des callouts proches horizontalement (années ±1). */
 function applyCalloutProximityRepel(items) {
-  if (!items?.length) return;
-  const sorted = [...items].sort((a, b) => a.sx - b.sx || a.year - b.year);
-  const xThreshold = 40;
-  for (let i = 0; i < sorted.length; i++) {
-    for (let j = i - 1; j >= 0; j--) {
-      if (sorted[i].sx - sorted[j].sx > xThreshold) break;
-      if (Math.abs(sorted[i].year - sorted[j].year) <= 1) {
-        sorted[i].calloutRepel = Math.max(sorted[i].calloutRepel || 0, (sorted[j].calloutRepel || 0) + 26);
-        break;
-      }
+  if (!items || !items.length) return;
+  const sorted = [...items].sort((a, b) => (a.year - b.year) || (a.sx - b.sx));
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i - 1];
+    const curr = sorted[i];
+    if (Math.abs(curr.year - prev.year) <= 2) {
+      curr.calloutRepel = Math.max(
+        curr.calloutRepel || 0,
+        (prev.calloutRepel || 0) + 40
+      );
     }
   }
 }
@@ -573,8 +569,10 @@ function drawMarkerLabels(parentG, items, plotMidY, plotTop, collisionOtherYs) {
   const topBand =
     plotTop != null && plotMidY != null ? plotTop + (plotMidY - plotTop) * 0.22 : null;
   const CLEAR_Y = 18;
+  const lineH = 10;
 
-  items.forEach((item) => {
+  // ---- Passe 1 : calcul des positions initiales ----
+  const placed = items.map((item) => {
     const { sx, sy, text, color, year, attachKey } = item;
     const tLower = String(text || "").toLowerCase();
     const forceBelow =
@@ -587,7 +585,6 @@ function drawMarkerLabels(parentG, items, plotMidY, plotTop, collisionOtherYs) {
     }
     if (!lines.length) lines.push(String(text || "").trim());
     const nLines = Math.max(lines.length, 1);
-    const lineH = 10;
 
     const otherYs =
       typeof collisionOtherYs === "function" && year != null && attachKey != null
@@ -596,14 +593,11 @@ function drawMarkerLabels(parentG, items, plotMidY, plotTop, collisionOtherYs) {
 
     function bandFor(goFlag, stemVal) {
       const ty = goFlag ? sy - stemVal : sy + stemVal;
-      const totalH = nLines * lineH;
-      const yStart = goFlag ? ty - totalH + lineH * 0.8 : ty + lineH * 0.8;
-      const top = yStart - 11;
-      const bot = yStart + (nLines - 1) * lineH + 5;
-      return { ty, top, bot, yStart };
+      const yStart = goFlag ? ty - nLines * lineH + lineH * 0.8 : ty + lineH * 0.8;
+      return { ty, yStart, top: yStart - 11, bot: yStart + (nLines - 1) * lineH + 5 };
     }
 
-    function clashes(goFlag, stemVal) {
+    function clashesOtherCurve(goFlag, stemVal) {
       if (!otherYs.length) return false;
       const { top, bot } = bandFor(goFlag, stemVal);
       return otherYs.some((oy) => oy + CLEAR_Y >= top && oy - CLEAR_Y <= bot);
@@ -614,14 +608,43 @@ function drawMarkerLabels(parentG, items, plotMidY, plotTop, collisionOtherYs) {
     if (tLower.includes("pic") && tLower.includes("asile")) stem += 14;
     if (tLower.includes("frederiksen")) stem += 32;
 
-    for (let tries = 0; tries < 10 && clashes(goUp, stem); tries++) {
+    for (let tries = 0; tries < 10 && clashesOtherCurve(goUp, stem); tries++) {
       if (!forceBelow && tries === 0) goUp = !goUp;
       else stem += 18;
     }
 
-    const { ty, yStart } = bandFor(goUp, stem);
-    const anchor = "middle";
+    const band = bandFor(goUp, stem);
+    return { item, sx, sy, color, text, lines, nLines, goUp, ...band };
+  });
 
+  // ---- Passe 2 : resolution des collisions entre annotations ----
+  // Trier par sx pour traiter de gauche a droite
+  placed.sort((a, b) => a.sx - b.sx);
+  for (let iter = 0; iter < 4; iter++) {
+    let anyFix = false;
+    for (let i = 0; i < placed.length; i++) {
+      for (let j = i + 1; j < placed.length; j++) {
+        if (placed[j].sx - placed[i].sx > 110) break;
+        const pi = placed[i], pj = placed[j];
+        // Chevauchement vertical ?
+        if (pi.top >= pj.bot + 3 || pj.top >= pi.bot + 3) continue;
+        const overlap = Math.min(pi.bot, pj.bot) - Math.max(pi.top, pj.top) + 5;
+        // Deplacer pj dans sa direction naturelle
+        const shift = pj.goUp ? -overlap : overlap;
+        pj.ty += shift;
+        pj.yStart = pj.goUp
+          ? pj.ty - pj.nLines * lineH + lineH * 0.8
+          : pj.ty + lineH * 0.8;
+        pj.top = pj.yStart - 11;
+        pj.bot = pj.yStart + (pj.nLines - 1) * lineH + 5;
+        anyFix = true;
+      }
+    }
+    if (!anyFix) break;
+  }
+
+  // ---- Passe 3 : dessin ----
+  placed.forEach(({ sx, sy, color, text, lines, goUp, ty, yStart }) => {
     layer
       .append("line")
       .attr("class", "ann-callout-line")
@@ -647,7 +670,7 @@ function drawMarkerLabels(parentG, items, plotMidY, plotTop, collisionOtherYs) {
         .attr("class", "ann-label")
         .attr("x", sx)
         .attr("y", yStart + li * lineH)
-        .attr("text-anchor", anchor)
+        .attr("text-anchor", "middle")
         .attr("fill", color)
         .text(line);
     });

@@ -232,6 +232,9 @@ article.figure:last-of-type {
 .figure-foot {
   margin: var(--space-md) 0 0;
   max-width: none;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--tn-hairline);
+  white-space: pre-wrap;
   color: var(--tn-muted);
   font-size: 0.8125rem;
   font-weight: var(--fw-book);

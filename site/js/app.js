@@ -39,7 +39,7 @@ const TITLES = {
     title:
       "Solde migratoire : la France accueille 1,9 fois moins que le Danemark et 1,5 fois moins que l’Italie",
     sub:
-      "Solde migratoire net pour 1 000 habitants, 2005-2024. France, Danemark et Italie : Eurostat (CNMIGRATRT). Royaume-Uni : ONS (LTIM).",
+      "Solde migratoire net pour 1 000 habitants, série annuelle (2005-2024). Sources et précisions méthodologiques sous le graphique.",
   },
   2: {
     title: "En vingt ans, la France est passée sous la trajectoire de ses six principaux voisins européens",
@@ -100,7 +100,7 @@ const DYADS = [
     peerKey: "DK",
     peerLabel: "Danemark",
     title: "En 2024, le solde migratoire danois est près de deux fois supérieur au français",
-    sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
+    sub: "Solde net pour 1 000 habitants (2013-2024). Les sources sont précisées sous le graphique.",
     colorPeer: COL.red,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
@@ -108,7 +108,7 @@ const DYADS = [
     peerKey: "IT",
     peerLabel: "Italie",
     title: "Depuis 2021, l’Italie affiche un solde migratoire supérieur à celui de la France",
-    sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
+    sub: "Solde net pour 1 000 habitants (2013-2024). Les sources sont précisées sous le graphique.",
     colorPeer: COL.coral,
     footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
   },
@@ -116,7 +116,7 @@ const DYADS = [
     peerKey: "UK",
     peerLabel: "Royaume-Uni",
     title: "En 2022, le solde migratoire britannique a atteint un pic cinq fois supérieur au français",
-    sub: "Solde net pour 1 000 habitants, 2013-2024. France : Eurostat. Royaume-Uni : ONS (séries non strictement comparables).",
+    sub: "Solde net pour 1 000 habitants (2013-2024). Les sources sont précisées sous le graphique.",
     colorPeer: COL.plum,
     footer: "Sources : Eurostat, CNMIGRATRT (France, 2013-2024, données harmonisées) ; Office for National Statistics, Long-Term International Migration (Royaume-Uni, 2013-2024). Les deux séries mesurent le solde de longue durée mais avec des méthodes non strictement identiques : la comparaison reste indicative.",
   },
@@ -377,16 +377,15 @@ function closestPointByYear(points, year) {
 
 /**
  * Valeur Y sur la courbe : tige + disque + libellé chiffré (sans petites capitales).
- * Troisième argument : même convention que drawMarkerLabels (ex. margin.top + innerH).
+ * plotMidY : coordonnée Y absolue SVG du milieu vertical de la zone de tracé.
  */
-function drawPointValueLabels(svg, items, innerHParam) {
+function drawPointValueLabels(svg, items, plotMidY) {
   if (!items.length) return;
   const layer = svg.append("g").attr("class", "annotation-point-values").attr("pointer-events", "none");
-  const MID = innerHParam != null ? innerHParam / 2 : 200;
 
   items.forEach((item) => {
     const { sx, sy, text, color } = item;
-    const goUp = sy > MID * 0.55;
+    const goUp = sy > plotMidY;
     const STEM = 38;
     const ty = goUp ? sy - STEM : sy + STEM;
 
@@ -425,18 +424,20 @@ function drawPointValueLabels(svg, items, innerHParam) {
   });
 }
 
-function drawMarkerLabels(svg, items, innerH) {
+function drawMarkerLabels(svg, items, plotMidY, plotTop) {
   if (!items.length) return;
   const layer = svg.append("g").attr("class", "annotation-markers");
-  const MID = innerH != null ? innerH / 2 : 200;
+  /* Bande haute (~22 % depuis le haut du tracé) : évite les étiquettes rognées en tête du SVG */
+  const topBand =
+    plotTop != null && plotMidY != null ? plotTop + (plotMidY - plotTop) * 0.22 : null;
 
   items.forEach((item) => {
     const { sx, sy, text, color } = item;
-
-    // Placement haut ou bas selon que le point est dans la moitié basse ou haute
-    const goUp = sy > MID * 0.55;
-    const STEM = 42;
-    const ty = goUp ? sy - STEM : sy + STEM;
+    const tLower = String(text || "").toLowerCase();
+    const forceBelow =
+      /\bukraine\b/.test(tLower) || (topBand != null && sy <= topBand);
+    const goUp = !forceBelow && sy > plotMidY;
+    const STEM = forceBelow ? 58 : 42;
     const anchor = "middle";
 
     // Tige
@@ -507,6 +508,12 @@ function lineChartFigure(container, opts) {
   } = opts;
 
   const margin = { top: 18, right: 142, bottom: 52, left: 62, ...marginOverride };
+  const hasCallout =
+    annotations?.some((a) => {
+      if (a == null || String(a.text || "").trim() === "") return false;
+      return a.calloutStyle !== "pointValue";
+    }) ?? false;
+  if (hasCallout) margin.top += 14;
 
   const series = seriesDefs.map((d) => ({
     key: d.key,
@@ -692,8 +699,9 @@ function lineChartFigure(container, opts) {
         calloutItems.push({ sx, sy, text: ann.text, color });
       }
     });
-    drawMarkerLabels(svg, calloutItems, margin.top + innerH);
-    drawPointValueLabels(svg, pointValueItems, margin.top + innerH);
+    const plotMidY = margin.top + innerH / 2;
+    drawMarkerLabels(svg, calloutItems, plotMidY, margin.top);
+    drawPointValueLabels(svg, pointValueItems, plotMidY);
   }
 
   const labelColW = series.length >= 4 ? 64 : 0;
@@ -969,20 +977,27 @@ function parseSvgPixelSize(svgEl) {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** Retours à la ligne pour titres / sous-titres dans l’export (largeur ~ largeur SVG). */
+/** Retours à la ligne pour titres / sous-titres dans l’export (largeur ~ largeur SVG). Les \n imposent une coupure (paragraphes sources). */
 function wrapTextToLines(text, maxChars) {
   if (!text) return [];
-  const words = String(text).trim().split(/\s+/);
+  const blocks = String(text).split("\n");
   const lines = [];
-  let cur = "";
-  for (const w of words) {
-    const trial = cur ? `${cur} ${w}` : w;
-    if (trial.length > maxChars && cur) {
-      lines.push(cur);
-      cur = w;
-    } else cur = trial;
+  for (const block of blocks) {
+    if (!block.trim()) {
+      lines.push("\u00a0");
+      continue;
+    }
+    const words = block.trim().split(/\s+/).filter(Boolean);
+    let cur = "";
+    for (const w of words) {
+      const trial = cur ? `${cur} ${w}` : w;
+      if (trial.length > maxChars && cur) {
+        lines.push(cur);
+        cur = w;
+      } else cur = trial;
+    }
+    if (cur) lines.push(cur);
   }
-  if (cur) lines.push(cur);
   return lines;
 }
 
@@ -996,7 +1011,8 @@ function exportWrapLimits(chartWidthPx) {
     title: Math.max(32, Math.floor(usable / 7.1)),
     sub: Math.max(44, Math.floor(usable / 5.85)),
     panel: Math.max(40, Math.floor(usable / 6.2)),
-    foot: Math.max(52, Math.floor(usable / 5.15)),
+    /* Pied : comme le sous-titre (même colonne que la zone tracé, pas de lignes trop longues). */
+    foot: Math.max(44, Math.floor(usable / 5.9)),
   };
 }
 
@@ -1057,9 +1073,11 @@ function normalizeTypographyHyphens(s) {
  */
 function buildExportRootSvg(chartSvg, articleEl) {
   const { w: cw, h: ch } = parseSvgPixelSize(chartSvg);
-  /* Même largeur utile que max-width: 900px pour sous-titre / sources à l’écran ; évite titres rognés si le tracé est étroit. */
-  const textBandW = Math.max(cw, 900);
-  const lim = exportWrapLimits(textBandW);
+  /* Largeur document = largeur du SVG graphique : titre, sources et tracé partagent la même colonne. */
+  const totalW = cw;
+  const padChartX = 0;
+  const textX = 28;
+  const lim = exportWrapLimits(cw);
   const title = normalizeTypographyHyphens(
     articleEl?.querySelector(".figure-title")?.textContent?.trim() || "Figure",
   );
@@ -1085,8 +1103,6 @@ function buildExportRootSvg(chartSvg, articleEl) {
 
   const footerH = footLines.length ? 14 + footLines.length * EXPORT_FOOT_LH + 12 : 0;
 
-  const totalW = textBandW;
-  const padChartX = (totalW - cw) / 2;
   const totalH = ch + headerH + footerH;
 
   const root = document.createElementNS(SVG_NS, "svg");
@@ -1121,7 +1137,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
   ty = 26;
   titleLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
-    t.setAttribute("x", "28");
+    t.setAttribute("x", String(textX));
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", COL.ink);
     t.setAttribute("font-size", "17");
@@ -1135,7 +1151,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
   else if (titleLines.length) ty += 6;
   subLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
-    t.setAttribute("x", "28");
+    t.setAttribute("x", String(textX));
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", COL.muted);
     t.setAttribute("font-size", "13");
@@ -1147,7 +1163,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
   });
   panelLines.forEach((line) => {
     const t = document.createElementNS(SVG_NS, "text");
-    t.setAttribute("x", "28");
+    t.setAttribute("x", String(textX));
     t.setAttribute("y", String(ty));
     t.setAttribute("fill", COL.muted);
     t.setAttribute("font-size", "10.5");
@@ -1195,7 +1211,7 @@ function buildExportRootSvg(chartSvg, articleEl) {
     let fy = headerH + ch + 14;
     footLines.forEach((line) => {
       const ft = document.createElementNS(SVG_NS, "text");
-      ft.setAttribute("x", "28");
+      ft.setAttribute("x", String(textX));
       ft.setAttribute("y", String(fy));
       ft.setAttribute("fill", COL.muted);
       ft.setAttribute("font-size", "13");

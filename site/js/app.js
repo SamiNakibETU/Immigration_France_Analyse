@@ -438,6 +438,7 @@ function drawMarkerLabels(svg, items, plotMidY, plotTop) {
       /\bukraine\b/.test(tLower) || (topBand != null && sy <= topBand);
     const goUp = !forceBelow && sy > plotMidY;
     const STEM = forceBelow ? 58 : 42;
+    const ty = goUp ? sy - STEM : sy + STEM;
     const anchor = "middle";
 
     // Tige

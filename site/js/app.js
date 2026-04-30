@@ -713,25 +713,6 @@ function lineChartFigure(container, opts) {
   const w = 900;
   const innerH = height - margin.top - margin.bottom;
 
-  /** Marge droite minimale pour que lx − clearance − px soit réaliste (évite ancien clamp sur px). */
-  const labelColWForWiden = series.length >= 4 ? 70 : 0;
-  const labelGapUseForWiden = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
-  const MIN_ENDLABEL_BRIDGE = 38;
-  const yWiden = d3.scaleLinear().domain(yDom).range([innerH, 0]);
-  for (let widenIt = 0; widenIt < 12; widenIt++) {
-    const innerWTry = w - margin.left - margin.right;
-    const xWiden = d3.scaleLinear().domain(xDom).range([0, innerWTry]);
-    const layW = layoutEndLabels(series, xWiden, yWiden, innerWTry, innerH, labelGapUseForWiden);
-    let shortfall = 0;
-    for (const d of layW) {
-      const lxTry = innerWTry + 14 + (d.col || 0) * labelColWForWiden;
-      const need = endLabelTextClearancePx(d.series.label) + MIN_ENDLABEL_BRIDGE;
-      shortfall = Math.max(shortfall, d.px + need - lxTry);
-    }
-    if (shortfall <= 0.5) break;
-    margin.right += Math.ceil(shortfall + 6);
-  }
-
   const innerW = w - margin.left - margin.right;
 
   const svg = container
@@ -2106,6 +2087,7 @@ function render(data) {
     const fe = data.foreignEntries || [];
     if (fe.length) {
       const art = main.append("article").attr("class", "figure").attr("data-export-slug", "entrees-etrangers-quatre-pays");
+      figureHead(art, TITLES.entrees);
       const host = art.append("div").attr("class", "chart-host");
       const frPts = pointsFromRows(fe, "FR");
       const dkPts = pointsFromRows(fe, "DK");
@@ -2128,7 +2110,8 @@ function render(data) {
         yDomain: yDom,
         xDomain: [2016, 2024],
         height: 420,
-        margin: { top: 20, right: 210, bottom: 52, left: 64 },
+        margin: { top: 20, right: 260, bottom: 52, left: 64 },
+        labelGap: 18,
       });
       art.append("p").attr("class", "figure-foot").text(
         "Sources : Eurostat migr_imm1ctz (FR, DK, IT, UK 2016-2019) ; ONS Long-Term International Migration (UK 2020-2024, estimation cohérente). Rupture méthodologique UK en 2020 : données Eurostat indisponibles après Brexit, données ONS utilisées. Lecture : le Royaume-Uni, en pointillés, connaît une explosion post-Brexit que les autres pays n'ont pas."

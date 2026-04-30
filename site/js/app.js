@@ -245,27 +245,31 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
- * Décalage à gauche du point d’ancrage du texte (lx) où le trait horizontal doit s’arrêter,
- * pour les libellés longs (« Danemark (étrangers, Stat DK) »).
+ * Bras de fin de série (repère léger NYT/Times).
+ * M px py → H rail → V ly → H xEnd : dernier segment **va toujours vers la droite** (xEnd ≥ rail),
+ * ce qui évite un trait parasite au milieu du graphique puisque xEnd suit la colonne des libellés.
  */
-function endLabelLeadGapPx(labelStr) {
-  const n = String(labelStr || "").length;
-  return Math.min(168, Math.max(26, 6.2 * Math.min(n, 48)));
-}
+function endLabelLeadPath(px, py, lx, ly, innerW, labelStr) {
+  const n = Math.min(String(labelStr ?? "").length, 56);
+  const pad = Math.min(84, Math.max(18, Math.round(n * 4)));
+  /** Extrémité du trait hors texte ; ancres SVG des libellés = lx (anchored start) */
+  let xEnd = lx - pad;
+  xEnd = Math.min(Math.max(xEnd, px + 12), lx - 5);
 
-/**
- * Bras de raccord orthogonal : dernier segment horizontal **s’arrête bien avant** lx
- * (plus de ligne qui traverse les glyphes).
- */
-function endLabelLeadPath(px, py, lx, ly, labelStr) {
-  const gap = endLabelLeadGapPx(labelStr);
-  const xt = lx - gap;
-  /** Coude horizontal : au moins 28 px du point, sans dépasser l’entrée colonne labels. */
-  let bx = Math.max(px + 22, Math.min(px + 52, xt - 32));
-  if (bx <= px + 4) bx = px + 16;
-  if (bx >= xt - 10) bx = Math.max(px + 14, xt - 28);
-  if (xt <= bx + 12) return `M${px},${py} H${xt} V${ly}`;
-  return `M${px},${py} H${bx} V${ly} H${xt}`;
+  /** Colonne verticale alignée sous la colonne titres (~ bord gauche marges lisibles). */
+  const gutter = innerW + 14;
+
+  /** Coude après un court trajet hors année puis montée jusqu’à la ligne du libellé */
+  let xRail = Math.min(gutter, xEnd - 12);
+  xRail = Math.max(xRail, px + Math.min(20, lx - px - pad));
+  xRail = Math.min(xRail, px + 74);
+  xRail = Math.max(xRail, px + 14);
+
+  const okOrtho = xRail > px + 6 && xEnd >= xRail + 8 && xRail <= lx - 28;
+  if (okOrtho) return `M${px},${py}H${xRail}V${ly}H${xEnd}`;
+
+  /** Espace très serré : vertical sur l’axe année puis petit bras vers lx */
+  return `M${px},${py}V${ly}H${xEnd}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -319,10 +323,48 @@ function overviewAnnotations(data, rows) {
 function annotationsForPeer(data, peerKey) {
   const list = data.annotations?.[peerKey] ?? [];
   return list.map((a) => ({
-        year: a.year,
-        text: a.text,
+    year: a.year,
+    text: a.text,
     target: a.target === "peer" ? peerKey : a.target,
   }));
+}
+
+function dyadAnnotationDedupeKey(year, text) {
+  return `${year}|${String(text || "").trim().toLowerCase().replace(/\s+/g, " ")}`;
+}
+
+/**
+ * Une seule vignette par (année, texte) sur les graphes deux courbes FR + pays :
+ * data.json peut dupliquer le même événement sur FR et sur le pays pair (ex. pic de l'asile 2015).
+ */
+function dedupeDyadAnnotations(annotations, rows, peerKey) {
+  if (!annotations?.length) return annotations;
+  function seriesValue(year, tgt) {
+    const r = rows?.find((x) => x.year === year);
+    const v = r && r[String(tgt)];
+    return v != null && Number.isFinite(v) ? v : null;
+  }
+  /** On garde l’entrée où le signal est plus fort au millésime, sinon priorité au pays comparé */
+  function pickBetter(a, b) {
+    const va = seriesValue(a.year, a.target);
+    const vb = seriesValue(b.year, b.target);
+    if (va != null && vb != null && va !== vb) return vb >= va ? b : a;
+    if (va == null && vb != null) return b;
+    if (vb == null && va != null) return a;
+    if (peerKey && peerKey !== "FR") {
+      if (a.target === peerKey && b.target !== peerKey) return a;
+      if (b.target === peerKey && a.target !== peerKey) return b;
+    }
+    return a;
+  }
+  const byKey = new Map();
+  for (const ann of annotations) {
+    const k = dyadAnnotationDedupeKey(ann.year, ann.text);
+    byKey.set(k, byKey.has(k) ? pickBetter(byKey.get(k), ann) : ann);
+  }
+  const out = [...byKey.values()];
+  out.sort((a, b) => a.year - b.year || String(a.text ?? "").localeCompare(String(b.text ?? "")));
+  return out;
 }
 
 /** Duos France + X : jalons sur la France et sur le pays comparé (comme dans le texte Word). */
@@ -332,7 +374,8 @@ function annotationsForDyad(data, peerKey) {
     text: a.text,
     target: a.target === "peer" ? "FR" : a.target,
   }));
-  return fr.concat(annotationsForPeer(data, peerKey));
+  const merged = fr.concat(annotationsForPeer(data, peerKey));
+  return dedupeDyadAnnotations(merged, data.migrationSelection, peerKey);
 }
 
 /** Graphique ligne à deux pays (France + un comparateur), axe X resserré. */
@@ -795,7 +838,7 @@ function lineChartFigure(container, opts) {
   layouts.forEach((d) => {
     const lx = labelXBase + (d.col || 0) * labelColW;
     lgLines.append("path")
-      .attr("d", endLabelLeadPath(d.px, d.py, lx, d.ly, d.series.label))
+      .attr("d", endLabelLeadPath(d.px, d.py, lx, d.ly, innerW, d.series.label))
       .attr("fill", "none")
       .attr("stroke", d.series.color)
       .attr("stroke-width", 0.65)

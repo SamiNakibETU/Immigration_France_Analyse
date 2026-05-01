@@ -333,8 +333,9 @@ article.figure:last-of-type {
 }
 
 .annotation-markers line.ann-callout-line {
-  stroke-dasharray: 2.65 2.65;
-  stroke-width: 0.78px;
+  stroke-dasharray: 3.2 2.4;
+  stroke-width: 0.95px;
+  opacity: 0.8;
 }
 
 /* Valeur Y sur la courbe (rang, etc.) - pas de petites capitales */

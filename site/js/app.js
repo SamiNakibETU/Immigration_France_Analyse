@@ -246,24 +246,29 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
- * Bras de fin de serie : le trait sort du graphe vers la droite,
- * monte/descend vers ly, puis rejoint le libelle.
- * Le bras ne revient JAMAIS vers la gauche du dernier point.
- *
- * col=0 (lx = innerW+14) : M px,py  H innerW+5  V ly
- * col=1 (lx = innerW+82) : M px,py  H innerW+5  V ly  H lx-8
+ * Bras de fin de serie : sort du dernier point (px,py), gouttiere droite, ly aligne.
+ * Jamais de segment H qui irait de px vers la gauche quand px > cible (croise le libelle).
  */
 function endLabelLeadPath(px, py, lx, ly, innerW, _labelStr) {
-  const xExit = innerW + 5;
-  const xEnd  = lx - 8;
+  const xGutter = innerW + 6;
+  const xStop = lx - 28;
+  const dy = ly - py;
+  const flatY = Math.abs(dy) < 2;
 
-  if (Math.abs(py - ly) < 2) {
-    return `M${px},${py}H${xEnd}`;
+  if (flatY && px <= xStop) {
+    return `M${px},${py}H${xStop}`;
   }
-  if (xEnd <= xExit + 4) {
-    return `M${px},${py}H${xEnd}V${ly}`;
+  if (flatY && px > xStop) {
+    const bump = py >= ly ? 12 : -12;
+    return `M${px},${py}V${py + bump}H${xStop}V${ly}`;
   }
-  return `M${px},${py}H${xExit}V${ly}H${xEnd}`;
+  if (px > xStop) {
+    return `M${px},${py}V${ly}H${xStop}`;
+  }
+  if (px <= xGutter) {
+    return `M${px},${py}H${xGutter}V${ly}H${xStop}`;
+  }
+  return `M${px},${py}V${ly}H${xStop}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -653,8 +658,8 @@ function drawMarkerLabels(parentG, items, plotMidY, plotTop, collisionOtherYs) {
       .attr("x2", sx)
       .attr("y2", ty + (goUp ? 10 : -10))
       .attr("stroke", color)
-      .attr("stroke-width", 0.75)
-      .attr("opacity", 0.62);
+      .attr("stroke-width", 0.95)
+      .attr("opacity", 0.8);
 
     layer
       .append("circle")
@@ -965,10 +970,22 @@ function lineChartFigure(container, opts) {
     .attr("font-weight", "500")
     .text("Année");
 
-  const labelColW = series.length >= 4 ? 70 : 0;
-  const labelXBase = innerW + 14;
+  const labelColW = series.length >= 4 ? 86 : 0;
   const labelGapUse = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
   const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGapUse);
+  const endLabelHxPad = 22;
+  let labelXBase = innerW + 28;
+  if (layouts.length) {
+    const pxCol0 = layouts.filter((d) => !(d.col || 0)).map((d) => d.px);
+    const pxCol1 = layouts.filter((d) => d.col).map((d) => d.px);
+    const max0 = pxCol0.length ? d3.max(pxCol0) : -Infinity;
+    const max1 = pxCol1.length ? d3.max(pxCol1) : -Infinity;
+    labelXBase = Math.max(
+      labelXBase,
+      max0 + endLabelHxPad,
+      Number.isFinite(max1) ? max1 + endLabelHxPad - labelColW : -Infinity,
+    );
+  }
   const lg = g.append("g").attr("class", "end-labels").attr("pointer-events", "none");
   const lgLines = lg.append("g").attr("class", "end-label-lines").attr("pointer-events", "none");
   layouts.forEach((d) => {
@@ -1156,7 +1173,8 @@ function barHFigure(container, opts) {
   } = opts;
 
   if (title) container.append("h2").attr("class", "figure-title").text(title);
-  if (sub) container.append("p").attr("class", "figure-sub").text(sub);
+  const cleanSub = cleanFigureSub(sub);
+  if (cleanSub) container.append("p").attr("class", "figure-sub").text(cleanSub);
 
   const wrap = container.append("div").attr("class", "chart-host chart-bar-swiss");
   const w = 900;
@@ -1329,12 +1347,12 @@ text, tspan {
   stroke: ${COL.gridLineV}; stroke-width: 0.5px; opacity: 0.7;
   vector-effect: non-scaling-stroke; shape-rendering: crispEdges;
 }
-.chart-line-swiss .end-label-lines path { stroke-width: 0.65px; opacity: 0.82; }
+.chart-line-swiss .end-label-lines path { stroke-width: 0.62px; opacity: 0.72; }
 .chart-line-swiss .y-axis-label text { fill: ${COL.muted}; }
 g.tick text { fill: ${COL.ink}; font-size: 9.5px; font-weight: 450; }
 .annotation-markers line.ann-callout-line {
-  stroke-dasharray: 2.65 2.65; stroke-width: 0.78px;
-  opacity: 0.64; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 3.2 2.4; stroke-width: 0.95px;
+  opacity: 0.8; vector-effect: non-scaling-stroke;
 }
 .annotation-markers .ann-label {
   font-size: 9px; font-weight: 600; letter-spacing: 0.045em; text-transform: uppercase;
@@ -1768,9 +1786,43 @@ function dualBarRow(container, data, footer) {
   if (footer) container.append("p").attr("class", "figure-foot").text(footer);
 }
 
+function cleanFigureSub(rawSub) {
+  let sub = String(rawSub || "").trim();
+  if (!sub) return "";
+
+  sub = sub
+    .replace(/\s*\((?:CNMIGRATRT|migr_[^)]+|demo_pjan|LTIM|UK|ONS|Istat|INSEE[^)]*|Statistics DK|Home Office[^)]*)\)/gi, "")
+    .replace(/\b(?:Eurostat|ONS|INSEE|Istat|Statistics DK|Home Office)\b\s*:?\s*/gi, "")
+    .replace(/France\s*:\s*\.\s*/gi, "")
+    .replace(/Royaume-Uni\s*:\s*\.\s*/gi, "")
+    .replace(/Danemark\s*:\s*\.\s*/gi, "")
+    .replace(/Italie\s*:\s*\.\s*/gi, "")
+    .replace(/\.\s*\./g, ".")
+    .replace(/\s+,/g, ",")
+    .replace(/\s+\./g, ".")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  sub = sub
+    .split(/(?<=\.)\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => !/^(donn[ée]es?|source|sources?|table|office|m[êe]me indicateur)\b/i.test(part))
+    .join(" ");
+
+  sub = sub
+    .replace(/^(?:[.,]\s*)+/g, "")
+    .replace(/(?:[.,]\s*)+$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  return sub;
+}
+
 function figureHead(art, spec) {
   art.append("h2").attr("class", "figure-title").text(spec.title);
-  if (spec.sub) art.append("p").attr("class", "figure-sub").text(spec.sub);
+  const sub = cleanFigureSub(spec.sub);
+  if (sub) art.append("p").attr("class", "figure-sub").text(sub);
 }
 
 function render(data) {

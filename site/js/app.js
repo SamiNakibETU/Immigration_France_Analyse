@@ -210,7 +210,8 @@ function integerYearTicks(xDom, dataYearExtent, maxTicks = 11) {
     const d0 = Number(dataYearExtent[0]);
     const d1 = Number(dataYearExtent[1]);
     if (Number.isFinite(d0)) yLo = Math.min(yLo, Math.floor(d0));
-    if (Number.isFinite(d1)) yHi = Math.max(yHi, Math.ceil(d1));
+    /** Dernière année réelle des données (évite une graduation fantôme ex. 2024 sans point en 2024). */
+    if (Number.isFinite(d1)) yHi = d1;
   }
   if (yHi <= yLo) return [yLo];
   const rawStep = Math.ceil((yHi - yLo) / Math.max(1, maxTicks - 1));
@@ -238,28 +239,26 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
     });
   }
   items.sort((a, b) => a.py - b.py);
-  const effGap =
-    gap + Math.max(0, items.length - 2) * 2 + (items.length >= 6 ? 4 : items.length >= 4 ? 2 : 0);
-  /** Écart minimal entre lignes de texte (~ font 10px + léger résidu) : en dessous, on écarte à la réserve. */
-  const minSeparateGap = Math.max(11, Math.min(effGap, effGap * 0.82));
+  /** Chevauchement de libellés (hauteur visuelle approx. ligne 10 px + marge). */
+  const approxLabelPx = 14;
 
   function spreadVertical(group) {
-    let ly = group.map((d) => d.py);
+    const lys = group.map((d) => d.py);
     let needRelax = false;
-    for (let i = 1; i < ly.length; i++) {
-      if (ly[i] - ly[i - 1] < minSeparateGap) {
+    for (let i = 1; i < lys.length; i++) {
+      if (lys[i] - lys[i - 1] < approxLabelPx - 2) {
         needRelax = true;
         break;
       }
     }
     if (!needRelax) {
-      ly = ly.map((yy) => Math.min(Math.max(yy, 4), innerH - 4));
-      group.forEach((d, i) => {
-        d.ly = ly[i];
+      group.forEach((d) => {
+        d.ly = Math.min(Math.max(d.py, 1), innerH - 1);
       });
       return;
     }
-    for (let p = 0; p < 22; p++) {
+    let ly = group.map((d) => d.py);
+    for (let p = 0; p < 26; p++) {
       for (let i = 1; i < ly.length; i++) {
         if (ly[i] - ly[i - 1] < effGap) ly[i] = ly[i - 1] + effGap;
       }
@@ -267,18 +266,50 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
         if (ly[i + 1] - ly[i] < effGap) ly[i] = ly[i + 1] - effGap;
       }
     }
-    ly = ly.map((yy) => Math.min(Math.max(yy, 4), innerH - 4));
+    ly = ly.map((yy, i) => yy * 0.36 + group[i].py * 0.64);
+    ly = ly.map((yy) => Math.min(Math.max(yy, 2), innerH - 2));
     group.forEach((d, i) => {
       d.ly = ly[i];
     });
   }
 
   if (items.length >= 4) {
-    /* Moitié haute de l’axe Y → colonne gauche, moitié basse → colonne droite :
-     * évite d’associer deux pays proches verticalement (ex. DK/UK dans la même bande avec des lx différents, traits qui se croisent). */
+    /** Colonnes gauche/droite : moitiés par ordonnée, puis on réattribue tout item trop proche d’un voisin horizontal vers l’autre colonne pour limiter traits superposés. */
     const split = Math.ceil(items.length / 2);
-    const col0 = items.slice(0, split);
-    const col1 = items.slice(split);
+    let col0 = items.slice(0, split);
+    let col1 = items.slice(split);
+    const intraMin = innerW > 580 ? innerW * 0.068 : innerW * 0.058;
+    for (let sweep = 0; sweep < 4; sweep++) {
+      let moved = false;
+      function farEnough(a, b) {
+        return Math.abs(a.px - b.px) >= intraMin || Math.abs(a.py - b.py) >= approxLabelPx;
+      }
+      for (let ai = col0.length - 1; ai >= 0; ai--) {
+        const a = col0[ai];
+        for (const b of col0) {
+          if (b !== a && !farEnough(a, b)) {
+            col1.push(a);
+            col0.splice(ai, 1);
+            moved = true;
+            break;
+          }
+        }
+      }
+      for (let ai = col1.length - 1; ai >= 0; ai--) {
+        const a = col1[ai];
+        for (const b of col1) {
+          if (b !== a && !farEnough(a, b)) {
+            col0.push(a);
+            col1.splice(ai, 1);
+            moved = true;
+            break;
+          }
+        }
+      }
+      if (!moved) break;
+    }
+    col0.sort((a, b) => a.py - b.py);
+    col1.sort((a, b) => a.py - b.py);
     spreadVertical(col0);
     spreadVertical(col1);
     col0.forEach((d) => {
@@ -831,7 +862,7 @@ function lineChartFigure(container, opts) {
     .append("rect")
     .attr("x", 0)
     .attr("y", -10)
-    .attr("width", innerW + 28)
+    .attr("width", innerW + 36)
     .attr("height", innerH + 20);
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
@@ -1028,11 +1059,12 @@ function lineChartFigure(container, opts) {
     .attr("font-weight", "500")
     .text("Année");
 
-  const labelColW = series.length >= 4 ? 74 : 0;
-  const labelGapUse = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
+  const labelColW = series.length >= 4 ? 82 : 0;
+  const labelGapUse =
+    Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8) + (series.length >= 4 ? 3 : 0);
   const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGapUse);
-  const endLabelHxPad = 36;
-  let labelXBase = innerW + 26;
+  const endLabelHxPad = 38;
+  let labelXBase = innerW + 24;
   if (layouts.length) {
     const pxCol0 = layouts.filter((d) => (d.col || 0) === 0).map((d) => d.px);
     const pxCol1 = layouts.filter((d) => (d.col || 0) === 1).map((d) => d.px);
@@ -1065,7 +1097,7 @@ function lineChartFigure(container, opts) {
       .append("text")
       .attr("x", lx)
       .attr("y", d.ly)
-      .attr("dy", "0.35em")
+      .attr("dominant-baseline", "middle")
       .attr("fill", d.series.color)
       .attr("font-size", 10.25)
       .attr("font-weight", "600")
@@ -2428,7 +2460,7 @@ function render(data) {
       yDomain: yDom,
       xDomain: [2005, 2024],
       height: 460,
-      margin: { top: 20, right: 222, bottom: 52, left: 64 },
+      margin: { top: 20, right: 236, bottom: 52, left: 64 },
       labelGap: 18,
     });
     const of = data.copy?.overviewFooter;

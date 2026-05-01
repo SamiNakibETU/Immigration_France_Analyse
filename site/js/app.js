@@ -197,6 +197,33 @@ function padLinearXDomain(dom) {
   return [lo - pad, hi + pad];
 }
 
+/**
+ * Graduations années entières : inclut la dernière année **des données** (évite 2022 affiché quand le dernier point est 2023).
+ */
+function integerYearTicks(xDom, dataYearExtent, maxTicks = 11) {
+  const lo = Number(xDom[0]);
+  const hi = Number(xDom[1]);
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return [2005, 2010, 2015, 2020];
+  let yLo = Math.floor(lo);
+  let yHi = Math.floor(hi);
+  if (Array.isArray(dataYearExtent) && dataYearExtent.length >= 2) {
+    const d0 = Number(dataYearExtent[0]);
+    const d1 = Number(dataYearExtent[1]);
+    if (Number.isFinite(d0)) yLo = Math.min(yLo, Math.floor(d0));
+    if (Number.isFinite(d1)) yHi = Math.max(yHi, Math.ceil(d1));
+  }
+  if (yHi <= yLo) return [yLo];
+  const rawStep = Math.ceil((yHi - yLo) / Math.max(1, maxTicks - 1));
+  const neat = [1, 2, 3, 5, 10];
+  const step = neat.find((s) => s >= rawStep) ?? rawStep;
+  const out = [];
+  for (let y = yLo; y <= yHi; y += step) out.push(y);
+  const last = out[out.length - 1];
+  if (last < yHi && !out.includes(yHi)) out.push(yHi);
+  if (out[0] > yLo) out.unshift(yLo);
+  return [...new Set(out)].sort((a, b) => a - b);
+}
+
 function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
   const items = [];
   for (const s of series) {
@@ -270,32 +297,38 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
- * Bras de fin de série : orthogonal, d’abord vers une rampe verticale commune (réduit les croisements),
- * puis vers ly et le dernier tiret hors glyphes. Pas de segment H qui repart à gauche depuis px hors marge.
+ * Bras de fin de série : jamais H vers la gauche depuis (px, py) ; xJoin le long du bas est toujours > px.
  */
 function endLabelLeadPath(px, py, lx, ly, innerW, _labelStr) {
-  const xStop = lx - 20;
+  const gapTxt = 22;
+  /** Bord interne du dernier segment horizontal (reste à gauche du texte). */
+  let xLead = lx - gapTxt;
   let xRail = innerW + 14;
-  if (!(xRail < xStop - 6 && xRail < lx - 8)) xRail = Math.min(innerW + 10, xStop - 10);
+  const minOutrun = 12;
+  /* labelXBase doit laisser une marge sous px ; si lx est trop près, élargir mathématiquement le segment. */
+  if (xLead < px + minOutrun) xLead = px + minOutrun;
+  xLead = Math.min(xLead, lx - 6);
+
+  if (!(xRail < xLead - 8 && xRail < lx - 10)) xRail = Math.min(innerW + 10, Math.max(px + 6, xLead - 30));
+
   const dy = ly - py;
   const flatY = Math.abs(dy) < 1.25;
 
   if (px <= xRail) {
-    if (flatY) return `M${px},${py}H${xStop}`;
-    return `M${px},${py}H${xRail}V${ly}H${xStop}`;
+    if (flatY) return `M${px},${py}H${xLead}`;
+    return `M${px},${py}H${xRail}V${ly}H${xLead}`;
   }
 
-  if (flatY && px > xStop) {
+  if (flatY && px > xLead - 1) {
     const bump = py >= ly ? 14 : -14;
-    return `M${px},${py}V${py + bump}H${xStop}V${ly}`;
+    return `M${px},${py}V${py + bump}H${xLead}V${ly}`;
   }
-  if (px > xStop) {
-    return `M${px},${py}V${ly}H${xStop}`;
+  if (px > xLead - 1) {
+    return `M${px},${py}V${ly}H${xLead}`;
   }
 
-  /* px dans la marge, ly éloigné : passe par rail si utile sans revenir trop à gauche */
-  if (px <= xRail + 4) return `M${px},${py}V${ly}H${xStop}`;
-  return `M${px},${py}H${xRail}V${ly}H${xStop}`;
+  if (px <= xRail + 4) return `M${px},${py}V${ly}H${xLead}`;
+  return `M${px},${py}H${xRail}V${ly}H${xLead}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -798,7 +831,7 @@ function lineChartFigure(container, opts) {
     .append("rect")
     .attr("x", 0)
     .attr("y", -10)
-    .attr("width", innerW + 10)
+    .attr("width", innerW + 28)
     .attr("height", innerH + 20);
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
@@ -807,12 +840,12 @@ function lineChartFigure(container, opts) {
   const y = d3.scaleLinear().domain(yDom).range([innerH, 0]);
   const yMax = yDom[1];
 
-  /* Grille verticale puis horizontale (repères de lecture, pas le filet export titre/graphique). */
-  const xGridTicks = Math.min(12, Math.max(6, Math.floor((xDom[1] - xDom[0]) / 2)));
+  /* Grille verticale années : dernier millésime du domaine toujours affiché. */
+  const xYears = integerYearTicks(xDom, extentYears(allPts), 11);
   g.append("g")
     .attr("class", "chart-grid-v")
     .selectAll("line")
-    .data(x.ticks(xGridTicks))
+    .data(xYears)
     .join("line")
     .attr("class", "chart-grid-line-v")
     .attr("x1", (d) => x(d))
@@ -978,12 +1011,10 @@ function lineChartFigure(container, opts) {
     drawPointValueLabels(calloutG, pointValueItems, plotMidYInner);
   }
 
-  const yearSpan = xDom[1] - xDom[0];
-  const xTickCount = Math.min(12, Math.max(6, Math.floor(yearSpan / 2)));
   const xAxisG = g
     .append("g")
     .attr("transform", `translate(0,${innerH})`)
-    .call(d3.axisBottom(x).ticks(xTickCount).tickFormat(d3.format("d")).tickSize(0).tickPadding(8));
+    .call(d3.axisBottom(x).tickValues(xYears).tickFormat(d3.format("d")).tickSize(0).tickPadding(8));
   xAxisG.select(".domain").remove();
   xAxisG.selectAll(".tick line").remove();
   xAxisG.selectAll(".tick text").attr("fill", COL.ink).attr("font-size", 9.5).attr("font-weight", "450").attr("dy", "0.9em");
@@ -1000,8 +1031,8 @@ function lineChartFigure(container, opts) {
   const labelColW = series.length >= 4 ? 74 : 0;
   const labelGapUse = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
   const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGapUse);
-  const endLabelHxPad = 18;
-  let labelXBase = innerW + 18;
+  const endLabelHxPad = 36;
+  let labelXBase = innerW + 26;
   if (layouts.length) {
     const pxCol0 = layouts.filter((d) => (d.col || 0) === 0).map((d) => d.px);
     const pxCol1 = layouts.filter((d) => (d.col || 0) === 1).map((d) => d.px);

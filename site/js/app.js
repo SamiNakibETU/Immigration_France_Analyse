@@ -245,6 +245,13 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
   const approxLabelPx = 14;
 
   function spreadVertical(group) {
+    /* Duos FR / pays : toujours ancrer le libellé au dernier point (évite décalage du trait hors de la pastille). */
+    if (group.length <= 2) {
+      group.forEach((d) => {
+        d.ly = Math.min(Math.max(d.py, 0.25), innerH - 0.25);
+      });
+      return;
+    }
     const lys = group.map((d) => d.py);
     let needRelax = false;
     for (let i = 1; i < lys.length; i++) {
@@ -268,7 +275,7 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
         if (ly[i + 1] - ly[i] < effGap) ly[i] = ly[i + 1] - effGap;
       }
     }
-    ly = ly.map((yy, i) => yy * 0.36 + group[i].py * 0.64);
+    ly = ly.map((yy, i) => yy * 0.2 + group[i].py * 0.8);
     ly = ly.map((yy) => Math.min(Math.max(yy, 2), innerH - 2));
     group.forEach((d, i) => {
       d.ly = ly[i];

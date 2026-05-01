@@ -213,9 +213,25 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
   items.sort((a, b) => a.py - b.py);
   const effGap =
     gap + Math.max(0, items.length - 2) * 2 + (items.length >= 6 ? 4 : items.length >= 4 ? 2 : 0);
+  /** Écart minimal entre lignes de texte (~ font 10px + léger résidu) : en dessous, on écarte à la réserve. */
+  const minSeparateGap = Math.max(11, Math.min(effGap, effGap * 0.82));
 
   function spreadVertical(group) {
     let ly = group.map((d) => d.py);
+    let needRelax = false;
+    for (let i = 1; i < ly.length; i++) {
+      if (ly[i] - ly[i - 1] < minSeparateGap) {
+        needRelax = true;
+        break;
+      }
+    }
+    if (!needRelax) {
+      ly = ly.map((yy) => Math.min(Math.max(yy, 4), innerH - 4));
+      group.forEach((d, i) => {
+        d.ly = ly[i];
+      });
+      return;
+    }
     for (let p = 0; p < 22; p++) {
       for (let i = 1; i < ly.length; i++) {
         if (ly[i] - ly[i - 1] < effGap) ly[i] = ly[i - 1] + effGap;
@@ -224,7 +240,7 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
         if (ly[i + 1] - ly[i] < effGap) ly[i] = ly[i + 1] - effGap;
       }
     }
-    ly = ly.map((yy) => Math.min(Math.max(yy, 10), innerH - 10));
+    ly = ly.map((yy) => Math.min(Math.max(yy, 4), innerH - 4));
     group.forEach((d, i) => {
       d.ly = ly[i];
     });
@@ -258,13 +274,14 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
  * puis vers ly et le dernier tiret hors glyphes. Pas de segment H qui repart à gauche depuis px hors marge.
  */
 function endLabelLeadPath(px, py, lx, ly, innerW, _labelStr) {
-  const xStop = lx - 22;
+  const xStop = lx - 20;
   let xRail = innerW + 14;
   if (!(xRail < xStop - 6 && xRail < lx - 8)) xRail = Math.min(innerW + 10, xStop - 10);
   const dy = ly - py;
-  const flatY = Math.abs(dy) < 2;
+  const flatY = Math.abs(dy) < 1.25;
 
   if (px <= xRail) {
+    if (flatY) return `M${px},${py}H${xStop}`;
     return `M${px},${py}H${xRail}V${ly}H${xStop}`;
   }
 
@@ -420,7 +437,7 @@ function dyadLineFigure(container, data, tooltip, spec) {
     yDomain: yDom,
     xDomain: [2013, 2024],
     height: 420,
-    margin: { top: 20, right: 188, bottom: 52, left: 64 },
+    margin: { top: 20, right: 168, bottom: 52, left: 64 },
     labelGap: 14,
   });
   if (spec.footer) container.append("p").attr("class", "figure-foot").text(spec.footer);
@@ -721,7 +738,7 @@ function lineChartFigure(container, opts) {
     curve = d3.curveLinear,
   } = opts;
 
-  const margin = { top: 18, right: 142, bottom: 52, left: 62, ...marginOverride };
+  const margin = { top: 18, right: 128, bottom: 52, left: 62, ...marginOverride };
   const hasCallout =
     annotations?.some((a) => {
       if (a == null || String(a.text || "").trim() === "") return false;
@@ -744,8 +761,8 @@ function lineChartFigure(container, opts) {
   const yDom = yDomIn || extentValues(allPts);
 
   const nSer = series.length;
-  if (nSer >= 7) margin.right += 28;
-  else if (nSer >= 5) margin.right += 16;
+  if (nSer >= 7) margin.right += 22;
+  else if (nSer >= 5) margin.right += 12;
 
   /* Largeur nominale fixe (900) : alignée sur .figure-sub / export ; le rendu suit le conteneur via CSS (width 100%). */
   const w = 900;
@@ -780,9 +797,9 @@ function lineChartFigure(container, opts) {
     .attr("id", clipId)
     .append("rect")
     .attr("x", 0)
-    .attr("y", -8)
-    .attr("width", innerW + 2)
-    .attr("height", innerH + 16);
+    .attr("y", -10)
+    .attr("width", innerW + 10)
+    .attr("height", innerH + 20);
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -980,11 +997,11 @@ function lineChartFigure(container, opts) {
     .attr("font-weight", "500")
     .text("Année");
 
-  const labelColW = series.length >= 4 ? 78 : 0;
+  const labelColW = series.length >= 4 ? 74 : 0;
   const labelGapUse = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
   const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGapUse);
-  const endLabelHxPad = 22;
-  let labelXBase = innerW + 22;
+  const endLabelHxPad = 18;
+  let labelXBase = innerW + 18;
   if (layouts.length) {
     const pxCol0 = layouts.filter((d) => (d.col || 0) === 0).map((d) => d.px);
     const pxCol1 = layouts.filter((d) => (d.col || 0) === 1).map((d) => d.px);
@@ -1159,7 +1176,7 @@ function neighborsLineFigure(container, data, tooltip) {
     yDomain: yDom,
     xDomain: xDom,
     height: 440,
-    margin: { top: 22, right: 148, bottom: 56, left: 64 },
+    margin: { top: 22, right: 132, bottom: 56, left: 64 },
     labelGap: 16,
   });
   container.append("p").attr("class", "figure-foot").text(
@@ -1890,7 +1907,7 @@ function render(data) {
         yDomain: yDom,
         xDomain: [2013, 2024],
         height: 430,
-        margin: { top: 20, right: 240, bottom: 52, left: 64 },
+        margin: { top: 20, right: 214, bottom: 52, left: 64 },
       });
       art.append("p").attr("class", "figure-foot").text(
         "Sources : Statistics Denmark (solde migratoire des étrangers, citizenship-based) ; INSEE (solde migratoire des immigrés, France métropolitaine). 2022-2023 France = estimation (entrées réelles INSEE EAR 2024 : 375k en 2022, 347k en 2023 ; sorties estimées à 94 000/an, moyenne 2012-2021). Source : INSEE Première n°2050, mai 2025. Indicateurs non strictement équivalents : l'indicateur danois est un minorant par rapport au français."
@@ -1932,7 +1949,7 @@ function render(data) {
         yDomain: yDom,
         xDomain: [2014, 2023],
         height: 430,
-        margin: { top: 20, right: 240, bottom: 52, left: 64 },
+        margin: { top: 20, right: 214, bottom: 52, left: 64 },
       });
       art.append("p").attr("class", "figure-foot").text(
         "Sources : Istat (solde migratoire des étrangers, Italie) ; INSEE (solde migratoire des immigrés, France). 2022-2023 France = estimation (entrées réelles INSEE, sorties ~94 000/an). Source : INSEE Première n°2050, mai 2025. Même biais méthodologique que pour le Danemark : l'indicateur Istat est citizenship-based, l'indicateur INSEE est birthplace-based."
@@ -1976,7 +1993,7 @@ function render(data) {
                   d3.max([...natPts, ...eurPts].map(p => p.value)) + 0.5],
         xDomain: [2014, 2023],
         height: 400,
-        margin: { top: 20, right: 260, bottom: 52, left: 64 },
+        margin: { top: 20, right: 234, bottom: 52, left: 64 },
       });
       art.append("p").attr("class", "figure-foot").text(
         "Sources : Istat (solde migratoire des étrangers, Italie) ; Eurostat CNMIGRATRT (solde migratoire total, nationaux inclus). En 2020, l'écart atteint 3,8 ‰ : Eurostat affiche -1,2 ‰ tandis qu'Istat enregistre +2,6 ‰ pour les seuls étrangers. La différence (3,8 ‰) correspond à la migration nette des Italiens eux-mêmes, qui ont massivement choisi de rester à l'étranger durant la pandémie plutôt que de rentrer, faisant chuter le solde total en territoire négatif."
@@ -2019,7 +2036,7 @@ function render(data) {
         yDomain: yDom,
         xDomain: [2014, 2023],
         height: 430,
-        margin: { top: 20, right: 240, bottom: 52, left: 64 },
+        margin: { top: 20, right: 214, bottom: 52, left: 64 },
       });
       art.append("p").attr("class", "figure-foot").text(
         "Sources : ONS Long-Term International Migration (LTIM), Royaume-Uni ; INSEE (immigrés, France métropolitaine). Les deux indicateurs ne sont pas strictement comparables (citizenship-based vs birthplace-based)."
@@ -2195,7 +2212,7 @@ function render(data) {
         yDomain: yDom,
         xDomain: [2016, 2024],
         height: 420,
-        margin: { top: 20, right: 260, bottom: 52, left: 64 },
+        margin: { top: 20, right: 236, bottom: 52, left: 64 },
         labelGap: 18,
       });
       art.append("p").attr("class", "figure-foot").text(
@@ -2380,7 +2397,7 @@ function render(data) {
       yDomain: yDom,
       xDomain: [2005, 2024],
       height: 460,
-      margin: { top: 20, right: 248, bottom: 52, left: 64 },
+      margin: { top: 20, right: 222, bottom: 52, left: 64 },
       labelGap: 18,
     });
     const of = data.copy?.overviewFooter;
@@ -2434,7 +2451,7 @@ function render(data) {
       tooltip,
       yLabel: "Premières demandes pour 1 000 habitants",
       height: 472,
-      margin: { top: 20, right: 210, bottom: 56, left: 64 },
+      margin: { top: 20, right: 192, bottom: 56, left: 64 },
       yDomain: [0, Math.max(yHi, hi + 0.5)],
       xDomain: [2008, 2024],
       labelGap: 14,
@@ -2542,7 +2559,7 @@ function render(data) {
       });
       const host = art.append("div").attr("class", "chart-host");
       const w = 900;
-      const margin = { top: 28, right: 220, bottom: 52, left: 64 };
+      const margin = { top: 28, right: 202, bottom: 52, left: 64 };
       const innerW = w - margin.left - margin.right;
       const h = 420;
       const innerH = h - margin.top - margin.bottom;

@@ -10,11 +10,12 @@ const COL = {
   /** Couleur dominante publication La Grande Conversation (titres d’épisode, mise en évidence). */
   primary: "#FF6437",
   red: "#FF6437",
-  blue: "#2E879A",
+  /** Bleu « Danemark / institut » : doit rester très distinct du Royaume-Uni sur les courbes. */
+  blue: "#24769E",
   plum: "#9D1453",
   accent: "#FF6437",
   coral: "#F99592",
-  /* Teal soutenu pour se distinguer du bleu DK et de l’orange France */
+  /** Ancre secondaire pour voisins multiples (pas DK/UK en duo direct). */
   teal: "#1f6f82",
   grid: "#e0d6ce",
   gridLineH: "#d9cfc5",
@@ -41,7 +42,8 @@ const SERIE_PAYS = {
   FR: COL.primary,
   DK: COL.blue,
   IT: COL.plum,
-  UK: COL.teal,
+  /** Violet outremer : évite tout rapprochement visuel avec le bleu DK. */
+  UK: "#5736A8",
 };
 
 /** Couleurs pour séries « voisins » hors France — jamais COL.primary (réservé à FR). */
@@ -229,12 +231,18 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
   }
 
   if (items.length >= 4) {
-    const col0 = items.filter((_, i) => i % 2 === 0);
-    const col1 = items.filter((_, i) => i % 2 === 1);
+    /* Moitié haute de l’axe Y → colonne gauche, moitié basse → colonne droite :
+     * évite d’associer deux pays proches verticalement (ex. DK/UK dans la même bande avec des lx différents, traits qui se croisent). */
+    const split = Math.ceil(items.length / 2);
+    const col0 = items.slice(0, split);
+    const col1 = items.slice(split);
     spreadVertical(col0);
     spreadVertical(col1);
-    items.forEach((d, i) => {
-      d.col = i % 2;
+    col0.forEach((d) => {
+      d.col = 0;
+    });
+    col1.forEach((d) => {
+      d.col = 1;
     });
   } else {
     spreadVertical(items);
@@ -246,29 +254,31 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
 }
 
 /**
- * Bras de fin de serie : sort du dernier point (px,py), gouttiere droite, ly aligne.
- * Jamais de segment H qui irait de px vers la gauche quand px > cible (croise le libelle).
+ * Bras de fin de série : orthogonal, d’abord vers une rampe verticale commune (réduit les croisements),
+ * puis vers ly et le dernier tiret hors glyphes. Pas de segment H qui repart à gauche depuis px hors marge.
  */
 function endLabelLeadPath(px, py, lx, ly, innerW, _labelStr) {
-  const xGutter = innerW + 6;
-  const xStop = lx - 28;
+  const xStop = lx - 22;
+  let xRail = innerW + 14;
+  if (!(xRail < xStop - 6 && xRail < lx - 8)) xRail = Math.min(innerW + 10, xStop - 10);
   const dy = ly - py;
   const flatY = Math.abs(dy) < 2;
 
-  if (flatY && px <= xStop) {
-    return `M${px},${py}H${xStop}`;
+  if (px <= xRail) {
+    return `M${px},${py}H${xRail}V${ly}H${xStop}`;
   }
+
   if (flatY && px > xStop) {
-    const bump = py >= ly ? 12 : -12;
+    const bump = py >= ly ? 14 : -14;
     return `M${px},${py}V${py + bump}H${xStop}V${ly}`;
   }
   if (px > xStop) {
     return `M${px},${py}V${ly}H${xStop}`;
   }
-  if (px <= xGutter) {
-    return `M${px},${py}H${xGutter}V${ly}H${xStop}`;
-  }
-  return `M${px},${py}V${ly}H${xStop}`;
+
+  /* px dans la marge, ly éloigné : passe par rail si utile sans revenir trop à gauche */
+  if (px <= xRail + 4) return `M${px},${py}V${ly}H${xStop}`;
+  return `M${px},${py}H${xRail}V${ly}H${xStop}`;
 }
 
 /** Clé « pays comparant » (dernière série hors France). */
@@ -970,14 +980,14 @@ function lineChartFigure(container, opts) {
     .attr("font-weight", "500")
     .text("Année");
 
-  const labelColW = series.length >= 4 ? 86 : 0;
+  const labelColW = series.length >= 4 ? 78 : 0;
   const labelGapUse = Math.max(labelGap, 12 + Math.max(0, series.length - 2) * 2.8);
   const layouts = layoutEndLabels(series, x, y, innerW, innerH, labelGapUse);
   const endLabelHxPad = 22;
-  let labelXBase = innerW + 28;
+  let labelXBase = innerW + 22;
   if (layouts.length) {
-    const pxCol0 = layouts.filter((d) => !(d.col || 0)).map((d) => d.px);
-    const pxCol1 = layouts.filter((d) => d.col).map((d) => d.px);
+    const pxCol0 = layouts.filter((d) => (d.col || 0) === 0).map((d) => d.px);
+    const pxCol1 = layouts.filter((d) => (d.col || 0) === 1).map((d) => d.px);
     const max0 = pxCol0.length ? d3.max(pxCol0) : -Infinity;
     const max1 = pxCol1.length ? d3.max(pxCol1) : -Infinity;
     labelXBase = Math.max(

@@ -2648,16 +2648,36 @@ function render(data) {
           "Solde migratoire net pour 1 000 habitants, 2005-2024. Les bandes indiquent les mandats présidentiels français. Eurostat (CNMIGRATRT).",
       });
       const host = art.append("div").attr("class", "chart-host");
-      const w = 900;
-      const margin = { top: 28, right: 202, bottom: 52, left: 64 };
-      const innerW = w - margin.left - margin.right;
+      /*
+       * Même logique que lineChartFigure : largeur de tracé nominale préservée, viewBox élargie si besoin
+       * pour réserver une marge aux libellés fin de série (pays + « x.x ‰ (YYYY) »).
+       */
+      const keys = ["FR", "DK"];
+      const nominalInnerW = 634;
+      const maxLblWideChars = Math.max(
+        ...["France", "Danemark"].map((s) => s.length),
+        ...keys.map((key) => {
+          const serPts = pointsFromRows(rows, key).filter((p) => p.year >= 2005 && p.year <= 2024);
+          const last = serPts[serPts.length - 1];
+          return last ? `${last.value.toFixed(1)}\u202f‰ (${last.year})`.length : 14;
+        }),
+      );
+      const marginBaseRight = Math.max(252, Math.ceil(maxLblWideChars * 6.12) + 84);
+      const margin = { top: 28, right: marginBaseRight, bottom: 52, left: 64 };
+      const innerW = nominalInnerW;
+      const w = margin.left + innerW + margin.right;
       const h = 420;
       const innerH = h - margin.top - margin.bottom;
 
-      const svg = host.append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", "100%").attr("height", h);
+      const svg = host
+        .append("svg")
+        .attr("class", "chart-line-swiss")
+        .attr("viewBox", `0 0 ${w} ${h}`)
+        .attr("width", "100%")
+        .attr("height", h)
+        .attr("preserveAspectRatio", "xMinYMin meet");
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const keys = ["FR", "DK"];
       const pts = keys.map((k) => pointsFromRows(rows, k));
       const allY = pts.flat().map((p) => p.value);
       const yLo = d3.min(allY) - 0.5;
@@ -2719,7 +2739,7 @@ function render(data) {
       ];
       const clipIdLT = "clip-lt";
       svg.append("defs").append("clipPath").attr("id", clipIdLT)
-        .append("rect").attr("x", 0).attr("y", -8).attr("width", innerW + 2).attr("height", innerH + 16);
+        .append("rect").attr("x", 0).attr("y", -8).attr("width", innerW + 48).attr("height", innerH + 16);
       const linesG = g.append("g").attr("clip-path", `url(#${clipIdLT})`);
 
       const line = d3.line().x((d) => x(d.year)).y((d) => y(d.value)).curve(d3.curveLinear);

@@ -239,6 +239,8 @@ function layoutEndLabels(series, xScale, yScale, innerW, innerH, gap = 15) {
     });
   }
   items.sort((a, b) => a.py - b.py);
+  const effGap =
+    gap + Math.max(0, items.length - 2) * 2 + (items.length >= 6 ? 4 : items.length >= 4 ? 2 : 0);
   /** Chevauchement de libellés (hauteur visuelle approx. ligne 10 px + marge). */
   const approxLabelPx = 14;
 

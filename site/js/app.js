@@ -830,6 +830,10 @@ function lineChartFigure(container, opts) {
 
   const allPts = series.map((s) => s.points);
   let xDom = xDomIn ? [Number(xDomIn[0]), Number(xDomIn[1])] : extentYears(allPts);
+  const yrData = extentYears(allPts);
+  if (yrData && Number.isFinite(yrData[0]) && Number.isFinite(yrData[1])) {
+    xDom = [Math.min(xDom[0], yrData[0]), Math.max(xDom[1], yrData[1])];
+  }
   xDom = padLinearXDomain(xDom);
   const yDom = yDomIn || extentValues(allPts);
 
@@ -837,11 +841,25 @@ function lineChartFigure(container, opts) {
   if (nSer >= 7) margin.right += 22;
   else if (nSer >= 5) margin.right += 12;
 
-  /* Largeur nominale fixe (900) : alignée sur .figure-sub / export ; le rendu suit le conteneur via CSS (width 100%). */
-  const w = 900;
-  const innerH = height - margin.top - margin.bottom;
+  /* Marge droite : les libellés sont en coordonnées intérieures au-delà de innerW ; il faut margin.right >= largeur du texte + marge. */
+  const NOMINAL_W = 900;
+  const minInnerW = nSer >= 4 ? 428 : 452;
+  const maxChars = Math.max(
+    10,
+    ...series.map((s) => (s.label ? String(s.label).length : 0)),
+  );
+  const rightForLabels = Math.ceil(maxChars * 5.88) + (nSer >= 4 ? 118 : 102);
+  margin.right = Math.max(margin.right, rightForLabels);
 
-  const innerW = w - margin.left - margin.right;
+  /* Si la marge droite réduit trop le tracé, élargir le viewBox (largeur nominale ≠ figée à 900). */
+  let w = NOMINAL_W;
+  let innerW = w - margin.left - margin.right;
+  if (innerW < minInnerW) {
+    w = margin.left + margin.right + minInnerW;
+    innerW = minInnerW;
+  }
+
+  const innerH = height - margin.top - margin.bottom;
 
   const svg = container
     .append("svg")
@@ -871,7 +889,7 @@ function lineChartFigure(container, opts) {
     .append("rect")
     .attr("x", 0)
     .attr("y", -10)
-    .attr("width", innerW + 36)
+    .attr("width", innerW + 52)
     .attr("height", innerH + 20);
 
   const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);

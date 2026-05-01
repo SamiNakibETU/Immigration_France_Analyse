@@ -121,7 +121,8 @@ const DYADS = [
     sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
     colorPeer: SERIE_PAYS.DK,
     exportSlug: "solde-france-danemark-eurostat",
-    footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
+    footer:
+      "Note : solde net harmonisé pour 1 000 habitants (2013-2024), même indicateur pour les deux pays. Sources : Eurostat (CNMIGRATRT, demo_gind).",
   },
   {
     peerKey: "IT",
@@ -130,7 +131,8 @@ const DYADS = [
     sub: "Solde net pour 1 000 habitants, 2013-2024. Même indicateur Eurostat (CNMIGRATRT) pour les deux pays.",
     colorPeer: SERIE_PAYS.IT,
     exportSlug: "solde-france-italie-eurostat",
-    footer: "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Mêmes définitions et même base démographique pour les deux pays. Période 2013-2024.",
+    footer:
+      "Note : solde net harmonisé pour 1 000 habitants (2013-2024), même indicateur pour les deux pays. Sources : Eurostat (CNMIGRATRT, demo_gind).",
   },
   {
     peerKey: "UK",
@@ -139,7 +141,8 @@ const DYADS = [
     sub: "Solde net pour 1 000 habitants, 2013-2024. France : Eurostat. Royaume-Uni : ONS (séries non strictement comparables).",
     colorPeer: SERIE_PAYS.UK,
     exportSlug: "solde-france-royaume-uni-eurostat",
-    footer: "Sources : Eurostat, CNMIGRATRT (France, 2013-2024, données harmonisées) ; Office for National Statistics, Long-Term International Migration (Royaume-Uni, 2013-2024). Les deux séries mesurent le solde de longue durée mais avec des méthodes non strictement identiques : la comparaison reste indicative.",
+    footer:
+      "Note : France — CNMIGRATRT Eurostat ; Royaume-Uni — migration de longue durée (ONS). Comparaisons indicatives. Sources : Eurostat ; Office for National Statistics.",
   },
 ];
 
@@ -1270,7 +1273,7 @@ function neighborsLineFigure(container, data, tooltip) {
     labelGap: 16,
   });
   container.append("p").attr("class", "figure-foot").text(
-    "Sources : Eurostat, indicateur CNMIGRATRT (solde migratoire net harmonisé, pour 1 000 habitants). Série annuelle pour les pays de l'UE-27 + Royaume-Uni disponibles dans la base Eurostat demo_gind. La France est mise en valeur en orange, l’Italie en bordeaux, les autres pays voisins en gris : la France s’inscrit systématiquement dans la partie basse du spectre européen."
+    "Note : France et Italie sont mises en évidence pour la lecture comparée ; les autres pays voisins sont en gris (même série). Sources : Eurostat (demo_gind, CNMIGRATRT pour 1 000 habitants)."
   );
 }
 
@@ -2965,12 +2968,12 @@ fetch("data.json")
     if (metaEl && data.meta) {
       const bits = [];
       if (data.meta.datePublicationFr) {
-        bits.push(`Données consolidées (libellé projet) : ${data.meta.datePublicationFr}.`);
+        bits.push(`Dernière consolidation des données affichées : ${data.meta.datePublicationFr}.`);
       }
       if (data.meta.generated) {
       const d = new Date(data.meta.generated);
         bits.push(
-          `Horodatage technique (UTC) : ${d.toLocaleString("fr-FR", {
+          `Horodatage de la construction du fichier JSON (UTC) : ${d.toLocaleString("fr-FR", {
         timeZone: "UTC",
         year: "numeric",
         month: "long",

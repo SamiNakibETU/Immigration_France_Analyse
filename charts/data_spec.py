@@ -18,13 +18,13 @@ MIGRATION_INDICATOR_LABEL = (
     "taux brut de solde migratoire plus ajustement statistique pour 1 000 habitants"
 )
 MIGRATION_FOOTER = (
-    f"Source : Eurostat — table {MIGRATION_TABLE}, indicateur {MIGRATION_INDICATOR_CODE} "
-    f"({MIGRATION_INDICATOR_LABEL}). Série harmonisée ; révisions possibles."
+    "Note : solde migratoire net pour 1 000 habitants (série harmonisée Eurostat, révisions possibles). "
+    "Source : Eurostat (demo_gind, CNMIGRATRT)."
 )
 
-# Pied de figure court (print & web) — le détail reste dans METHODOLOGIE_SERIES.txt
+# Pied de figure court pour exports PNG (aligné sur le site / data journalisme).
 MIGRATION_SOURCE_SHORT = (
-    f"Source : Eurostat — {MIGRATION_TABLE}, {MIGRATION_INDICATOR_CODE} (pour 1 000 hab.)."
+    "Source : Eurostat (demo_gind, CNMIGRATRT, pour 1 000 habitants)."
 )
 
 # --- Asile ---
@@ -35,7 +35,7 @@ ASYLUM_FOOTER_DETAIL = (
     "Taux annuels ; ne reflète pas les décisions finales."
 )
 ASYLUM_FOOTER_SHORT = (
-    f"Source : Eurostat — {ASYLUM_TABLE} + demo_pjan (population 1er janv.)."
+    "Sources : Eurostat (migr_asyappctza ; population au 1er janvier : demo_pjan)."
 )
 
 # --- Titres éditoriaux (lead) + sous-titres académiques ---

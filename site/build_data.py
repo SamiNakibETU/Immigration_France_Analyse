@@ -21,12 +21,17 @@ EU27 = frozenset(
 )
 
 UK_SOURCE_FOOTNOTE = (
-    "UK : solde net long terme (ONS). France : Eurostat CNMIGRATRT. "
-    "Dénominateur 1 000 hab. : demo_pjan ou estimations ONS selon la série. "
-    "Les deux pays ne suivent pas la même méthode."
+    "Note : Royaume-Uni — migration internationale de longue durée publiée par l’ONS ; "
+    "France — solde harmonisé CNMIGRATRT (Eurostat). Les définitions et dénominateurs diffèrent. "
+    "Sources : Eurostat ; Office for National Statistics."
 )
 
-MIGRATION_FOOTER = "Source : Eurostat, demo_gind, CNMIGRATRT, pour 1 000 habitants."
+MIGRATION_FOOTER = (
+    "Note : solde migratoire net pour 1 000 habitants (série harmonisée UE). "
+    "Source : Eurostat (demo_gind, CNMIGRATRT)."
+)
+
+MIGRATION_FOOTER_UK = UK_SOURCE_FOOTNOTE
 
 ASYLUM_FOOTER_SHORT = "Source : Eurostat, migr_asyappctza et demo_pjan."
 
@@ -571,66 +576,67 @@ def main() -> None:
         },
         "copy": {
             "migrationFooter": MIGRATION_FOOTER,
-            "migrationSourceShort": "Source : Eurostat, demo_gind, CNMIGRATRT.",
-            "migrationSourceUkShort": "Source : Eurostat ou ONS pour le UK (long terme).",
-            "migrationFooterUk": MIGRATION_FOOTER + " " + UK_SOURCE_FOOTNOTE,
+            "migrationSourceShort": (
+                "Source : Eurostat, demo_gind, CNMIGRATRT."
+            ),
+            "migrationSourceUkShort": (
+                "Source : Eurostat (CNMIGRATRT) ou Office for National Statistics (UK, migration de longue durée)."
+            ),
+            "migrationFooterUk": MIGRATION_FOOTER_UK,
             "asylumFooter": (
-                f"Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande dans l’année) et "
-                f"population au 1er janvier. Taux pour mille habitants ; ce n’est pas le solde migratoire net. "
-                f"Détail technique : fichier METHODOLOGIE_SERIES.txt (dossier projet). Données extraites le {date_pub}."
+                "Note : taux pour 1 000 habitants au 1er janvier ; ce ne sont pas des soldes nets migratoires. "
+                "Sources : Eurostat (migr_asyappctza ; population : demo_pjan)."
             ),
             "dualFooter": (
-                f"Sources : Eurostat (soldes migratoires nets, base démographique harmonisée) et Eurostat "
-                f"(premières demandes d’asile, croisée avec la population au 1er janvier). "
-                f"Chaque pays est à sa dernière année disponible pour l’indicateur. "
-                f"Fichiers agrégés pour cette page le {date_pub}."
+                "Note : gauche — solde net harmonisé ; droite — premières demandes d’asile ; "
+                "chaque valeur est au dernier millésime disponible pour cet indicateur. "
+                "Sources : Eurostat (soldes nets et demandes d’asile, population au 1er janvier)."
             ),
             "euFooter": (
-                f"Sources : Eurostat, comptes démographiques harmonisés (solde migratoire net pour mille habitants), "
-                f"millésime 2024 pour chaque pays de l’UE à 27 membres ayant transmis une valeur. "
-                f"Données extraites le {date_pub}. Plus d’informations : ec.europa.eu/eurostat."
+                "Note : solde net pour 1 000 habitants en 2024 (UE-27 hors pays sans donnée à cette date ; ordre classement brut). "
+                "Sources : Eurostat (demo_gind, CNMIGRATRT)."
             ),
-            "snapshotFooter": MIGRATION_FOOTER + " " + UK_SOURCE_FOOTNOTE
-            + (" " + snapshot_ratio_line(snap) if snap else ""),
+            "snapshotFooter": (
+                "Note : rapport entre derniers soldes nets publiés et le solde français (indicatif) ; Royaume-Uni — série ONS, autres pays — CNMIGRATRT. "
+                "Sources : Eurostat ; Office for National Statistics."
+                + ((" " + snapshot_ratio_line(snap)) if snap else "")
+            ),
             "ukFootnote": UK_SOURCE_FOOTNOTE,
             "analyseRangFooter": (
-                f"Sources : Eurostat, même indicateur de solde net (pour mille habitants). "
-                f"Le rang 1 désigne le pays de l’UE-27 avec le solde le plus élevé pour l’année considérée. "
-                f"Calculs à partir des séries téléchargées le {date_pub}."
+                "Note : rang 1 = solde net pour 1 000 habitants le plus élevé dans l’UE-27 pour l’année affichée. "
+                "Sources : Eurostat (CNMIGRATRT)."
             ),
             "analyseRatioFooter": (
-                f"Sources : Eurostat. Numérateur : premières demandes d’asile (statistiques officielles des pays) ; "
-                f"dénominateur : solde migratoire net lorsqu’il est strictement positif. "
-                f"Lecture : plus le ratio est haut, plus l’asile représente une part marquée par rapport au solde net. "
-                f"Données consolidées le {date_pub}."
+                "Note : rapport = premières demandes d’asile divisées par le solde net lorsqu’il est strictement positif ; "
+                "un ratio élevé signale une forte part d’asile par rapport au solde migratoire. "
+                "Sources : Eurostat (demandes d’asile et CNMIGRATRT)."
             ),
             "analyseQuadriFooter": (
-                f"Sources : Eurostat, indicateur harmonisé de solde migratoire net (pour mille habitants), "
-                f"pour la France, l’Allemagne, l’Italie et l’Espagne. Extrait le {date_pub}."
+                "Note : soldes nets harmonisés pour 1 000 habitants. "
+                "Sources : Eurostat (demo_gind, CNMIGRATRT — France, Allemagne, Italie, Espagne)."
             ),
             "volatilityFooter": (
-                f"Sources : Eurostat pour la France, le Danemark et l’Italie ; Office for National Statistics (ONS) "
-                f"pour le Royaume-Uni (série du solde de longue durée, non strictement identique). "
-                f"La hauteur de chaque barre correspond à l’écart-type des taux annuels sur la fenêtre indiquée : "
-                f"elle décrit les à-coups, pas le niveau moyen d’immigration. Agrégation le {date_pub}."
+                "Note : la hauteur de chaque barre est l’écart-type annuel du taux de solde net (variabilité, pas niveau). "
+                "La série britannique est celle des estimations ONS de migration de longue durée ; "
+                "elle n’est pas strictement comparable aux séries Eurostat. "
+                "Sources : Eurostat (France, Danemark, Italie) ; Office for National Statistics (Royaume-Uni)."
             ),
             "entreesFooter": (
-                f"Sources : Eurostat, statistiques annuelles d’immigration (ressortissants étrangers et apatrides, "
-                f"FOR_STLS) et effectifs de population au 1er janvier. Les taux sont pour mille habitants. "
-                f"UK 2020-2024 : ONS Long-Term International Migration (estimation cohérente). Rupture méthodologique UK en 2020. "
-                f"Extrait le {date_pub}."
+                "Note : entrées annuelles de ressortissants étrangers et apatrides pour 1 000 habitants au 1er janvier. "
+                "Depuis le Brexit, le Royaume-Uni est en série ONS (rupture méthodologique par rapport aux années Eurostat). "
+                "Sources : Eurostat (migr_imm1ctz, demo_pjan) ; Office for National Statistics "
+                "(migration internationale de longue durée, 2020-2024)."
             ),
             "asylumBarsFooter": (
-                f"Sources : Eurostat, statistiques sur les demandeurs d’asile (première demande déposée dans l’année), "
-                f"rapportées à la population au 1er janvier (démographie). Les pays peuvent réviser leurs chiffres ; "
-                f"dernière année présente dans notre fichier : voir l’étiquette de chaque barre. "
-                f"Données téléchargées et traitées le {date_pub}."
+                "Note : premières demandes déposées dans l’année, rapportées à la population au 1er janvier ; "
+                "l’année apparaît sur l’étiquette de chaque barre (dernier millésime de la série). "
+                "Sources : Eurostat (migr_asyappctza, demo_pjan)."
             ),
             "overviewFooter": (
-                f"Note : France, Danemark et Italie, solde net harmonisé Eurostat (CNMIGRATRT, pour mille habitants) ; "
-                f"Royaume-Uni, migration de longue durée ONS (définition distincte, comparaisons avec l'UE à interpréter avec prudence). "
-                f"Le segment britannique 2008-2009 est quasi plat avec les valeurs affichées (écart inférieur à 0,1 pour mille). "
-                f"Sources : Eurostat ; Office for National Statistics ; compilation au {date_pub}."
+                "Note : France, Danemark et Italie — CNMIGRATRT Eurostat ; Royaume-Uni — migration de longue durée ONS "
+                "(définition distincte ; comparaisons à manier avec prudence). "
+                "Le segment britannique 2008-2009 est visuellement quasi plat (écart affiché inférieur à 0,1 pour mille). "
+                "Sources : Eurostat ; Office for National Statistics."
             ),
         },
         "annotations": {

@@ -582,7 +582,12 @@ def plot_asylum_lines(
     _style_axes_area(ax)
     ax.set_xlim(datetime(2007, 6, 1), datetime(2025, 6, 30))
 
-    _add_source_fig(fig, DS.ASYLUM_FOOTER_SHORT + " Détail méthodo : voir METHODOLOGIE_SERIES.txt.", y=0.018)
+    _add_source_fig(
+        fig,
+        "Note : taux annuel pour 1 000 habitants au 1er janvier ; ce n’est pas le solde migratoire net. "
+        + DS.ASYLUM_FOOTER_SHORT,
+        y=0.018,
+    )
     fig.subplots_adjust(top=top_m, bottom=0.12, left=FIG_PAD_LEFT, right=0.97)
     fig.savefig(out / "figure_5_asile_premieres_demandes_pour_1000.png")
     plt.close(fig)
@@ -632,7 +637,11 @@ def plot_asylum_bars_latest(out: Path, rates: dict[str, list[tuple[int, float | 
             fontweight="600",
             ha="left",
         )
-    _add_source_fig(fig, DS.ASYLUM_FOOTER_SHORT + " " + DS.ASYLUM_TABLE + " + demo_pjan.", y=0.02)
+    _add_source_fig(
+        fig,
+        "Note : dernière année disponible par pays (entre parenthèses). " + DS.ASYLUM_FOOTER_SHORT,
+        y=0.02,
+    )
     fig.subplots_adjust(left=0.28, right=0.94, top=top_m, bottom=0.11)
     fig.savefig(out / "figure_6_asile_barres_derniere_annee.png")
     plt.close(fig)
@@ -703,7 +712,9 @@ def plot_key_dual_panel(
 
     _add_source_fig(
         fig,
-        "Source : Eurostat — demo_gind (CNMIGRATRT) et migr_asyappctza + demo_pjan · années = dernière valeur disponible par série.",
+        "Note : solde net harmonisé à gauche, premières demandes d’asile à droite ; "
+        "chaque pays au dernier millésime disponible pour la série. "
+        "Sources : Eurostat (demo_gind, CNMIGRATRT ; migr_asyappctza et demo_pjan).",
         y=0.02,
     )
     fig.savefig(out / "figure_7_chiffres_cles_derniere_annee.png")
@@ -800,11 +811,13 @@ def plot_snapshot_latest(
             ratio_bits.append(f"UK / FR ×{uk_v / fr_v:.2f}")
     ratio_line = " · ".join(ratio_bits) if ratio_bits else ""
 
-    _add_source_fig(
-        fig,
-        DS.MIGRATION_FOOTER + " " + UK_SOURCE_FOOTNOTE + (" · " + ratio_line if ratio_line else ""),
-        y=0.018,
+    snap_src = (
+        "Note : rapports entre derniers soldes nets et le solde français (indicatif) ; "
+        "Royaume-Uni — série ONS ; autres pays — CNMIGRATRT. "
+        "Sources : Eurostat ; Office for National Statistics."
+        + (" " + ratio_line if ratio_line else "")
     )
+    _add_source_fig(fig, snap_src, y=0.018)
     fig.subplots_adjust(left=0.32, right=0.94, top=top_m, bottom=0.12)
     fig.savefig(out / "figure_8_snapshot_derniere_annee.png")
     plt.close(fig)
@@ -851,12 +864,12 @@ def plot_eu_ranking_2024(out: Path, repo_root: Path) -> None:
             ha="left",
         )
 
-    src_note = (
-        " API Eurostat (CNMIGRATRT, 2024), export automatique."
-        if api_csv.exists()
-        else " Fichier Eurostat multi-pays (export manuel), millésime 2024."
+    _add_source_fig(
+        fig,
+        "Note : solde net pour 1 000 habitants en 2024 (pays transmettant une valeur à Eurostat). "
+        "Sources : Eurostat (demo_gind, CNMIGRATRT).",
+        y=0.02,
     )
-    _add_source_fig(fig, DS.MIGRATION_FOOTER + src_note, y=0.02)
     fig.subplots_adjust(left=0.26, right=0.94, top=top_m, bottom=0.11)
     fig.savefig(out / "figure_9_classement_ue27_2024.png")
     plt.close(fig)
@@ -939,9 +952,15 @@ def main() -> None:
             min_year=min_y,
             peer_color=TN_RED,
         )
-        src_line = DS.MIGRATION_SOURCE_SHORT
+        src_line = (
+            "Note : solde net harmonisé pour 1 000 habitants (2013-2024). "
+            "Source : Eurostat (demo_gind, CNMIGRATRT)."
+        )
         if peer_code == "UK":
-            src_line += " · UK (solde long terme) : ONS."
+            src_line = (
+                "Note : France — CNMIGRATRT Eurostat ; Royaume-Uni — migration de longue durée (ONS). "
+                "Comparaisons indicatives. Sources : Eurostat ; Office for National Statistics."
+            )
         _add_source_fig(fig, src_line, y=0.018)
         fig.subplots_adjust(bottom=0.12, left=FIG_PAD_LEFT, right=0.97, top=top_m, hspace=0.16)
         fig.savefig(out / fname)
@@ -953,7 +972,10 @@ def main() -> None:
     fig.patch.set_facecolor(TN_PAPER)
     lead, academic = DS.TITLES_PAIR["IT"]
     top_m = _figure_heading(fig, lead, academic)
-    src_it = DS.MIGRATION_FOOTER + " Deux séries France : FR (entière) et FX (métropolitaine)."
+    src_it = (
+        "Note : deux séries France — entière (FR) et métropolitaine (FX). "
+        "Sources : Eurostat (demo_gind, CNMIGRATRT)."
+    )
     _plot_fr_fx_it(fig, ax, series["FR"], series["FX"], series["IT"], src_it, ANNOTATIONS_IT_TRIPLE)
     fig.subplots_adjust(bottom=0.2, left=FIG_PAD_LEFT, right=0.97, top=top_m)
     fig.savefig(out / "figure_2_france_italie.png")
@@ -1060,7 +1082,12 @@ def main() -> None:
     ax1.xaxis.set_major_locator(mdates.YearLocator(2))
     ax1.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
 
-    _add_source_fig(fig, DS.MIGRATION_SOURCE_SHORT, y=0.022)
+    _add_source_fig(
+        fig,
+        "Note : France (bleu) et six pays comparés en solde net harmonisé (même échelle). "
+        "Source : Eurostat (demo_gind, CNMIGRATRT).",
+        y=0.022,
+    )
     fig.subplots_adjust(bottom=0.14, top=top_m, hspace=0.38, left=FIG_PAD_LEFT, right=0.97)
     fig.savefig(out / "figure_4_petit_multiple_ue.png")
     plt.close(fig)

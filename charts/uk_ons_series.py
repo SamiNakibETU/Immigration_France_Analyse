@@ -136,11 +136,7 @@ def uk_rate_per_1000_series(year_from: int = 2005, year_to: int = 2024) -> list[
 
 
 UK_SOURCE_FOOTNOTE = (
-    "Royaume-Uni — solde migratoire net de long terme : Office for National Statistics (ONS) uniquement "
-    "(2005–2011 : année civile, ref. 006408 déc. 2016 ; 2012+ : année se terminant en décembre, "
-    "tableau LTIM provisional — valeurs YE Dec « All Nationalities » rechargées depuis le XLSX ONS "
-    "à chaque `refresh_and_publish.py`, avec repli sur valeurs figées si hors-ligne). "
-    "Taux pour 1 000 hbts : dénominateur = population 1er janv. Eurostat demo_pjan (2005–2020) "
-    "et estimations mi-année ONS (2021–2024). "
-    "France : Eurostat demo_gind CNMIGRATRT (année civile) — les deux pays ne suivent pas la même combinaison source/méthode."
+    "Note : Royaume-Uni — migration internationale de longue durée publiée par l’ONS ; "
+    "France — solde harmonisé CNMIGRATRT (Eurostat). Les définitions et dénominateurs diffèrent. "
+    "Sources : Eurostat ; Office for National Statistics."
 )
